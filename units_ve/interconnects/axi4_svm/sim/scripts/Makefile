@@ -4,6 +4,7 @@ include Vaxi4_interconnect_2x2_tb.mk
 endif
 
 CXXFLAGS += -I$(SYSTEMC)/include -I$(SOCBLOX)/svm 
+CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svm
 CXXFLAGS += -I$(BUILD_DIR)/obj_dir
 CXXFLAGS += -I$(VERILATOR_ROOT)/include
 CXXFLAGS += -I$(VERILATOR_ROOT)/include/vltstd

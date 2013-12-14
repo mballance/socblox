@@ -26,6 +26,9 @@ module axi4_interconnect_2x2_tb(
 	
 			axi4_if			if2(clk, rstn);
 			axi4_master_bfm m_bfm(clk, rstn, if2.master);
+			
+			axi4_if			if2_2(clk, rstn);
+			axi4_master_bfm m_bfm_2(clk, rstn, if2.master);
 	genvar i;
 	generate
 		for (i=0; i<N_MASTERS_p; i++) begin

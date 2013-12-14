@@ -13,7 +13,7 @@ svm_thread_mutex_sc::svm_thread_mutex_sc() : m_owner_proc(0)
 
 void svm_thread_mutex_sc::lock()
 {
-	sc_process_b *curr = sc_get_curr_process_handle();
+	sc_process_b *curr = sc_get_current_process_b();
 	while (m_owner_proc && m_owner_proc != curr) {
 		// Someone else owns this
 		wait(m_wait_ev, sc_get_curr_simcontext());
@@ -24,7 +24,7 @@ void svm_thread_mutex_sc::lock()
 
 void svm_thread_mutex_sc::unlock()
 {
-	sc_process_b *curr = sc_get_curr_process_handle();
+	sc_process_b *curr = sc_get_current_process_b();
 	if (!m_owner_proc) {
 		// Error: not owned
 	}

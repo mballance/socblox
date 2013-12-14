@@ -8,8 +8,11 @@
 #ifndef AXI4_MASTER_BFM_H_
 #define AXI4_MASTER_BFM_H_
 
-#include "svm_bfm.h"
+#include "svm.h"
+#include "axi4_master_bfm_if.h"
+#include "axi4_master_bfm_dpi_mgr.h"
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -30,8 +33,11 @@ typedef enum {
 	AXI4_BURST_TYPE_WRAP
 } axi4_burst_type_t;
 
-class axi4_master_bfm: public svm_bfm {
+class axi4_master_bfm: public svm_bfm, virtual axi4_master_bfm_host_if {
 	svm_component_ctor_decl(axi4_master_bfm)
+
+	public:
+		svm_bidi_api_port<axi4_master_bfm_host_if, axi4_master_bfm_target_if>		bfm_port;
 
 	public:
 
@@ -39,18 +45,16 @@ class axi4_master_bfm: public svm_bfm {
 
 		virtual ~axi4_master_bfm();
 
-		void init(const char *bfm_path);
-
 		uint8_t write32(
 				uint64_t			addr,
 				uint32_t			data);
 
-	private:
-		string						m_bfm_path;
-		bool						m_initialized;
-//		sc_event					m_initialized_ev;
+		// Implementation of host API
+		void aw_ready();
 
-//		sc_event					m_aw_ack_ev;
+	private:
+		svm_thread_mutex			m_mutex;
+		svm_semaphore				m_aw_sem;
 
 };
 

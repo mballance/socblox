@@ -39,6 +39,10 @@ module svm_axi4_master_bfm #(
 	assign master.AWPROT = AWPROT_r;
 	assign master.AWQOS = AWQOS_r;
 	assign master.AWREGION = AWREGION_r;
+	
+	initial begin
+		axi4_master_bfm_register();
+	end
 
 
 	// AW state machine
@@ -60,14 +64,14 @@ module svm_axi4_master_bfm #(
 					if (master.AWVALID && master.AWREADY) begin
 						AWVALID_r <= 0;
 						aw_state <= 0;
-						svm_axi4_master_bfm_aw_ready();
+						axi4_master_bfm_aw_ready();
 					end
 				end
 			endcase
 		end
 	end
 	
-	task svm_axi4_master_bfm_aw_valid(
+	task axi4_master_bfm_aw_valid(
 		longint unsigned				AWADDR,
 		int unsigned					AWID,
 		byte unsigned					AWLEN,
@@ -87,9 +91,11 @@ module svm_axi4_master_bfm #(
 		AWQOS_r = AWQOS;
 		AWREGION_r = AWREGION;
 	endtask
-	export "DPI-C" task svm_axi4_master_bfm_aw_valid;
+	export "DPI-C" task axi4_master_bfm_aw_valid;
 
-	import "DPI-C" task svm_axi4_master_bfm_aw_ready();
+	import "DPI-C" task axi4_master_bfm_aw_ready();
+	
+	import "DPI-C" context function axi4_master_bfm_register();
 
 endmodule
 

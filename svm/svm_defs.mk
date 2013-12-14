@@ -20,10 +20,12 @@ SVM_SRC= \
   svm_thread.cpp \
   svm_thread_mutex.cpp \
   svm_thread_cond.cpp \
+  \
+  svm_semaphore.cpp
  
 
 SVM_SC_SRC= \
-	svm_sc_thread.cpp \
+	svm_thread_sc.cpp \
 	svm_thread_mutex_sc.cpp \
 	svm_thread_cond_sc.cpp
 	

@@ -13,7 +13,18 @@ typedef void *svm_native_thread_h;
 
 class svm_thread {
 	public:
+		template <class cls> svm_thread(cls *client, void (cls::*method)()) :
+			m_closure(new svm_closure<cls>(client, method)) { }
+
+		svm_thread();
+
 		svm_thread(const svm_closure_base *closure);
+
+		template <class cls> void init(cls *client, void (cls::*method)()) {
+			init(new svm_closure<cls>(client, method));
+		}
+
+		void init(const svm_closure_base *closure);
 
 		virtual ~svm_thread();
 
