@@ -8,18 +8,27 @@
 #ifndef AXI4_INTERCONNECT_TEST_BASE_H_
 #define AXI4_INTERCONNECT_TEST_BASE_H_
 
-#include "svm_test.h"
-#include "axi4_interconnect_tb.h"
+#include "svm.h"
+#include "axi4_interconnect_env.h"
+// #include "axi4_interconnect_tb.h"
 
 class axi4_interconnect_test_base : public svm_test {
-	svm_component_ctor_decl(axi4_interconnect_test_base);
+	svm_test_ctor_decl(axi4_interconnect_test_base);
 
 	public:
-		axi4_interconnect_tb		*m_env;
+		axi4_interconnect_env		*m_env;
 
 	public:
-		axi4_interconnect_test_base(const char *name, svm_component *parent);
+		axi4_interconnect_test_base(const char *name);
+
 		virtual ~axi4_interconnect_test_base();
+
+		void build();
+
+		void connect();
+
+		void start();
+
 };
 
 #endif /* AXI4_INTERCONNECT_TEST_BASE_H_ */

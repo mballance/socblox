@@ -13,11 +13,23 @@
 class svm_root : public svm_component {
 
 	public:
-		svm_root(const char *name, svm_component *parent);
+		svm_root(const char *name);
 
 		virtual ~svm_root();
 
-		static int svm_runtest_init(const char *testname);
+//		static int svm_runtest_init(const char *testname);
+
+		void elaborate();
+
+		void run();
+
+	private:
+
+		void do_build(svm_component *level);
+
+		void do_connect(svm_component *level);
+
+		void do_start(svm_component *level);
 
 };
 

@@ -17,6 +17,7 @@ SVM_SRC= \
   svm_object.cpp \
   svm_root.cpp \
   svm_test.cpp \
+  svm_test_ctor.cpp \
   svm_thread.cpp \
   svm_thread_mutex.cpp \
   svm_thread_cond.cpp \

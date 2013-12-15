@@ -7,7 +7,7 @@
 
 #include "svm_test.h"
 
-svm_test::svm_test(const char *name, svm_component *parent) : svm_root(name, parent) {
+svm_test::svm_test(const char *name) : svm_root(name) {
 	// TODO Auto-generated constructor stub
 
 }

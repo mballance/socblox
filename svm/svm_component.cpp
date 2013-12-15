@@ -9,12 +9,20 @@
 #include "svm_root.h"
 
 svm_component::svm_component(const char *name, svm_component *parent) :
-	m_parent(parent) {
+	m_parent(parent), m_name(name) {
 
+	if (m_parent) {
+		m_parent->m_children.push_back(this);
+	}
 }
 
 svm_component::~svm_component() {
 	// TODO Auto-generated destructor stub
+}
+
+const string &svm_component::get_name() const
+{
+	return m_name;
 }
 
 void svm_component::build()

@@ -2,6 +2,8 @@
 #define INCLUDED_SVM_H
 #include "svm_component.h"
 #include "svm_bfm.h"
+#include "svm_test.h"
+#include "svm_test_ctor.h"
 #include "svm_thread.h"
 #include "svm_thread_cond.h"
 #include "svm_thread_mutex.h"

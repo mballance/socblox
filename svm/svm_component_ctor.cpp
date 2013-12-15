@@ -20,9 +20,5 @@ svm_component *svm_component_ctor_base::create(const char *name, svm_component *
 	return m_factory->create_component(m_typename, name, parent);
 }
 
-svm_component *svm_component_ctor_base::create_default(const char *name, svm_component *parent)
-{
-	return 0;
-}
 
 

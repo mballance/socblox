@@ -14,6 +14,8 @@ using namespace std;
 
 class svm_component_ctor_base;
 class svm_component;
+class svm_test_ctor_base;
+class svm_test;
 class svm_object_ctor_base;
 class svm_object;
 class svm_factory {
@@ -27,6 +29,10 @@ class svm_factory {
 
 		svm_component *create_component(const char *type_name, const char *name, svm_component *parent);
 
+		void register_test_ctor(const char *name, svm_test_ctor_base *ctor);
+
+		svm_test *create_test(const char *type_name, const char *name);
+
 		void register_object_ctor(const char *name, svm_object_ctor_base *ctor);
 
 		svm_object *create_object(const char *type_name, const char *name);
@@ -35,6 +41,7 @@ class svm_factory {
 
 	private:
 		map<string, svm_component_ctor_base *>			m_component_ctor_rgy;
+		map<string, svm_test_ctor_base *>				m_test_ctor_rgy;
 
 		static svm_factory				*m_default;
 };

@@ -13,7 +13,7 @@
 class svm_test: public svm_root {
 
 	public:
-		svm_test(const char *name, svm_component *parent);
+		svm_test(const char *name);
 
 		virtual ~svm_test();
 };

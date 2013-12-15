@@ -25,7 +25,7 @@ class svm_component_ctor_base {
 
 		virtual svm_component *create(const char *name, svm_component *parent);
 
-		virtual svm_component *create_default(const char *name, svm_component *parent);
+		virtual svm_component *create_default(const char *name, svm_component *parent) = 0;
 
 		const char *get_typename() {
 			return m_typename;
