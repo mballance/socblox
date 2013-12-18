@@ -29,6 +29,14 @@ class axi4_interconnect_test_base : public svm_test {
 
 		void start();
 
+	private:
+
+		void run();
+
+	private:
+		svm_thread					m_run_thread;
+
+
 };
 
 #endif /* AXI4_INTERCONNECT_TEST_BASE_H_ */

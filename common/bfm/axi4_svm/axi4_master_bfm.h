@@ -39,6 +39,8 @@ class axi4_master_bfm: public svm_bfm, virtual axi4_master_bfm_host_if {
 	public:
 		svm_bidi_api_port<axi4_master_bfm_host_if, axi4_master_bfm_target_if>		bfm_port;
 
+		uint32_t					AXI4_DATA_WIDTH;
+
 	public:
 
 		axi4_master_bfm(const char *name, svm_component *parent);

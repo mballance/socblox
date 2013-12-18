@@ -8,7 +8,9 @@
 #include "axi4_master_bfm.h"
 
 axi4_master_bfm::axi4_master_bfm(const char *name, svm_component *parent) :
-		svm_bfm(name, parent), bfm_port(this) {
+		svm_bfm(name, parent),
+		AXI4_DATA_WIDTH(128),
+		bfm_port(this) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -24,8 +26,6 @@ uint8_t axi4_master_bfm::write32(
 	uint32_t ret = 0;
 
 	m_mutex.lock();
-
-	// TODO: set SV context
 
 	bfm_port()->aw_valid(
 			addr,

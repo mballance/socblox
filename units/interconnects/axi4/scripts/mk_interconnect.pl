@@ -40,7 +40,7 @@ for ($i=0; $i<=$#ARGV; $i++) {
 if ($protocol eq "") {
 	die "-protocol not specified\n";
 } else {
-	$template = "${protocol}_interconnect_NxN.sv";
+	$template = "scripts/${protocol}_interconnect_NxN.sv";
 }
 
 if ($n_masters == -1) {
@@ -65,6 +65,8 @@ $REPLACE_TOKENS{"R_SLAVE_ASSIGN"} = axi4_r_slave_assign($n_slaves);
 $REPLACE_TOKENS{"B_SLAVE_ASSIGN"} = axi4_b_slave_assign($n_slaves);
 $REPLACE_TOKENS{"MASTER_PORTLIST"} = axi4_master_portlist($n_slaves);
 $REPLACE_TOKENS{"SLAVE_PORTLIST"} = axi4_slave_portlist($n_slaves);
+$REPLACE_TOKENS{"ADDRESS_RANGE_PARAMS"} = address_range_params($n_slaves);
+$REPLACE_TOKENS{"ADDR2SLAVE_BODY"} = add2slave_body($n_slaves);
 
 if (! -f $template) {
 	die "template $template does not exist\n";
@@ -218,7 +220,7 @@ sub axi4_aw_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -229,7 +231,7 @@ sub axi4_aw_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -249,7 +251,7 @@ sub axi4_ar_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -260,7 +262,7 @@ sub axi4_ar_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -280,7 +282,7 @@ sub axi4_w_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -291,7 +293,7 @@ sub axi4_w_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -311,7 +313,7 @@ sub axi4_r_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -322,7 +324,7 @@ sub axi4_r_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -342,7 +344,7 @@ sub axi4_b_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -353,7 +355,7 @@ sub axi4_b_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -382,19 +384,54 @@ sub axi4_slave_portlist($) {
 	my($n_slaves) = @_;
 	my($i);
 	my($portlist);
-	
-	for ($i=0; $i<=$n_slaves; $i++) {
+
+	# For now, do not emit an error port	
+	for ($i=0; $i<$n_slaves; $i++) {
 		if ($i == $n_slaves) {
 			$portlist .= "\t\taxi4_if.slave\t\t\t\t\tserr";
 		} else {
 			$portlist .= "\t\taxi4_if.slave\t\t\t\t\ts${i}";
 		}
-		if ($i+1 <= $n_slaves) {
+#		if ($i+1 <= $n_slaves) {
+		if ($i+1 < $n_slaves) {
 			$portlist .= ",\n";
 		}
 	}
 	
 	return $portlist;
+}
+
+sub address_range_params($) {
+	my($n_slaves) = @_;
+	my($i);
+	my($params) = "";
+	
+	for ($i=1; $i<=$n_slaves; $i++) {
+		$params .= "\t\tparameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE" . $i . "_ADDR_BASE='h0,\n";
+		$params .= "\t\tparameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE" . $i . "_ADDR_LIMIT='h0";
+		if ($i+1 <= $n_slaves) {
+			$params .= ",\n";
+		}
+	}
+
+	return $params;
+}
+
+sub add2slave_body($) {
+	my($n_slaves) = @_;
+	my($i);
+	my($n) = 0;
+	my($params) = "";
+	
+	for ($i=1; $i<=$n_slaves; $i++) {
+		$params .= "\t\tif (addr >= SLAVE" . $i . "_ADDR_BASE && addr <= SLAVE" . $i . "_ADDR_LIMIT) begin\n";
+		$params .= "\t\t\treturn " . ($i - 1) . ";\n";
+		$params .= "\t\tend\n";
+		$n++;
+	}
+
+	return $params;
+	
 }
 
 sub replace_tokens($)

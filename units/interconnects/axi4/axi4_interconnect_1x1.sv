@@ -1,28 +1,29 @@
 /****************************************************************************
- * ${NAME}.sv
+ * axi4_interconnect_1x1.sv
  ****************************************************************************/
 
 /**
- * Module: ${NAME}
+ * Module: axi4_interconnect_1x1
  * 
  * TODO: Add module documentation
  */
-module ${NAME} #(
+module axi4_interconnect_1x1 #(
 		parameter int AXI4_ADDRESS_WIDTH=32,
 		parameter int AXI4_DATA_WIDTH=128,
 		parameter int AXI4_ID_WIDTH=4,
-${ADDRESS_RANGE_PARAMS}
+		parameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE1_ADDR_BASE='h0,
+		parameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE1_ADDR_LIMIT='h0
 		) (
 		input						clk,
 		input						rstn,
-${MASTER_PORTLIST},
-${SLAVE_PORTLIST}
+		axi4_if.master					m0,
+		axi4_if.slave					s0
 		);
 	
 	localparam int AXI4_DATA_MSB = (AXI4_DATA_WIDTH-1);
 	localparam int AXI4_WSTRB_MSB = (AXI4_DATA_WIDTH/8)-1;
-	localparam int N_MASTERS = ${N_MASTERS};
-	localparam int N_SLAVES = ${N_SLAVES};
+	localparam int N_MASTERS = 1;
+	localparam int N_SLAVES = 1;
 	localparam int N_MASTERID_BITS = $clog2(N_MASTERS);
 	localparam int N_SLAVEID_BITS = $clog2(N_SLAVES+1);
 	localparam bit[N_SLAVEID_BITS:0]		NO_SLAVE  = {(N_SLAVEID_BITS+1){1'b1}};
@@ -32,8 +33,11 @@ ${SLAVE_PORTLIST}
 	axi4_if				serr();
 	
 	function reg[N_SLAVEID_BITS-1:0] addr2slave(reg[AXI4_ADDRESS_WIDTH-1:0] addr);
-${ADDR2SLAVE_BODY}		
-		return (${N_SLAVES});
+		if (addr >= SLAVE1_ADDR_BASE && addr <= SLAVE1_ADDR_LIMIT) begin
+			return 0;
+		end
+		
+		return (1);
 	endfunction
 	
 	bit[3:0]									write_req_state[N_MASTERS-1:0];
@@ -152,20 +156,80 @@ ${ADDR2SLAVE_BODY}
 	wire										SRREADY[N_SLAVES:0];
 	
 	// AW master assigns
-${AW_MASTER_ASSIGN}
+	assign AWADDR[0] = m0.AWADDR;
+	assign AWID[0] = m0.AWID;
+	assign AWLEN[0] = m0.AWLEN;
+	assign AWSIZE[0] = m0.AWSIZE;
+	assign AWBURST[0] = m0.AWBURST;
+	assign AWCACHE[0] = m0.AWCACHE;
+	assign AWPROT[0] = m0.AWPROT;
+	assign AWQOS[0] = m0.AWQOS;
+	assign AWREGION[0] = m0.AWREGION;
+	assign AWVALID[0] = m0.AWVALID;
+	assign m0.AWREADY = AWREADY[0];
+
 	
 	// W master assigns
-${W_MASTER_ASSIGN}
+	assign WDATA[0] = m0.WDATA;
+	assign WSTRB[0] = m0.WSTRB;
+	assign WLAST[0] = m0.WLAST;
+	assign WVALID[0] = m0.WVALID;
+	assign m0.WREADY = WREADY[0];
+
 
 	// B master assigns
-${B_MASTER_ASSIGN}
+	assign BREADY[0] = m0.BREADY;
+	assign m0.BID = BID[0];
+	assign m0.BRESP = BRESP[0];
+	assign m0.BVALID = BVALID[0];
+
 	
 	// Slave requests
-${AW_SLAVE_ASSIGN}
+	assign SAWREADY[0] = s0.AWREADY;
+	assign SAWREADY[1] = serr.master.AWREADY;
+	assign s0.AWADDR = SAWADDR[0];
+	assign serr.master.AWADDR = SAWADDR[1];
+	assign s0.AWID = SAWID[0];
+	assign serr.master.AWID = SAWID[1];
+	assign s0.AWLEN = SAWLEN[0];
+	assign serr.master.AWLEN = SAWLEN[1];
+	assign s0.AWSIZE = SAWSIZE[0];
+	assign serr.master.AWSIZE = SAWSIZE[1];
+	assign s0.AWBURST = SAWBURST[0];
+	assign serr.master.AWBURST = SAWBURST[1];
+	assign s0.AWCACHE = SAWCACHE[0];
+	assign serr.master.AWCACHE = SAWCACHE[1];
+	assign s0.AWPROT = SAWPROT[0];
+	assign serr.master.AWPROT = SAWPROT[1];
+	assign s0.AWQOS = SAWQOS[0];
+	assign serr.master.AWQOS = SAWQOS[1];
+	assign s0.AWREGION = SAWREGION[0];
+	assign serr.master.AWREGION = SAWREGION[1];
+	assign s0.AWVALID = SAWVALID[0];
+	assign serr.master.AWVALID = SAWVALID[1];
 
-${W_SLAVE_ASSIGN}
 
-${B_SLAVE_ASSIGN}	
+	assign SWREADY[0] = s0.WREADY;
+	assign SWREADY[1] = serr.master.WREADY;
+	assign s0.WDATA = SWDATA[0];
+	assign serr.master.WDATA = SWDATA[1];
+	assign s0.WSTRB = SWSTRB[0];
+	assign serr.master.WSTRB = SWSTRB[1];
+	assign s0.WLAST = SWLAST[0];
+	assign serr.master.WLAST = SWLAST[1];
+	assign s0.WVALID = SWVALID[0];
+	assign serr.master.WVALID = SWVALID[1];
+
+
+	assign SBID[0] = s0.BID;
+	assign SBID[1] = serr.master.BID;
+	assign SBRESP[0] = s0.BRESP;
+	assign SBRESP[1] = serr.master.BRESP;
+	assign SBVALID[0] = s0.BVALID;
+	assign SBVALID[1] = serr.master.BVALID;
+	assign s0.BREADY = SBREADY[0];
+	assign serr.master.BREADY = SBREADY[1];
+	
 
 // Read request state machine
 	bit[3:0]									read_req_state[N_MASTERS-1:0];
@@ -175,14 +239,56 @@ ${B_SLAVE_ASSIGN}
 	wire[$clog2(N_MASTERS)-1:0]					ar_master_gnt_id[N_SLAVES:0];
 	
 // Read request
-${AR_MASTER_ASSIGN}	
+	assign ARADDR[0] = m0.ARADDR;
+	assign ARID[0] = m0.ARID;
+	assign ARLEN[0] = m0.ARLEN;
+	assign ARSIZE[0] = m0.ARSIZE;
+	assign ARBURST[0] = m0.ARBURST;
+	assign ARCACHE[0] = m0.ARCACHE;
+	assign ARPROT[0] = m0.ARPROT;
+	assign ARREGION[0] = m0.ARREGION;
+	assign ARVALID[0] = m0.ARVALID;
+	assign m0.ARREADY = ARREADY[0];
 	
-${R_MASTER_ASSIGN}	
+	
+	assign RDATA[0] = m0.RDATA;
+	assign RLAST[0] = m0.RLAST;
+	assign RVALID[0] = m0.RVALID;
+	assign m0.RREADY = RREADY[0];
+	
 	
 	// Slave requests
-${AR_SLAVE_ASSIGN}	
+	assign SARREADY[0] = s0.ARREADY;
+	assign SARREADY[1] = serr.master.ARREADY;
+	assign s0.ARADDR = SARADDR[0];
+	assign serr.master.ARADDR = SARADDR[1];
+	assign s0.ARID = SARID[0];
+	assign serr.master.ARID = SARID[1];
+	assign s0.ARLEN = SARLEN[0];
+	assign serr.master.ARLEN = SARLEN[1];
+	assign s0.ARSIZE = SARSIZE[0];
+	assign serr.master.ARSIZE = SARSIZE[1];
+	assign s0.ARBURST = SARBURST[0];
+	assign serr.master.ARBURST = SARBURST[1];
+	assign s0.ARCACHE = SARCACHE[0];
+	assign serr.master.ARCACHE = SARCACHE[1];
+	assign s0.ARPROT = SARPROT[0];
+	assign serr.master.ARPROT = SARPROT[1];
+	assign s0.ARREGION = SARREGION[0];
+	assign serr.master.ARREGION = SARREGION[1];
+	assign s0.ARVALID = SARVALID[0];
+	assign serr.master.ARVALID = SARVALID[1];
+	
 
-${R_SLAVE_ASSIGN}	
+	assign SRREADY[0] = s0.RREADY;
+	assign SRREADY[1] = serr.master.RREADY;
+	assign s0.RDATA = SRDATA[0];
+	assign serr.master.RDATA = SRDATA[1];
+	assign s0.RLAST = SRLAST[0];
+	assign serr.master.RLAST = SRLAST[1];
+	assign s0.RVALID = SRVALID[0];
+	assign serr.master.RVALID = SRVALID[1];
+	
 
 	
 	// Write request state machine
@@ -277,7 +383,7 @@ ${R_SLAVE_ASSIGN}
 		genvar aw_arb_i;
 		
 		for (aw_arb_i=0; aw_arb_i<(N_SLAVES+1); aw_arb_i++) begin : aw_arb
-			${NAME}_arbiter #(
+			axi4_interconnect_1x1_arbiter #(
 				.N_REQ  (N_MASTERS)
 				) 
 				aw_arb (
@@ -349,7 +455,7 @@ ${R_SLAVE_ASSIGN}
 		genvar b_arb_i;
 		
 		for (b_arb_i=0; b_arb_i<N_MASTERS; b_arb_i++) begin : b_arb
-			${NAME}_arbiter #(
+			axi4_interconnect_1x1_arbiter #(
 				.N_REQ  (N_SLAVES+1)
 				) 
 				b_arb (
@@ -524,7 +630,7 @@ ${R_SLAVE_ASSIGN}
 		genvar ar_arb_i;
 		
 		for (ar_arb_i=0; ar_arb_i<(N_SLAVES+1); ar_arb_i++) begin : ar_arb
-			${NAME}_arbiter #(
+			axi4_interconnect_1x1_arbiter #(
 				.N_REQ  (N_MASTERS)
 				) 
 				ar_arb (
@@ -574,7 +680,7 @@ ${R_SLAVE_ASSIGN}
 		genvar r_arb_i;
 		
 		for (r_arb_i=0; r_arb_i<N_MASTERS; r_arb_i++) begin : r_arb
-			${NAME}_arbiter #(
+			axi4_interconnect_1x1_arbiter #(
 				.N_REQ  (N_SLAVES+1)
 				) 
 			r_arb (
@@ -750,7 +856,7 @@ ${R_SLAVE_ASSIGN}
 	end
 endmodule
 
-module ${NAME}_arbiter #(
+module axi4_interconnect_1x1_arbiter #(
 		parameter int			N_REQ=2
 		) (
 		input						clk,
@@ -865,3 +971,4 @@ module ${NAME}_arbiter #(
 
 
 endmodule
+
