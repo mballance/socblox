@@ -59,7 +59,6 @@ input                       i_pc_wen
 
 `include "a23_localparams.v"
         
-`ifdef A23_DECOMPILE
 
 integer i;
 
@@ -109,6 +108,8 @@ always @( posedge i_clk )
 always @ ( posedge i_clk )
     if ( !i_fetch_stall )
         execute_valid <= i_instruction_valid;
+
+`ifdef A23_DECOMPILE
     
 // ========================================================
 // Open File
@@ -898,6 +899,11 @@ endcase
 end
 endfunction
 
+`endif
+
+`ifdef A23_TRACE
+
+	import "DPI-C" a23_trace
 `endif
 
 endmodule

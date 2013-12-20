@@ -23,7 +23,7 @@ ${SLAVE_PORTLIST}
 	localparam int AXI4_WSTRB_MSB = (AXI4_DATA_WIDTH/8)-1;
 	localparam int N_MASTERS = ${N_MASTERS};
 	localparam int N_SLAVES = ${N_SLAVES};
-	localparam int N_MASTERID_BITS = $clog2(N_MASTERS);
+	localparam int N_MASTERID_BITS = (N_MASTERS>1)?$clog2(N_MASTERS):1;
 	localparam int N_SLAVEID_BITS = $clog2(N_SLAVES+1);
 	localparam bit[N_SLAVEID_BITS:0]		NO_SLAVE  = {(N_SLAVEID_BITS+1){1'b1}};
 	localparam bit[N_MASTERID_BITS:0]		NO_MASTER = {(N_MASTERID_BITS+1){1'b1}};
@@ -449,7 +449,7 @@ ${R_SLAVE_ASSIGN}
 	generate
 		genvar m_ar_i;
 		for (m_ar_i=0; m_ar_i<N_MASTERS; m_ar_i++) begin
-			assign ARREADY[m_ar_i] = (read_req_state[m_ar_i] == 0);
+			assign ARREADY[m_ar_i] = (rstn != 0 && read_req_state[m_ar_i] == 0);
 			always @(posedge clk) begin
 				if (rstn == 0) begin
 					read_req_state[m_ar_i] <= 'b00;
@@ -770,8 +770,14 @@ module ${NAME}_arbiter #(
 	
 	wire[N_REQ-1:0] gnt_ppc;
 	wire[N_REQ-1:0]	gnt_ppc_next;
-	
-	assign gnt_ppc_next = {gnt_ppc[N_REQ-2:0], 1'b0};
+
+	generate
+		if (N_REQ > 1) begin
+			assign gnt_ppc_next = {gnt_ppc[N_REQ-2:0], 1'b0};
+		end else begin
+			assign gnt_ppc_next = gnt_ppc;
+		end
+	endgenerate
 
 	generate
 		genvar gnt_ppc_i;

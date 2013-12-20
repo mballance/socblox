@@ -102,7 +102,53 @@ reg     [31:0]              wbuf_addr_r = 'd0;
 reg     [3:0]               wbuf_sel_r  = 'd0;
 reg                         wbuf_busy_r = 'd0;
 
+	reg[1:0]				read_state;
+	reg						data_valid;
 
+	// Read logic
+	always @(posedge i_clk) begin
+		case (read_state)
+			0: begin
+				if (i_select && !i_write_enable) begin
+					read_state <= 1;
+				end
+			end
+			
+			1: begin
+				if (master.ARVALID && master.ARREADY) begin
+					read_state <= 2;
+				end
+			end
+			
+			2: begin
+				if (master.RVALID && master.RREADY) begin
+					read_state <= 0;
+				end
+			end
+			
+		endcase
+	end
+	
+	assign read_ack = (read_state == 2 && master.RVALID && master.RREADY);
+	
+	assign core_read_request    = i_select && !i_write_enable;
+	assign core_write_request   = i_select &&  i_write_enable;
+	assign o_stall = 
+		( core_read_request  && !read_ack )/*       || 
+		( core_read_request  && servicing_cache ) ||
+		( core_write_request && servicing_cache ) ||
+		( core_write_request && wishbone_st == WB_WAIT_ACK) ||
+		( cache_write_request && wishbone_st == WB_WAIT_ACK) ||
+		wbuf_busy_r */;	
+	
+	assign master.ARVALID = ((i_select && !i_write_enable) && (read_state == 1));
+	assign master.ARADDR = (master.ARVALID)?i_address:32'h0;
+	assign master.ARLEN = 0;
+	assign master.ARSIZE = 2;
+	assign master.RREADY = 1;
+
+
+`ifdef UNDEFINED
 assign read_ack             = !o_wb_we && i_wb_ack;
 assign o_stall              = ( core_read_request  && !read_ack )       || 
                               ( core_read_request  && servicing_cache ) ||
@@ -272,24 +318,7 @@ always @( posedge i_clk )
                 end
                          
     endcase
+`endif
         
-        
-
-// ========================================================
-// Debug Wishbone bus - not synthesizable
-// ========================================================
-//synopsys translate_off
-wire    [(14*8)-1:0]   xAS_STATE;
-
-
-assign xAS_STATE  = wishbone_st == WB_IDLE       ? "WB_IDLE"       :
-                    wishbone_st == WB_BURST1     ? "WB_BURST1"     :
-                    wishbone_st == WB_BURST2     ? "WB_BURST2"     :
-                    wishbone_st == WB_BURST3     ? "WB_BURST3"     :
-                    wishbone_st == WB_WAIT_ACK   ? "WB_WAIT_ACK"   :
-                                                      "UNKNOWN"       ;
-
-//synopsys translate_on
-    
 endmodule
 

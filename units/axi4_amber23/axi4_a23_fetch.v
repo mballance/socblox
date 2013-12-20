@@ -42,7 +42,7 @@
 //////////////////////////////////////////////////////////////////
 
 
-module a23_fetch #(
+module axi4_a23_fetch #(
 		parameter int A23_CACHE_WAYS = 4
 		) (
 input                       i_clk,
@@ -64,17 +64,9 @@ input                       i_system_rdy,
 output                      o_fetch_stall,      // when this is asserted all registers 
                                                 // in all 3 pipeline stages are held
                                                 // at their current values
+                                                
 
-// Wishbone Master I/F
-output      [31:0]          o_wb_adr,
-output      [3:0]           o_wb_sel,
-output                      o_wb_we,
-input       [31:0]          i_wb_dat,
-output      [31:0]          o_wb_dat,
-output                      o_wb_cyc,
-output                      o_wb_stb,
-input                       i_wb_ack,
-input                       i_wb_err
+axi4_if.master				master
 
 );
 
@@ -101,13 +93,16 @@ assign sel_wb            = !sel_cache && i_address_valid && !(cache_stall);
 
 // Return read data either from the wishbone bus or the cache
 assign o_read_data       = sel_cache  ? cache_read_data : 
-                           sel_wb     ? i_wb_dat        :
+                           sel_wb     ? master.RDATA    :
                                         32'hffeeddcc    ;
 
 // Stall the instruction decode and execute stages of the core
 // when the fetch stage needs more than 1 cycle to return the requested
 // read data
 assign o_fetch_stall     = !i_system_rdy || wb_stall || cache_stall;
+
+wire[31:0]						o_wb_adr;
+wire[31:0]						i_wb_dat;
 
 
 // ======================================
@@ -133,6 +128,7 @@ a23_cache #(
     
     .o_stall                    ( cache_stall           ),
     .i_core_stall               ( o_fetch_stall         ),
+    
     .o_wb_req                   ( cache_wb_req          ),
     .i_wb_address               ( o_wb_adr              ),
     .i_wb_read_data             ( i_wb_dat              ),
@@ -144,7 +140,7 @@ a23_cache #(
 // ======================================
 //  Wishbone Master I/F
 // ======================================
-a23_wishbone u_wishbone (
+axi4_a23_axi_if u_axi4 (
     // CPU Side
     .i_clk                      ( i_clk                 ),
     
@@ -161,16 +157,8 @@ a23_wishbone u_wishbone (
     // Cache Accesses to Wishbone bus 
     // L1 Cache enable - used for hprot
     .i_cache_req                ( cache_wb_req          ),
-
-    .o_wb_adr                   ( o_wb_adr              ),
-    .o_wb_sel                   ( o_wb_sel              ),
-    .o_wb_we                    ( o_wb_we               ),
-    .i_wb_dat                   ( i_wb_dat              ),
-    .o_wb_dat                   ( o_wb_dat              ),
-    .o_wb_cyc                   ( o_wb_cyc              ),
-    .o_wb_stb                   ( o_wb_stb              ),
-    .i_wb_ack                   ( i_wb_ack              ),
-    .i_wb_err                   ( i_wb_err              )
+    
+    .master						( master				)
 );
 
 

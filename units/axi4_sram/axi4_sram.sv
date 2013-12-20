@@ -19,9 +19,13 @@ module axi4_sram #(
 		);
 
     bit [(AXI_DATA_WIDTH-1):0] ram[1<<MEM_ADDR_BITS];
-    
+   
+/** Verilator    
     assign s.RRESP = '{2{1'b0}};
     assign s.BRESP = '{2{1'b0}};
+     */
+    assign s.RRESP = 0;
+    assign s.BRESP = 0;
     
     reg[1:0] 						write_state;
     reg[MEM_ADDR_BITS-1:0]			write_addr;
@@ -38,9 +42,11 @@ module axi4_sram #(
     	if (!ARESETn) begin
     		write_state <= 2'b00;
     		read_state <= 2'b00;
-    		write_addr <= '{MEM_ADDR_BITS{1'b0}};
+//    		write_addr <= '{MEM_ADDR_BITS{1'b0}};
+    		write_addr <= 0;
     		write_count <= 4'b0000;
-    		read_addr <= '{MEM_ADDR_BITS{1'b0}};
+//    		read_addr <= '{MEM_ADDR_BITS{1'b0}};
+    		read_addr <= 0;
     		read_count <= 4'b0000;
     		read_length <= 4'b0000;
     	end else begin

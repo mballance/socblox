@@ -47,6 +47,7 @@ module axi4_a23_core #(
 		)
 (
 input                       i_clk,
+input						i_rstn,
 
 input                       i_irq,              // Interrupt request, active high
 input                       i_firq,             // Fast Interrupt request, active high
@@ -151,7 +152,7 @@ assign decode_fault_address = dabt_trigger ? dabt_fault_address : iabt_fault_add
 assign decode_fault         = dabt_trigger | iabt_trigger;
 
 
-a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
+axi4_a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
 	) u_fetch (
     .i_clk                              ( i_clk                             ),
 
@@ -169,18 +170,10 @@ a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
     .i_cache_flush                      ( cache_flush                       ), 
     .i_cacheable_area                   ( cacheable_area                    ),
 
-    .i_system_rdy                       ( i_system_rdy                      ),
+    .i_system_rdy                       ( (i_system_rdy & i_rstn)           ),
     .o_fetch_stall                      ( fetch_stall                       ),
     
-    .o_wb_adr                           ( o_wb_adr                          ),
-    .o_wb_sel                           ( o_wb_sel                          ),
-    .o_wb_we                            ( o_wb_we                           ),
-    .i_wb_dat                           ( i_wb_dat                          ),
-    .o_wb_dat                           ( o_wb_dat                          ),
-    .o_wb_cyc                           ( o_wb_cyc                          ),
-    .o_wb_stb                           ( o_wb_stb                          ),
-    .i_wb_ack                           ( i_wb_ack                          ),
-    .i_wb_err                           ( i_wb_err                          )
+    .master								( master							)
 );
 
 

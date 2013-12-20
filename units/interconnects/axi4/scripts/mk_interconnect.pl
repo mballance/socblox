@@ -167,8 +167,8 @@ sub axi4_w_master_assign($) {
 sub axi4_r_master_assign($) {
 	my($n_masters) = @_;
 	my($i,$out,$name);
-	my(@LHS) = ("RDATA", "RLAST", "RVALID");
-	my(@RHS) = ("RREADY");
+	my(@LHS) = ("RREADY");
+	my(@RHS) = ("RDATA", "RLAST", "RVALID");
 
 	foreach (@LHS) {
 		$name=$_;
@@ -306,8 +306,8 @@ sub axi4_w_slave_assign($) {
 sub axi4_r_slave_assign($) {
 	my($n_slaves) = @_;
 	my($i,$out,$name);
-	my(@LHS) = ("RREADY");
-	my(@RHS) = ("RDATA", "RLAST", "RVALID");
+	my(@LHS) = ("RDATA", "RLAST", "RVALID");
+	my(@RHS) = ("RREADY");
 
 	foreach (@LHS) {
 		$name=$_;
@@ -406,10 +406,10 @@ sub address_range_params($) {
 	my($i);
 	my($params) = "";
 	
-	for ($i=1; $i<=$n_slaves; $i++) {
+	for ($i=0; $i<$n_slaves; $i++) {
 		$params .= "\t\tparameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE" . $i . "_ADDR_BASE='h0,\n";
 		$params .= "\t\tparameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE" . $i . "_ADDR_LIMIT='h0";
-		if ($i+1 <= $n_slaves) {
+		if ($i+1 < $n_slaves) {
 			$params .= ",\n";
 		}
 	}
@@ -423,9 +423,9 @@ sub add2slave_body($) {
 	my($n) = 0;
 	my($params) = "";
 	
-	for ($i=1; $i<=$n_slaves; $i++) {
+	for ($i=0; $i<$n_slaves; $i++) {
 		$params .= "\t\tif (addr >= SLAVE" . $i . "_ADDR_BASE && addr <= SLAVE" . $i . "_ADDR_LIMIT) begin\n";
-		$params .= "\t\t\treturn " . ($i - 1) . ";\n";
+		$params .= "\t\t\treturn " . $i . ";\n";
 		$params .= "\t\tend\n";
 		$n++;
 	}

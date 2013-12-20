@@ -78,7 +78,7 @@ interface axi4_if #(
 	// ** 
 	bit[(AXI4_ID_WIDTH-1):0]		RID;
 	bit[(AXI4_DATA_WIDTH-1):0]		RDATA;
-	bit[1:0]						RRESP;
+	reg[1:0]						RRESP;
 	bit								RLAST;
 	// RUSER excluded (Not recommended)
 	bit								RVALID;
