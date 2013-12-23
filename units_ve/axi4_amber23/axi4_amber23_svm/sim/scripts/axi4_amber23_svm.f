@@ -6,6 +6,7 @@
 -f ${SOCBLOX}/units/axi4_amber23/axi4_amber23.f
 ${SOCBLOX}/units/interconnects/axi4/axi4_interconnect_1x1.sv
 ${SOCBLOX}/units/axi4_sram/axi4_sram.sv
+${SOCBLOX}/common/bfm/axi4_svm_sram/axi4_svm_sram.sv
 ${SOCBLOX}/units_ve/axi4_amber23/axi4_amber23_svm/tb/axi4_amber23_svm_tracer.sv
 ${SOCBLOX}/units_ve/axi4_amber23/axi4_amber23_svm/tb/axi4_amber23_svm_tb.sv
 

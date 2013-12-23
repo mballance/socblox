@@ -67,7 +67,7 @@ module axi4_amber23_svm_tb(
 		.s0                  (ic2s0.master       ));
 	
 	
-	axi4_sram #(.AXI_DATA_WIDTH(32)) s0(
+	axi4_svm_sram #(.AXI_DATA_WIDTH(32)) s0(
 			.ACLK(clk),
 			.ARESETn(rstn),
 			.s(ic2s0.slave)
@@ -86,7 +86,6 @@ module axi4_amber23_svm_tb(
 		.i_instruction_address    (i_instruction_address   ), 
 		.i_pc_sel                 (i_pc_sel                ), 
 		.i_pc_wen                 (i_pc_wen                ));
-	
 	
 endmodule
 

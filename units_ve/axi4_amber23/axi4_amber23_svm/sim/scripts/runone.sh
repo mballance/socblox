@@ -14,7 +14,7 @@ echo "SOCBLOX=$SOCBLOX"
 
 export LD_LIBRARY_PATH=${SOCBLOX}/libs/linux:$LD_LIBRARY_PATH
 
-${BUILD_DIR}/simx
+${BUILD_DIR}/simx +TARGET_EXE=${BUILD_DIR}/core_tests/adc.elf
 # gdb --args ${BUILD_DIR}/simx
 # valgrind --tool=memcheck ${BUILD_DIR}/simx
 

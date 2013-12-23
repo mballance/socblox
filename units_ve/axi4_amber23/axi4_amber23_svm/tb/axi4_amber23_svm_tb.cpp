@@ -7,6 +7,14 @@
 #include <systemc.h>
 #include "verilated_vcd_sc.h"
 #include "Vaxi4_amber23_svm_tb.h"
+#include "axi4_svm_sram_dpi_mgr.h"
+#include "axi4_svm_sram_bfm.h"
+#include "svm_elf_loader.h"
+#include "svdpi.h"
+
+extern "C" {
+void axi4_amber23_svm_mem_write32(uint32_t addr, uint32_t data);
+}
 
 class axi4_amber23_svm_tb : public sc_module {
 
@@ -20,6 +28,10 @@ class axi4_amber23_svm_tb : public sc_module {
 			tb = new Vaxi4_amber23_svm_tb("tb");
 			tb->clk(clk);
 
+			s0_bfm = new axi4_svm_sram_bfm("s0_bfm", 0);
+
+			axi4_svm_sram_dpi_mgr::connect("tb.tb.v.s0", s0_bfm->port);
+
 			SC_THREAD(run);
 
 		}
@@ -27,17 +39,42 @@ class axi4_amber23_svm_tb : public sc_module {
 		void run() {
 			wait(sc_time(1, SC_NS));
 
+			const char *target = Verilated::commandArgsPlusMatch("TARGET_EXE");
+
+			if (target) {
+				target = &target[12];
+				svm_elf_loader loader(s0_bfm);
+
+				int ret = loader.load(target);
+//				fprintf(stdout, "load %s %d\n", target, ret);
+			}
+
+//			fprintf(stdout, "target=%s\n", target);
+
+			/*
+			for (int i=0; i<64; i++) {
+				s0_bfm->write32(i*4, 0xAAEEFF00+i);
+			}
+
+			svSetScope(svGetScopeFromName("tb.tb.v.s0"));
+			axi4_amber23_svm_mem_write32(0, 0xAAEEFF00);
+			 */
+
 			// TODO: instantiate testbench
 		}
 
 	public:
 		sc_clock					clk;
 		Vaxi4_amber23_svm_tb		*tb;
+		axi4_svm_sram_bfm			*s0_bfm;
 };
 
 
 int sc_main(int argc, char **argv)
 {
+	for (int i=0; i<argc; i++) {
+		fprintf(stdout, "ARGV[%d]=%s\n", i, argv[i]);
+	}
 	Verilated::commandArgs(argc, argv);
 
 	axi4_amber23_svm_tb *tb = new axi4_amber23_svm_tb("tb");

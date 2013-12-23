@@ -87,6 +87,8 @@ for ($i=0; $i <= $#ARGV; $i++) {
   } else {
     if ($arg eq "build") {
       $cmd="build";
+    } elsif ($arg eq "clean") {
+      $cmd="clean";
     } else {
       printhelp();
       exit 1;
@@ -106,6 +108,9 @@ $ENV{BUILD_DIR}=$builddir;
 
 if ($cmd eq "build") {
   build();
+  exit 0;
+} elsif ($cmd eq "clean") {
+  clean();
   exit 0;
 }
 
@@ -196,6 +201,17 @@ sub build {
     }
 }
 
+sub clean {
+    my($ret);
+
+    system("rm -rf ${builddir}") && die;
+
+    open(CP, "${SIM_DIR}/scripts/clean.sh |");
+    while (<CP>) {
+      print($_);
+    }
+    close(CP);
+}
 
 #*********************************************************************
 #* run_jobs

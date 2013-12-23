@@ -17,12 +17,16 @@ module axi4_sram #(
 			input				ARESETn,
 			axi4_if.slave		s
 		);
+	
+	initial begin
+		$display("SRAM path %m");
+	end
 
     bit [(AXI_DATA_WIDTH-1):0] ram[1<<MEM_ADDR_BITS];
    
+    assign s.RRESP = {2{1'b0}};
+    assign s.BRESP = {2{1'b0}};
 /** Verilator    
-    assign s.RRESP = '{2{1'b0}};
-    assign s.BRESP = '{2{1'b0}};
      */
     assign s.RRESP = 0;
     assign s.BRESP = 0;

@@ -125,19 +125,55 @@ reg                         wbuf_busy_r = 'd0;
 					read_state <= 0;
 				end
 			end
+		endcase
+	end
+	
+	reg[1:0]				write_state;
+	
+	// Write logic
+	always @(posedge i_clk) begin
+		case (write_state)
+			0: begin
+				if (i_select && i_write_enable) begin
+					write_state <= 1;
+				end
+			end
 			
+			1: begin
+				// address phase complete
+				if (master.AWVALID && master.AWREADY) begin
+					write_state <= 2;
+				end
+			end
+
+			// Data transfer phase
+			2: begin
+				if (master.WREADY && master.WVALID) begin
+					// If last
+					write_state <= 3;
+				end
+			end
+		
+			// Wait for BRESP
+			3: begin
+				if (master.BREADY && master.BVALID) begin
+					write_state <= 0;
+				end
+			end
 		endcase
 	end
 	
 	assign read_ack = (read_state == 2 && master.RVALID && master.RREADY);
+	assign write_ack = 1;
 	
 	assign core_read_request    = i_select && !i_write_enable;
 	assign core_write_request   = i_select &&  i_write_enable;
 	assign o_stall = 
-		( core_read_request  && !read_ack )/*       || 
+		( core_read_request  && !read_ack )       || 
+		/*
 		( core_read_request  && servicing_cache ) ||
-		( core_write_request && servicing_cache ) ||
-		( core_write_request && wishbone_st == WB_WAIT_ACK) ||
+		( core_write_request && servicing_cache ) || */
+		( core_write_request && !write_ack) /* ||
 		( cache_write_request && wishbone_st == WB_WAIT_ACK) ||
 		wbuf_busy_r */;	
 	
@@ -146,6 +182,11 @@ reg                         wbuf_busy_r = 'd0;
 	assign master.ARLEN = 0;
 	assign master.ARSIZE = 2;
 	assign master.RREADY = 1;
+	
+	assign master.AWVALID = ((i_select && i_write_enable) && (write_state == 1));
+	assign master.AWADDR = (master.AWVALID)?i_address:{32{0}};
+	assign master.AWLEN = 0;
+	assign master.AWSIZE = 2;
 
 
 `ifdef UNDEFINED
