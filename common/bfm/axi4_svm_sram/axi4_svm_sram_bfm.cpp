@@ -47,3 +47,4 @@ uint8_t axi4_svm_sram_bfm::read8(uint64_t addr)
 	return port()->read8(addr);
 }
 
+svm_component_ctor_def(axi4_svm_sram_bfm)

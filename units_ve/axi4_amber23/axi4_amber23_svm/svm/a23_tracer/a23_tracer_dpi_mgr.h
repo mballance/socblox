@@ -36,7 +36,11 @@ class a23_tracer_dpi_closure {
 		}
 
 		template <typename ...Ts> void call(void (a23_tracer_if::*method)(Ts...), Ts... args) {
-			(*m_port)(method, args...);
+			if (m_port) {
+				(*m_port)(method, args...);
+			} else {
+				fprintf(stdout, "PORT NULL\n");
+			}
 		}
 
 	private:

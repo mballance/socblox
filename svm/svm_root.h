@@ -10,6 +10,8 @@
 
 #include "svm_component.h"
 
+class svm_cmdline;
+
 class svm_root : public svm_component {
 
 	public:
@@ -23,6 +25,8 @@ class svm_root : public svm_component {
 
 		void run();
 
+		svm_cmdline &cmdline();
+
 	private:
 
 		void do_build(svm_component *level);
@@ -30,6 +34,10 @@ class svm_root : public svm_component {
 		void do_connect(svm_component *level);
 
 		void do_start(svm_component *level);
+
+	private:
+
+		svm_cmdline					*m_cmdline;
 
 };
 

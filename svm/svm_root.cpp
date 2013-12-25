@@ -6,9 +6,11 @@
  */
 
 #include "svm_root.h"
+#include "svm_cmdline.h"
 #include <stdio.h>
 
-svm_root::svm_root(const char *name) : svm_component(name, 0)
+svm_root::svm_root(const char *name) :
+	svm_component(name, 0), m_cmdline(0)
 {
 
 }
@@ -33,6 +35,15 @@ void svm_root::run()
 //	start();
 
 	// Wait for all objections to be dropped
+}
+
+svm_cmdline &svm_root::cmdline()
+{
+	if (!m_cmdline) {
+		m_cmdline = &svm_cmdline::get_default();
+	}
+
+	return *m_cmdline;
 }
 
 void svm_root::do_build(svm_component *level)

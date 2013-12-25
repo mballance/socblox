@@ -5,6 +5,7 @@
  *      Author: ballance
  */
 #include <systemc.h>
+#include "svm.h"
 #include "verilated_vcd_sc.h"
 #include "Vaxi4_amber23_svm_tb.h"
 #include "axi4_svm_sram_dpi_mgr.h"
@@ -28,26 +29,13 @@ class axi4_amber23_svm_tb : public sc_module {
 			tb = new Vaxi4_amber23_svm_tb("tb");
 			tb->clk(clk);
 
-			s0_bfm = new axi4_svm_sram_bfm("s0_bfm", 0);
-
-			axi4_svm_sram_dpi_mgr::connect("tb.tb.v.s0", s0_bfm->port);
-
 			SC_THREAD(run);
 
 		}
 
 		void run() {
 			wait(sc_time(1, SC_NS));
-
-			const char *target = Verilated::commandArgsPlusMatch("TARGET_EXE");
-
-			if (target) {
-				target = &target[12];
-				svm_elf_loader loader(s0_bfm);
-
-				int ret = loader.load(target);
-//				fprintf(stdout, "load %s %d\n", target, ret);
-			}
+			svm_runtest();
 
 //			fprintf(stdout, "target=%s\n", target);
 
@@ -66,7 +54,6 @@ class axi4_amber23_svm_tb : public sc_module {
 	public:
 		sc_clock					clk;
 		Vaxi4_amber23_svm_tb		*tb;
-		axi4_svm_sram_bfm			*s0_bfm;
 };
 
 

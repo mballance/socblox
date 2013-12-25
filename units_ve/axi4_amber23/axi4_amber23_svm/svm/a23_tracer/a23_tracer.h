@@ -10,7 +10,9 @@
 #include "svm.h"
 #include "a23_tracer_if.h"
 
-class a23_tracer: public svm_component, public virtual a23_tracer_if {
+class a23_tracer: public svm_component {
+
+	svm_component_ctor_decl(a23_tracer)
 
 	public:
 		svm_api_publisher_port<a23_tracer_if>			port;

@@ -12,6 +12,8 @@
 
 class axi4_svm_sram_bfm : public svm_component, public virtual svm_mem_if {
 
+	svm_component_ctor_decl(axi4_svm_sram_bfm)
+
 	public:
 		svm_api_port<svm_mem_if>				port;
 

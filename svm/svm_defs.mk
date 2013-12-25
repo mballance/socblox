@@ -10,12 +10,14 @@ LIB_TARGETS += $(LIBSVM) $(LIBSVM_SC)
 
 SVM_SRC= \
   svm_bfm.cpp \
+  svm_cmdline.cpp \
   svm_component_ctor.cpp \
   svm_component.cpp \
   svm_factory.cpp \
   svm_object_ctor.cpp \
   svm_object.cpp \
   svm_root.cpp \
+  svm_runtest.cpp \
   svm_test.cpp \
   svm_test_ctor.cpp \
   svm_thread.cpp \
@@ -28,7 +30,8 @@ SVM_SRC= \
 SVM_SC_SRC= \
 	svm_thread_sc.cpp \
 	svm_thread_mutex_sc.cpp \
-	svm_thread_cond_sc.cpp
+	svm_thread_cond_sc.cpp \
+	svm_cmdline_sc.cpp
 	
 SVM_OBJS=$(foreach o,$(SVM_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 SVM_SC_OBJS=$(foreach o,$(SVM_SC_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))

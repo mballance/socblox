@@ -40,7 +40,6 @@ module axi4_svm_sram #(
     task axi4_svm_sram_write32(
     	longint unsigned	offset,
     	int unsigned 		data);
-    	$display("dpi: write32 - 'h%08h 'h%08h", offset[(AXI_ADDRESS_WIDTH-1):2], data);
     	ram[offset[(AXI_ADDRESS_WIDTH-1):2]] = data;
     endtask
     export "DPI-C" task axi4_svm_sram_write32;

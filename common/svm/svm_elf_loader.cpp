@@ -44,8 +44,10 @@ int svm_elf_loader::load(const char *filename)
 
 		fread(&shdr, sizeof(Elf32_Shdr), 1, fp);
 
+		/*
 		fprintf(stdout, "sh_type=0x%08x size=0x%08x flags=0x%08x\n",
 				shdr.sh_type, shdr.sh_size, shdr.sh_flags);
+		 */
 
 		if (shdr.sh_type == SHT_PROGBITS && shdr.sh_size != 0 &&
 			(shdr.sh_flags & SHF_ALLOC) != 0) {
@@ -53,7 +55,7 @@ int svm_elf_loader::load(const char *filename)
 			uint8_t *tmp = new uint8_t[shdr.sh_size];
 			uint32_t data;
 			fprintf(stdout, "Loading %d bytes @ 0x%08x..0x%08x\n",
-					shdr.sh_size, shdr.sh_addr, (shdr.sh_addr+shdr.sh_size));
+					(int)shdr.sh_size, (int)shdr.sh_addr, (int)(shdr.sh_addr+shdr.sh_size));
 
 			fseek(fp, shdr.sh_offset, 0);
 			fread(tmp, shdr.sh_size, 1, fp);
@@ -73,6 +75,29 @@ int svm_elf_loader::load(const char *filename)
 			}
 
 			delete [] tmp;
+		} else if (shdr.sh_type == SHT_SYMTAB) {
+			// First, read the header for the string-tab
+			Elf32_Shdr str_shdr;
+			fseek(fp, hdr.e_shoff+hdr.e_shentsize*shdr.sh_link, 0);
+			fread(&str_shdr, sizeof(Elf32_Shdr), 1, fp);
+
+			char *str_tmp = new char[str_shdr.sh_size];
+			fseek(fp, str_shdr.sh_offset, 0);
+			fread(str_tmp, str_shdr.sh_size, 1, fp);
+
+			for (int i=0; i<shdr.sh_size; i+=sizeof(Elf32_Sym)) {
+				Elf32_Sym sym;
+
+				fseek(fp, (shdr.sh_offset+i), 0);
+				fread(&sym, sizeof(Elf32_Sym), 1, fp);
+
+				if (sym.st_info == 0) { // function/global
+					string name = &str_tmp[sym.st_name];
+					m_symtab[name] = sym.st_value;
+				}
+			}
+
+			delete [] str_tmp;
 		}
 
 		if (shdr.sh_type == SHT_NOBITS && shdr.sh_size != 0) {

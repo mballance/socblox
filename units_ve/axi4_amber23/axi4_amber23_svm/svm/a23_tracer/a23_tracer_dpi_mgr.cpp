@@ -9,15 +9,21 @@
 #include <stdio.h>
 #include "dpi/svm_dpi.h"
 
-extern "C" void axi4_a23_svm_tracer_register();
-void axi4_a23_svm_tracer_register()
+extern "C" int axi4_a23_svm_tracer_register();
+int axi4_a23_svm_tracer_register()
 {
+	fprintf(stdout, "axi4_a23_svm_tracer_register\n");
 	svScope scope = svGetScope();
+	fprintf(stdout, "scope=%p\n", scope);
 	const char *name = svGetNameFromScope(scope);
 
 	fprintf(stdout, "axi4_a23_svm_tracer_register: %s\n", name);
 
 	a23_tracer_dpi_mgr::register_bfm(name);
+	/*
+	 */
+
+	return 0;
 }
 
 extern "C" int axi4_a23_svm_tracer_mem_access(

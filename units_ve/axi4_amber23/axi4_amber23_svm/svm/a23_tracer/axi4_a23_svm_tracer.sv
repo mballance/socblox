@@ -69,7 +69,8 @@ module axi4_a23_svm_tracer(
 			);
 	
 	initial begin
-		$display("TRACER");
+		$display("call_register");
+		axi4_a23_svm_tracer_register();
 	end
 
 

@@ -24,7 +24,6 @@ void axi4_svm_sram_dpi_closure::write32(uint64_t addr, uint32_t data)
 	svScope scope = svGetScopeFromName(m_target.c_str());
 	svSetScope(scope);
 
-	fprintf(stdout, "closure: write32 'h%08llx 'h%08hx\n", addr, data);
 	axi4_svm_sram_write32(addr, data);
 }
 

@@ -8,6 +8,9 @@
 #ifndef SVM_ELF_LOADER_H_
 #define SVM_ELF_LOADER_H_
 #include "svm_mem_if.h"
+#include <map>
+
+using namespace std;
 
 class svm_elf_loader {
 	static const int	SHT_NULL			= 0;	/* sh_type */
@@ -62,12 +65,12 @@ class svm_elf_loader {
 		uint8_t  	e_ident[EI_NIDENT]; /* bytes 0 to 15  */
 		uint16_t 	e_e_type;           /* bytes 15 to 16 */
 		uint16_t 	e_machine;          /* bytes 17 to 18 */
-		uint32_t   e_version;          /* bytes 19 to 22 */
-		uint32_t   e_entry;            /* bytes 23 to 26 */
-		uint32_t   e_phoff;            /* bytes 27 to 30 */
-		uint32_t   e_shoff;            /* bytes 31 to 34 */
-		uint32_t   e_flags;            /* bytes 35 to 38 */
-		uint16_t 	e_ehsize;           /* bytes 39 to 40 */
+		uint32_t	e_version;          /* bytes 19 to 22 */
+		uint32_t	e_entry;            /* bytes 23 to 26 */
+		uint32_t	e_phoff;            /* bytes 27 to 30 */
+		uint32_t	e_shoff;            /* bytes 31 to 34 */
+		uint32_t	e_flags;            /* bytes 35 to 38 */
+		uint16_t	e_ehsize;           /* bytes 39 to 40 */
 		uint16_t 	e_phentsize;        /* bytes 41 to 42 */
 		uint16_t 	e_phnum;            /* bytes 43 to 44 (2B to 2C) */
 		uint16_t 	e_shentsize;        /* bytes 45 to 46 */
@@ -102,6 +105,15 @@ class svm_elf_loader {
 		uint32_t sh_entsize;     /* entry size if table */
 	} Elf32_Shdr;
 
+	typedef struct {
+	    uint32_t	st_name;
+	    uint32_t	st_value;
+	    uint32_t	st_size;
+	    uint8_t		st_info;
+	    uint8_t		st_other;
+	    uint16_t	st_shndx;
+	} Elf32_Sym;
+
 	public:
 
 		svm_elf_loader(svm_mem_if *mem_if);
@@ -114,6 +126,7 @@ class svm_elf_loader {
 
 	private:
 		svm_mem_if					*m_mem_if;
+		map<string, uint32_t>		m_symtab;
 };
 
 #endif /* SVM_ELF_LOADER_H_ */

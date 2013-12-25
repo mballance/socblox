@@ -9,8 +9,11 @@ include V$(TB).mk
 endif
 
 AXI4_AMBER23_SVM=$(SOCBLOX)/units_ve/axi4_amber23/$(UNIT_VE)
+AXI4_A23_DIR=$(AXI4_AMBER23_SVM)
 include $(AXI4_AMBER23_SVM)/tests/sw/defs.mk
 include $(AXI4_AMBER23_SVM)/svm/a23_tracer/defs.mk
+include $(AXI4_AMBER23_SVM)/tests/defs.mk
+include $(AXI4_AMBER23_SVM)/tb/defs.mk
 
 CXXFLAGS += -I$(SYSTEMC)/include -I$(SOCBLOX)/svm 
 CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svm
@@ -46,9 +49,11 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
 	V$(TB)__ALL.a \
 	$(BFM_AXI4_SVM_SRAM_LIB) \
 	$(COMMON_SVM_LIB) \
-	$(AXI4_AMBER23_SVM)/tb/$(TB).cpp
+	$(AXI4_AMBER23_SVM)/tb/$(TB).cpp \
+	$(A23_TESTBENCH_OBJS)
 	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/simx \
 	  $(AXI4_AMBER23_SVM)/tb/$(TB).cpp \
+	      $(A23_TESTBENCH_OBJS) \
 	      -Wl,--whole-archive \
           V$(TB)__ALL.a \
 	      -Wl,--no-whole-archive \
@@ -57,12 +62,11 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
           	$(BFM_AXI4_SVM_SRAM_LINK) \
           	$(COMMON_SVM_LINK) \
           	$(LIBSVM_SC_LINK) \
-          $(A23_TRACER_LINK) \
 	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread
 
-$(BUILD_DIR)/axi4_amber23_svm.a : $(SVM_OBJS)
-	rm -f $@
-	$(AR) vcq $@ $^
+#$(BUILD_DIR)/axi4_amber23_svm.a : $(SVM_OBJS)
+#	rm -f $@
+#	$(AR) vcq $@ $^
 	
 #$(BUILD_DIR)/%.o : $(AXI4_SVM)/tests/%.cpp
 #	$(CXX) -c -o $@ $(CXXFLAGS) $^
@@ -73,3 +77,5 @@ $(BUILD_DIR)/axi4_amber23_svm.a : $(SVM_OBJS)
 include $(SOCBLOX)/rules.mk
 include $(AXI4_AMBER23_SVM)/tests/sw/rules.mk
 include $(AXI4_AMBER23_SVM)/svm/a23_tracer/rules.mk
+include $(AXI4_AMBER23_SVM)/tests/rules.mk
+include $(AXI4_AMBER23_SVM)/tb/rules.mk
