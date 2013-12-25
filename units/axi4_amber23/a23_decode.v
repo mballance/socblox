@@ -1635,6 +1635,7 @@ assign dabt = dabt_reg || i_dabt;
 // ========================================================
 //synopsys translate_off
 
+/*
 a23_tracer u_tracer (
 	.i_clk                    (i_clk							), 
 	.i_fetch_stall            (i_fetch_stall					), 
@@ -1647,6 +1648,7 @@ a23_tracer u_tracer (
 	.i_instruction_address    (instruction_address				),
 	.i_pc_sel                 (o_pc_sel							), 
 	.i_pc_wen                 (o_pc_wen							));
+	 */
 
 `ifdef AXI_AMBER23_DEBUG
 `include "debug_functions.v"

@@ -53,7 +53,15 @@ input       [2:0]           i_interrupt,            // non-zero value means inte
 input                       i_interrupt_state,
 input       [31:0]          i_instruction_address,
 input       [1:0]           i_pc_sel,
-input                       i_pc_wen
+input                       i_pc_wen,
+input						i_write_enable,
+input						fetch_stall,
+input						i_data_access,
+input		[31:0]			pc_nxt,
+input		[31:0]			i_address,
+input		[31:0]			i_write_data,
+input		[3:0]			i_byte_enable,
+input		[31:0]			i_read_data
 );
 
 // Shell is overridden with a bind

@@ -74,6 +74,7 @@ module axi4_amber23_svm_tb(
 			);
 	
 
+	/*
 	bind a23_tracer axi4_amber23_svm_tracer u_svm_tracer (
 		.i_clk                    (i_clk                   ), 
 		.i_fetch_stall            (i_fetch_stall           ), 
@@ -86,6 +87,30 @@ module axi4_amber23_svm_tb(
 		.i_instruction_address    (i_instruction_address   ), 
 		.i_pc_sel                 (i_pc_sel                ), 
 		.i_pc_wen                 (i_pc_wen                ));
+		
+		 */
+
+	bind a23_tracer axi4_a23_svm_tracer u_svm_tracer (
+		.i_clk                    (i_clk                   ), 
+		.i_fetch_stall            (i_fetch_stall           ), 
+		.i_instruction            (i_instruction           ), 
+		.i_instruction_valid      (i_instruction_valid     ), 
+		.i_instruction_undefined  (i_instruction_undefined ), 
+		.i_instruction_execute    (i_instruction_execute   ), 
+		.i_interrupt              (i_interrupt             ), 
+		.i_interrupt_state        (i_interrupt_state       ), 
+		.i_instruction_address    (i_instruction_address   ), 
+		.i_pc_sel                 (i_pc_sel                ), 
+		.i_pc_wen                 (i_pc_wen                ), 
+		.i_write_enable           (i_write_enable          ), 
+		.fetch_stall              (fetch_stall             ), 
+		.i_data_access            (i_data_access           ), 
+		.pc_nxt                   (pc_nxt                  ), 
+		.i_address                (i_address               ), 
+		.i_write_data             (i_write_data            ), 
+		.i_byte_enable            (i_byte_enable           ), 
+		.i_read_data              (i_read_data             ));
+	
 	
 endmodule
 

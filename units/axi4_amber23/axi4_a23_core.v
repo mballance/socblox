@@ -340,6 +340,27 @@ a23_coprocessor u_coprocessor (
     .o_cacheable_area                   ( cacheable_area                    )
 );
 
+a23_tracer u_tracer (
+	.i_clk                    (i_clk											),
+	.i_fetch_stall            (u_decode.i_fetch_stall							), 
+	.i_instruction            (u_decode.instruction								), 
+	.i_instruction_valid      (u_decode.instruction_valid						), 
+	.i_instruction_undefined  (u_decode.und_request								),
+	.i_instruction_execute    (u_decode.instruction_execute   					), 
+	.i_interrupt              ({3{u_decode.interrupt}} & u_decode.next_interrupt),
+	.i_interrupt_state        (u_decode.control_state == INT_WAIT2				),
+	.i_instruction_address    (u_decode.instruction_address						),
+	.i_pc_sel                 (u_decode.o_pc_sel								),
+	.i_pc_wen                 (u_decode.o_pc_wen								),
+	.i_write_enable           (write_enable										), 
+	.fetch_stall              (fetch_stall										), 
+	.i_data_access            (data_access										), 
+	.pc_nxt                   (u_execute.pc_nxt									),
+	.i_address                ({execute_address[31:2], 2'd0}					), 
+	.i_write_data             (write_data										), 
+	.i_byte_enable            (byte_enable										), 
+	.i_read_data              (u_decode.i_read_data								)
+	);
 
 endmodule
 

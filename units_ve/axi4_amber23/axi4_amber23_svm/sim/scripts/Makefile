@@ -10,6 +10,7 @@ endif
 
 AXI4_AMBER23_SVM=$(SOCBLOX)/units_ve/axi4_amber23/$(UNIT_VE)
 include $(AXI4_AMBER23_SVM)/tests/sw/defs.mk
+include $(AXI4_AMBER23_SVM)/svm/a23_tracer/defs.mk
 
 CXXFLAGS += -I$(SYSTEMC)/include -I$(SOCBLOX)/svm 
 CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svm
@@ -56,6 +57,7 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
           	$(BFM_AXI4_SVM_SRAM_LINK) \
           	$(COMMON_SVM_LINK) \
           	$(LIBSVM_SC_LINK) \
+          $(A23_TRACER_LINK) \
 	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread
 
 $(BUILD_DIR)/axi4_amber23_svm.a : $(SVM_OBJS)
@@ -70,3 +72,4 @@ $(BUILD_DIR)/axi4_amber23_svm.a : $(SVM_OBJS)
 
 include $(SOCBLOX)/rules.mk
 include $(AXI4_AMBER23_SVM)/tests/sw/rules.mk
+include $(AXI4_AMBER23_SVM)/svm/a23_tracer/rules.mk
