@@ -9,6 +9,7 @@
 #define SVM_ROOT_H_
 
 #include "svm_component.h"
+#include "svm_objection.h"
 
 class svm_cmdline;
 
@@ -19,13 +20,15 @@ class svm_root : public svm_component {
 
 		virtual ~svm_root();
 
-//		static int svm_runtest_init(const char *testname);
-
 		void elaborate();
 
 		void run();
 
 		svm_cmdline &cmdline();
+
+		virtual void raise_objection();
+
+		virtual void drop_objection();
 
 	private:
 
@@ -38,6 +41,7 @@ class svm_root : public svm_component {
 	private:
 
 		svm_cmdline					*m_cmdline;
+		svm_objection				m_objection;
 
 };
 

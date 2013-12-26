@@ -31,7 +31,23 @@ void svm_semaphore::put(int count)
 	m_mutex.lock();
 
 	m_count += count;
-	m_cond.notify();
+	m_cond.notify_all();
 
 	m_mutex.unlock();
 }
+
+bool svm_semaphore::try_get(int count)
+{
+	bool ret = false;
+	m_mutex.lock();
+
+	if (m_count <= count) {
+		m_count -= count;
+		ret = true;
+	}
+
+	m_mutex.unlock();
+
+	return ret;
+}
+

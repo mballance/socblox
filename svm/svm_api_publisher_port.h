@@ -26,7 +26,8 @@ template <class P> class svm_api_publisher_port {
 
 		template <typename ...Ts> void operator()(void (P::*method)(Ts...), Ts... args) {
 			for (uint32_t i=0; i<m_observers.size(); i++) {
-//				*m_observers.at(i)->provides().*method(args...);
+				P *api = m_observers.at(i)->provides();
+				(*api.*method)(args...);
 			}
 		}
 

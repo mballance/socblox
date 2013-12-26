@@ -36,3 +36,8 @@ void svm_thread::start()
 		// Error:
 	}
 }
+
+void svm_thread::yield()
+{
+	yield_thread();
+}

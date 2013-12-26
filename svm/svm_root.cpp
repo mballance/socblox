@@ -35,6 +35,19 @@ void svm_root::run()
 //	start();
 
 	// Wait for all objections to be dropped
+	fprintf(stdout, "--> run::wait_all_dropped\n");
+	m_objection.wait_all_dropped();
+	fprintf(stdout, "<-- run::wait_all_dropped\n");
+}
+
+void svm_root::raise_objection()
+{
+	m_objection.raise();
+}
+
+void svm_root::drop_objection()
+{
+	m_objection.drop();
 }
 
 svm_cmdline &svm_root::cmdline()

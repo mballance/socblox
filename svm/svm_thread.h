@@ -30,6 +30,8 @@ class svm_thread {
 
 		void start();
 
+		static void yield();
+
 		// Implementation-specific
 		static svm_thread *self();
 
@@ -44,6 +46,8 @@ class svm_thread {
 		static svm_native_thread_h create_thread(const svm_closure_base *closure);
 
 		static void cleanup_thread(svm_native_thread_h);
+
+		static void yield_thread();
 
 };
 

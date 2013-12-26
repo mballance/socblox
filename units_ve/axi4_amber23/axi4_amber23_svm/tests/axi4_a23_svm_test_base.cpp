@@ -7,6 +7,7 @@
 
 #include "axi4_a23_svm_test_base.h"
 #include "axi4_svm_sram_dpi_mgr.h"
+#include "a23_tracer_dpi_mgr.h"
 
 axi4_a23_svm_test_base::axi4_a23_svm_test_base(const char *name) : svm_test(name) {
 	// TODO Auto-generated constructor stub
@@ -28,6 +29,7 @@ void axi4_a23_svm_test_base::connect()
 	axi4_svm_sram_dpi_mgr::connect("tb.tb.v.s0", m_env->m_s0_bfm->port);
 
 	// Connect the tracer to the
+	a23_tracer_dpi_mgr::connect("tb.tb.v.core.u_tracer.u_svm_tracer", m_env->m_tracer->port);
 }
 
 void axi4_a23_svm_test_base::start()

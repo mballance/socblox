@@ -10,7 +10,9 @@
 
 #include "axi4_a23_svm_test_base.h"
 
-class axi4_a23_svm_coretest: public axi4_a23_svm_test_base {
+class axi4_a23_svm_coretest:
+		public axi4_a23_svm_test_base,
+		public virtual a23_tracer_if {
 	svm_test_ctor_decl(axi4_a23_svm_coretest)
 
 	public:
@@ -26,8 +28,23 @@ class axi4_a23_svm_coretest: public axi4_a23_svm_test_base {
 
 		void run();
 
+		// Tracer API
+		virtual void mem_access(
+				uint32_t			addr,
+				bool				is_write,
+				uint32_t			data);
+
+		virtual void execute(
+				uint32_t			addr,
+				uint32_t			op
+				);
+
 	private:
-		svm_thread					m_run_thread;
+		svm_api_export<a23_tracer_if>		tracer_port;
+
+	private:
+		svm_thread							m_run_thread;
+		svm_semaphore						m_end_sem;
 
 };
 

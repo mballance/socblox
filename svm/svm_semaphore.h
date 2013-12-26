@@ -19,6 +19,8 @@ class svm_semaphore {
 
 		void get(int count=1);
 
+		bool try_get(int count=1);
+
 	private:
 		int					m_count;
 		svm_thread_cond		m_cond;

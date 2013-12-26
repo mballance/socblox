@@ -32,9 +32,9 @@ class svm_component {
 
 		virtual void start();
 
-		void raise_objection();
+		virtual void raise_objection();
 
-		void drop_objection();
+		virtual void drop_objection();
 
 	private:
 

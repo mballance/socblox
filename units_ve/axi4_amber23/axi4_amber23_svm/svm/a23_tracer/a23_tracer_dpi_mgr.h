@@ -5,8 +5,8 @@
  *      Author: ballance
  */
 
-#ifndef AXI4_MASTER_BFM_DPI_MGR_H_
-#define AXI4_MASTER_BFM_DPI_MGR_H_
+#ifndef A23_TRACER_DPI_MGR_H_
+#define A23_TRACER_DPI_MGR_H_
 #include "svm.h"
 #include "a23_tracer_if.h"
 #include <map>
@@ -69,4 +69,4 @@ class a23_tracer_dpi_mgr {
 
 
 
-#endif /* AXI4_MASTER_BFM_DPI_MGR_H_ */
+#endif /* A23_TRACER_DPI_MGR_H_ */

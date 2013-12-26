@@ -38,3 +38,11 @@ svm_native_thread_h svm_thread::create_thread(const svm_closure_base *closure)
 	return thread;
 }
 
+void svm_thread::yield_thread()
+{
+	sc_simcontext *context_p = sc_get_curr_simcontext();
+
+	// Wait for a delta cycle
+	wait(sc_time(0, SC_NS), context_p);
+}
+

@@ -40,6 +40,18 @@ void svm_component::start()
 	// Do nothing
 }
 
+void svm_component::raise_objection()
+{
+	svm_root *root = get_root();
+	root->raise_objection();
+}
+
+void svm_component::drop_objection()
+{
+	svm_root *root = get_root();
+	root->drop_objection();
+}
+
 svm_root *svm_component::get_root()
 {
 	svm_component *p = m_parent;

@@ -37,6 +37,8 @@ class axi4_amber23_svm_tb : public sc_module {
 			wait(sc_time(1, SC_NS));
 			svm_runtest();
 
+			sc_stop();
+
 //			fprintf(stdout, "target=%s\n", target);
 
 			/*

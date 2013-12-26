@@ -16,6 +16,7 @@ SVM_SRC= \
   svm_factory.cpp \
   svm_object_ctor.cpp \
   svm_object.cpp \
+  svm_objection.cpp \
   svm_root.cpp \
   svm_runtest.cpp \
   svm_test.cpp \
