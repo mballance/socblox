@@ -24,6 +24,11 @@ class a23_tracer_if {
 				uint32_t			op
 				) = 0;
 
+		virtual void regchange(
+				uint32_t			reg,
+				uint32_t			val
+				) = 0;
+
 };
 
 

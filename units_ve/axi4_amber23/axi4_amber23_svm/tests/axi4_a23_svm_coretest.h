@@ -39,12 +39,20 @@ class axi4_a23_svm_coretest:
 				uint32_t			op
 				);
 
+		virtual void regchange(
+				uint32_t			reg,
+				uint32_t			val
+				);
+
 	private:
 		svm_api_export<a23_tracer_if>		tracer_port;
 
 	private:
 		svm_thread							m_run_thread;
 		svm_semaphore						m_end_sem;
+		uint32_t							m_instr_timeout;
+		uint32_t							m_instr_count;
+		uint32_t							m_test_status;
 
 };
 

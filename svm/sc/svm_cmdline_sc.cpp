@@ -7,15 +7,23 @@
 
 #include "svm_cmdline.h"
 #include "systemc.h"
+#include "svm_argfile_parser.h"
+#include <vector>
+#include <string>
 
-int svm_cmdline::argc()
-{
-	return sc_argc();
-}
+using namespace std;
 
-const char * const*svm_cmdline::argv()
+vector<string> svm_cmdline::args()
 {
-	return sc_argv();
+	int argc = sc_argc();
+	const char *const *argv = sc_argv();
+
+	svm_argfile_parser parser;
+
+	parser.process(argc, argv);
+
+
+	return parser.cmdline();
 }
 
 

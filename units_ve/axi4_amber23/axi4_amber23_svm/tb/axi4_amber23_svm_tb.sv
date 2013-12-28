@@ -109,7 +109,9 @@ module axi4_amber23_svm_tb(
 		.i_address                (i_address               ), 
 		.i_write_data             (i_write_data            ), 
 		.i_byte_enable            (i_byte_enable           ), 
-		.i_read_data              (i_read_data             ));
+		.i_read_data              (i_read_data             ),
+		.i_r0_r15_user            (i_r0_r15_user           )
+		);
 	
 	
 endmodule

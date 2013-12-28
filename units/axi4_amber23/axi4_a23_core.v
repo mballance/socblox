@@ -340,6 +340,25 @@ a23_coprocessor u_coprocessor (
     .o_cacheable_area                   ( cacheable_area                    )
 );
 
+wire [31:0]			r0_r15_user[15:0];
+
+assign r0_r15_user[0] = u_execute.u_register_bank.r0;
+assign r0_r15_user[1] = u_execute.u_register_bank.r1;
+assign r0_r15_user[2] = u_execute.u_register_bank.r2;
+assign r0_r15_user[3] = u_execute.u_register_bank.r3;
+assign r0_r15_user[4] = u_execute.u_register_bank.r4;
+assign r0_r15_user[5] = u_execute.u_register_bank.r5;
+assign r0_r15_user[6] = u_execute.u_register_bank.r6;
+assign r0_r15_user[7] = u_execute.u_register_bank.r7;
+assign r0_r15_user[8] = u_execute.u_register_bank.r8;
+assign r0_r15_user[9] = u_execute.u_register_bank.r9;
+assign r0_r15_user[10] = u_execute.u_register_bank.r10;
+assign r0_r15_user[11] = u_execute.u_register_bank.r11;
+assign r0_r15_user[12] = u_execute.u_register_bank.r12;
+assign r0_r15_user[13] = u_execute.u_register_bank.r13;
+assign r0_r15_user[14] = u_execute.u_register_bank.r14;
+assign r0_r15_user[15] = u_execute.u_register_bank.r15;
+
 a23_tracer u_tracer (
 	.i_clk                    (i_clk											),
 	.i_fetch_stall            (u_decode.i_fetch_stall							), 
@@ -359,7 +378,8 @@ a23_tracer u_tracer (
 	.i_address                ({execute_address[31:2], 2'd0}					), 
 	.i_write_data             (write_data										), 
 	.i_byte_enable            (byte_enable										), 
-	.i_read_data              (u_decode.i_read_data								)
+	.i_read_data              (u_decode.i_read_data								),
+	.i_r0_r15_user			  (r0_r15_user										)
 	);
 
 endmodule

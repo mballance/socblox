@@ -70,6 +70,28 @@ int axi4_a23_svm_tracer_execute(
 	return 0;
 }
 
+extern "C" int axi4_a23_svm_tracer_regchange(
+		uint32_t		reg,
+		uint32_t		val
+		);
+int axi4_a23_svm_tracer_regchange(
+		uint32_t		reg,
+		uint32_t		val
+		)
+{
+	const char *scope = svGetNameFromScope(svGetScope());
+	a23_tracer_dpi_closure *c = a23_tracer_dpi_mgr::get_closure(scope);
+
+	if (c) {
+		c->call(&a23_tracer_if::regchange, reg, val);
+	} else {
+		fprintf(stdout, "Error: regchange(0x%08x, 0x%08x) no tracer module for %s\n",
+					reg, val, scope);
+	}
+	return 0;
+}
+
+
 void a23_tracer_dpi_mgr::connect(
 		const string							&target,
 		svm_api_publisher_port<a23_tracer_if>	&port)

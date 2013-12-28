@@ -61,7 +61,8 @@ input		[31:0]			pc_nxt,
 input		[31:0]			i_address,
 input		[31:0]			i_write_data,
 input		[3:0]			i_byte_enable,
-input		[31:0]			i_read_data
+input		[31:0]			i_read_data,
+input		[31:0]			i_r0_r15_user[15:0]
 );
 
 // Shell is overridden with a bind

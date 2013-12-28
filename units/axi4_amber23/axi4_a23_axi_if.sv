@@ -164,7 +164,7 @@ reg                         wbuf_busy_r = 'd0;
 	end
 	
 	assign read_ack = (read_state == 2 && master.RVALID && master.RREADY);
-	assign write_ack = 1;
+	assign write_ack = (write_state == 3 && master.BREADY && master.BVALID);
 	
 	assign core_read_request    = i_select && !i_write_enable;
 	assign core_write_request   = i_select &&  i_write_enable;
@@ -187,7 +187,13 @@ reg                         wbuf_busy_r = 'd0;
 	assign master.AWADDR = (master.AWVALID)?i_address:{32{0}};
 	assign master.AWLEN = 0;
 	assign master.AWSIZE = 2;
+	
+	assign master.WVALID = (write_state == 2)?1:0;
+	assign master.WDATA = (write_state == 2)?i_write_data:{32{0}};
+	assign master.WLAST = (write_state == 2)?1:0;
+	assign master.WSTRB = (write_state == 2)?{4{1}}:0;
 
+	assign master.BREADY = (write_state == 3);
 
 `ifdef UNDEFINED
 assign read_ack             = !o_wb_we && i_wb_ack;

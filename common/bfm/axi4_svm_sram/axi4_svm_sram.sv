@@ -73,10 +73,6 @@ module axi4_svm_sram #(
     
     assign s.RRESP = {2{1'b0}};
     assign s.BRESP = {2{1'b0}};
-/** Verilator    
-     */
-    assign s.RRESP = 0;
-    assign s.BRESP = 0;
     
     reg[1:0] 						write_state;
     reg[MEM_ADDR_BITS-1:0]			write_addr;
@@ -93,10 +89,10 @@ module axi4_svm_sram #(
     	if (!ARESETn) begin
     		write_state <= 2'b00;
     		read_state <= 2'b00;
-//    		write_addr <= '{MEM_ADDR_BITS{1'b0}};
+    		write_addr <= {MEM_ADDR_BITS{1'b0}};
     		write_addr <= 0;
     		write_count <= 4'b0000;
-//    		read_addr <= '{MEM_ADDR_BITS{1'b0}};
+    		read_addr <= {MEM_ADDR_BITS{1'b0}};
     		read_addr <= 0;
     		read_count <= 4'b0000;
     		read_length <= 4'b0000;
@@ -104,7 +100,7 @@ module axi4_svm_sram #(
     		case (write_state) 
     			2'b00: begin // Wait Address state
     				if (s.AWVALID == 1'b1 && s.AWREADY == 1'b1) begin
-    					write_addr <= s.AWADDR[MEM_ADDR_BITS+3:4];
+    					write_addr <= s.AWADDR[MEM_ADDR_BITS+2:2];
     					write_id <= s.AWID;
     					write_count <= 0;
     					write_state <= 1;
@@ -114,7 +110,7 @@ module axi4_svm_sram #(
     			2'b01: begin // Wait for write data
     				if (s.WVALID == 1'b1 && s.WREADY == 1'b1) begin
     					$display("%m: write 'h%08h='h%08h", (write_addr+write_count), s.WDATA);
-    					ram[write_addr[MEM_ADDR_BITS+2-1:2] + write_count] <= s.WDATA;
+    					ram[write_addr + write_count] <= s.WDATA;
     					if (s.WLAST == 1'b1) begin
     						write_state <= 2;
     					end else begin

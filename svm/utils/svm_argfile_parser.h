@@ -22,23 +22,9 @@ class svm_argfile_parser {
 
 		virtual ~svm_argfile_parser();
 
-		int process(int argc, char **argv);
+		int process(int argc, const char *const* argv);
 
-	private:
-		class InData {
-
-			private:
-				FILE			*m_fp;
-				int				 m_unget_ch;
-
-			public:
-				InData(FILE *fp) : m_fp(fp), m_unget_ch(-1) {}
-
-				int get_ch();
-
-				void unget_ch(int ch);
-
-		};
+		const vector<string> &cmdline() const;
 
 	private:
 
@@ -47,19 +33,18 @@ class svm_argfile_parser {
 				bool				process_rel,
 				const string		&file);
 
-		int getch();
-
-		void unget(int ch);
-
 		string expand(const string &path);
 
 		bool next_tok(string &tok);
 
+		int get_ch();
+
+		void unget_ch(int ch);
+
 	private:
+		int							m_unget_ch;
 		FILE						*m_fp;
 		vector<string>				m_args;
-		int							m_argc;
-		char						**m_argv;
 };
 
 #endif /* SVM_ARGFILE_PARSER_H_ */

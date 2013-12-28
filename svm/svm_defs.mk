@@ -32,11 +32,13 @@ SVM_SC_SRC= \
 	svm_thread_sc.cpp \
 	svm_thread_mutex_sc.cpp \
 	svm_thread_cond_sc.cpp \
-	svm_cmdline_sc.cpp
+	svm_cmdline_sc.cpp \
+	svm_argfile_parser.cpp
 	
 SVM_OBJS=$(foreach o,$(SVM_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 SVM_SC_OBJS=$(foreach o,$(SVM_SC_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 
 CXXFLAGS += -I$(SOCBLOX)/svm
+CXXFLAGS += -I$(SOCBLOX)/svm/utils
 
 

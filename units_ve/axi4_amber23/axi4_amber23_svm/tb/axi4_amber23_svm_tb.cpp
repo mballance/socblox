@@ -13,10 +13,6 @@
 #include "svm_elf_loader.h"
 #include "svdpi.h"
 
-extern "C" {
-void axi4_amber23_svm_mem_write32(uint32_t addr, uint32_t data);
-}
-
 class axi4_amber23_svm_tb : public sc_module {
 
 	public:
@@ -38,19 +34,6 @@ class axi4_amber23_svm_tb : public sc_module {
 			svm_runtest();
 
 			sc_stop();
-
-//			fprintf(stdout, "target=%s\n", target);
-
-			/*
-			for (int i=0; i<64; i++) {
-				s0_bfm->write32(i*4, 0xAAEEFF00+i);
-			}
-
-			svSetScope(svGetScopeFromName("tb.tb.v.s0"));
-			axi4_amber23_svm_mem_write32(0, 0xAAEEFF00);
-			 */
-
-			// TODO: instantiate testbench
 		}
 
 	public:
@@ -75,7 +58,7 @@ int sc_main(int argc, char **argv)
 	tb->tb->trace(tfp, 99);
 	tfp->open("vlt_dump.vcd");
 
-	sc_start(10000, SC_NS);
+	sc_start(1000000, SC_NS);
 
 	tb->tb->final();
 	tfp->close();

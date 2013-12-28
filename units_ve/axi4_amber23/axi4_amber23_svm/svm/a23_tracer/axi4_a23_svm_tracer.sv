@@ -26,7 +26,9 @@ module axi4_a23_svm_tracer(
 		input		[31:0]			i_address,
 		input		[31:0]			i_write_data,
 		input		[3:0]			i_byte_enable,
-		input		[31:0]			i_read_data);
+		input		[31:0]			i_read_data,
+		input		[31:0]			i_r0_r15_user[15:0]
+		);
 	
 `include "a23_localparams.v"
 
@@ -57,6 +59,9 @@ module axi4_a23_svm_tracer(
 	reg                    execute_valid = 'd0;
 	reg                    execute_undefined = 'd0;
 	
+	
+	reg	[31:0]				r0_r15_user[15:0];
+	
 	import "DPI-C" context task axi4_a23_svm_tracer_register();
 	import "DPI-C" context task axi4_a23_svm_tracer_mem_access(
 			int unsigned			addr,
@@ -68,10 +73,24 @@ module axi4_a23_svm_tracer(
 			int unsigned			op
 			);
 	
+	import "DPI-C" context task axi4_a23_svm_tracer_regchange(
+			int unsigned			regno,
+			int unsigned			val
+			);
+	
 	initial begin
-		$display("call_register");
 		axi4_a23_svm_tracer_register();
 	end
+	
+	always @(posedge i_clk) begin
+		for (int i=0; i<15; i++) begin
+			if (i_r0_r15_user[i] != r0_r15_user[i]) begin
+				axi4_a23_svm_tracer_regchange(i, i_r0_r15_user[i]);
+				r0_r15_user[i] <= i_r0_r15_user[i];
+			end
+		end
+	end
+
 
 
 	// ========================================================
@@ -231,8 +250,7 @@ module axi4_a23_svm_tracer(
         
 			// Interrupts override instructions that are just starting
 			if ( interrupt_d1 == 3'd0 || interrupt_d1 == 3'd7 ) begin
-				axi4_a23_svm_tracer_execute(execute_address, xINSTRUCTION_EXECUTE);
-//				$display("%08x: %s", execute_address, xINSTRUCTION_EXECUTE);
+				axi4_a23_svm_tracer_execute(execute_address, execute_instruction);
 			end
 		end
 	end
@@ -246,35 +264,10 @@ module axi4_a23_svm_tracer(
 	always @(posedge i_clk) begin
 		// Data Write    
 		if ( i_write_enable && !fetch_stall ) begin
-        
-//					$fwrite(decompile_file, "%09d              write   addr ", `U_TB.clk_count);
 			axi4_a23_svm_tracer_mem_access(i_address, 1, i_write_data);
-//			tmp_address = i_address;
-//			fwrite_hex_drop_zeros(decompile_file, {tmp_address [31:2], 2'd0} );
-                  
-//			$fwrite(decompile_file, ", data %08h, be %h", 
-//					get_32bit_signal(3),    // i_write_data u_cache.i_write_data
-//					get_4bit_signal (0));   // i_byte_enable  u_cache.i_byte_enable
-                                       
-//			if ( get_1bit_signal(2) ) // Abort! address translation failed
-//					$fwrite(decompile_file, " aborted!\n");
-//			else                                 
-//					$fwrite(decompile_file, "\n");
-
 		end else if (i_data_access && !i_write_enable && !fetch_stall) begin
 			// Data Read    
-        
-//			$fwrite(decompile_file, "%09d              read    addr ", `U_TB.clk_count);
-			tmp_address = i_address;
 			axi4_a23_svm_tracer_mem_access(i_address, 0, i_read_data);
-//			fwrite_hex_drop_zeros(decompile_file, {tmp_address[31:2], 2'd0} );    
-                     
-//			$fwrite(decompile_file, ", data %08h", get_32bit_signal(4));  // i_read_data  u_decode.i_read_data
-                                      
-//			if ( get_1bit_signal(2) ) // Abort! address translation failed
-//				$fwrite(decompile_file, " aborted!\n");
-//			else                                 
-//				$fwrite(decompile_file, "\n");
 		end
 	end
 			

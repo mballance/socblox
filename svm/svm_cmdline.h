@@ -30,9 +30,7 @@ class svm_cmdline {
 
 	private:
 
-		static int argc();
-
-		static const char * const*argv();
+		static vector<string> args();
 
 	private:
 		vector<string>				m_args;

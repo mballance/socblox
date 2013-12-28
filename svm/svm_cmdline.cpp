@@ -9,11 +9,10 @@
 #include <string.h>
 
 svm_cmdline::svm_cmdline() {
-	int ac = argc();
-	const char * const *av = argv();
+	vector<string> argv = args();
 
-	for (int i=0; i<ac; i++) {
-		m_args.push_back(av[i]);
+	for (uint32_t i=0; i<argv.size(); i++) {
+		m_args.push_back(argv.at(i));
 	}
 }
 
