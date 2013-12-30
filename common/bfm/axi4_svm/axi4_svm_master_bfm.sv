@@ -1,13 +1,13 @@
 /****************************************************************************
- * svm_axi4_master_bfm.sv
+ * axi4_svm_master_bfm.sv
  ****************************************************************************/
 
 /**
- * Module: svm_axi4_master_bfm
+ * Module: axi4_svm_master_bfm
  * 
  * TODO: Add module documentation
  */
-module svm_axi4_master_bfm #(
+module axi4_svm_master_bfm #(
 			parameter int AXI4_ADDRESS_WIDTH=32,
 			parameter int AXI4_DATA_WIDTH=128,
 			parameter int AXI4_ID_WIDTH=4,
@@ -17,7 +17,7 @@ module svm_axi4_master_bfm #(
 			input			rstn,
 			axi4_if.master	master
 		);
-	bit[AXI4_DATA_WIDTH-1:0]			data_buf[AXI4_MAX_BURST_LENGTH];
+	bit[AXI4_DATA_WIDTH-1:0]			wdata_buf[AXI4_MAX_BURST_LENGTH];
 	reg[(AXI4_ADDRESS_WIDTH-1):0]		AWADDR_r;
 	reg[(AXI4_ID_WIDTH-1):0]			AWID_r;
 	reg[7:0]							AWLEN_r;
@@ -40,6 +40,20 @@ module svm_axi4_master_bfm #(
 	assign master.AWQOS = AWQOS_r;
 	assign master.AWREGION = AWREGION_r;
 	
+	task axi4_master_bfm_get_parameters(
+			output int unsigned ADDRESS_WIDTH,
+			output int unsigned DATA_WIDTH,
+			output int unsigned ID_WIDTH);
+			ADDRESS_WIDTH = AXI4_ADDRESS_WIDTH;
+			DATA_WIDTH = AXI4_DATA_WIDTH;
+			ID_WIDTH = AXI4_ID_WIDTH;
+	endtask
+	export "DPI-C" task axi4_master_bfm_get_parameters;
+	
+	import "DPI-C" context task axi4_master_bfm_register();
+	import "DPI-C" context task axi4_master_bfm_bresp(
+			int unsigned resp);
+	
 	initial begin
 		axi4_master_bfm_register();
 	end
@@ -47,6 +61,7 @@ module svm_axi4_master_bfm #(
 
 	// AW state machine
 	reg[2:0]				aw_state;
+	reg[7:0]				write_count;
 	always @(posedge clk) begin
 		if (rstn != 1) begin
 			aw_state <= 0;
@@ -63,13 +78,35 @@ module svm_axi4_master_bfm #(
 				1: begin
 					if (master.AWVALID && master.AWREADY) begin
 						AWVALID_r <= 0;
-						aw_state <= 0;
+						aw_state <= 2;
 						axi4_master_bfm_aw_ready();
+					end
+				end
+			
+				// 
+				2: begin
+					if (master.WREADY && master.WVALID) begin
+						if (write_count == AWLEN_r) begin
+							write_count <= 0;
+							aw_state <= 3;
+						end
+					end
+				end
+				
+				3: begin
+					if (master.BREADY && master.BVALID) begin
+						aw_state <= 0;
+						axi4_master_bfm_bresp(master.BRESP);
 					end
 				end
 			endcase
 		end
 	end
+	
+	assign master.WDATA = (aw_state == 2)?wdata_buf[write_count]:0;
+	assign master.WVALID = (aw_state == 2);
+	assign master.WLAST = (aw_state == 2 && write_count == AWLEN_r);
+	assign master.BREADY = (aw_state == 3);
 	
 	task axi4_master_bfm_aw_valid(
 		longint unsigned				AWADDR,
@@ -92,10 +129,16 @@ module svm_axi4_master_bfm #(
 		AWREGION_r = AWREGION;
 	endtask
 	export "DPI-C" task axi4_master_bfm_aw_valid;
-
-	import "DPI-C" task axi4_master_bfm_aw_ready();
 	
-	import "DPI-C" context function axi4_master_bfm_register();
+	task axi4_master_bfm_set_data(
+		int unsigned					idx,
+		int unsigned					data);
+		wdata_buf[idx] = data;
+	endtask
+	export "DPI-C" task axi4_master_bfm_set_data;
+
+	import "DPI-C" context task axi4_master_bfm_aw_ready();
+	
 
 endmodule
 

@@ -11,28 +11,46 @@ module axi4_interconnect_2x2 #(
 		parameter int AXI4_ADDRESS_WIDTH=32,
 		parameter int AXI4_DATA_WIDTH=128,
 		parameter int AXI4_ID_WIDTH=4
+,
+		parameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE0_ADDR_BASE='h0,
+		parameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE0_ADDR_LIMIT='h0,
+		parameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE1_ADDR_BASE='h0,
+		parameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE1_ADDR_LIMIT='h0
 		) (
 		input						clk,
 		input						rstn,
 		axi4_if.master					m0,
 		axi4_if.master					m1,
 		axi4_if.slave					s0,
-		axi4_if.slave					s1,
-		axi4_if.slave					serr
+		axi4_if.slave					s1
 		);
 	
 	localparam int AXI4_DATA_MSB = (AXI4_DATA_WIDTH-1);
 	localparam int AXI4_WSTRB_MSB = (AXI4_DATA_WIDTH/8)-1;
 	localparam int N_MASTERS = 2;
 	localparam int N_SLAVES = 2;
-	localparam int N_MASTERID_BITS = $clog2(N_MASTERS);
+	localparam int N_MASTERID_BITS = (N_MASTERS>1)?$clog2(N_MASTERS):1;
 	localparam int N_SLAVEID_BITS = $clog2(N_SLAVES+1);
 	localparam bit[N_SLAVEID_BITS:0]		NO_SLAVE  = {(N_SLAVEID_BITS+1){1'b1}};
 	localparam bit[N_MASTERID_BITS:0]		NO_MASTER = {(N_MASTERID_BITS+1){1'b1}};
 	
-	function reg[N_SLAVEID_BITS-1:0] addr2slave(reg[AXI4_ADDRESS_WIDTH-1:0] addr);
-		// TODO: fill in decode logic
-		return (2+1);
+	// Interface to the decode-fail slave
+	axi4_if				serr(.ACLK(clk), .ARESETn(rstn));
+	
+	function reg[N_SLAVEID_BITS-1:0] addr2slave(
+		reg[N_MASTERID_BITS-1:0]	master,
+		reg[AXI4_ADDRESS_WIDTH-1:0] addr,
+		output reg[AXI4_ADDRESS_WIDTH-1:0] addr_o
+		);
+		addr_o = addr;
+		if (addr >= SLAVE0_ADDR_BASE && addr <= SLAVE0_ADDR_LIMIT) begin
+			return 0;
+		end
+		if (addr >= SLAVE1_ADDR_BASE && addr <= SLAVE1_ADDR_LIMIT) begin
+			return 1;
+		end
+		
+		return (2);
 	endfunction
 	
 	bit[3:0]									write_req_state[N_MASTERS-1:0];
@@ -72,6 +90,7 @@ module axi4_interconnect_2x2 #(
 	wire										RREADY[N_MASTERS-1:0];
 
 	// Stored request
+	reg[AXI4_ADDRESS_WIDTH-1:0]					R_AWADDR_i[N_MASTERS-1:0];
 	reg[AXI4_ADDRESS_WIDTH-1:0]					R_AWADDR[N_MASTERS-1:0];
 	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		R_AWID[N_MASTERS-1:0];
 	reg[7:0]									R_AWLEN[N_MASTERS-1:0];
@@ -83,6 +102,7 @@ module axi4_interconnect_2x2 #(
 	reg[3:0]									R_AWREGION[N_MASTERS-1:0];
 	reg											R_AWVALID[N_MASTERS-1:0];
 
+	reg[AXI4_ADDRESS_WIDTH-1:0]					R_ARADDR_i[N_MASTERS-1:0];
 	reg[AXI4_ADDRESS_WIDTH-1:0]					R_ARADDR[N_MASTERS-1:0];
 	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		R_ARID[N_MASTERS-1:0];
 	reg[7:0]									R_ARLEN[N_MASTERS-1:0];
@@ -202,68 +222,68 @@ module axi4_interconnect_2x2 #(
 	// Slave requests
 	assign SAWREADY[0] = s0.AWREADY;
 	assign SAWREADY[1] = s1.AWREADY;
-	assign SAWREADY[2] = serr.AWREADY;
+	assign SAWREADY[2] = serr.master.AWREADY;
 	assign s0.AWADDR = SAWADDR[0];
 	assign s1.AWADDR = SAWADDR[1];
-	assign serr.AWADDR = SAWADDR[2];
+	assign serr.master.AWADDR = SAWADDR[2];
 	assign s0.AWID = SAWID[0];
 	assign s1.AWID = SAWID[1];
-	assign serr.AWID = SAWID[2];
+	assign serr.master.AWID = SAWID[2];
 	assign s0.AWLEN = SAWLEN[0];
 	assign s1.AWLEN = SAWLEN[1];
-	assign serr.AWLEN = SAWLEN[2];
+	assign serr.master.AWLEN = SAWLEN[2];
 	assign s0.AWSIZE = SAWSIZE[0];
 	assign s1.AWSIZE = SAWSIZE[1];
-	assign serr.AWSIZE = SAWSIZE[2];
+	assign serr.master.AWSIZE = SAWSIZE[2];
 	assign s0.AWBURST = SAWBURST[0];
 	assign s1.AWBURST = SAWBURST[1];
-	assign serr.AWBURST = SAWBURST[2];
+	assign serr.master.AWBURST = SAWBURST[2];
 	assign s0.AWCACHE = SAWCACHE[0];
 	assign s1.AWCACHE = SAWCACHE[1];
-	assign serr.AWCACHE = SAWCACHE[2];
+	assign serr.master.AWCACHE = SAWCACHE[2];
 	assign s0.AWPROT = SAWPROT[0];
 	assign s1.AWPROT = SAWPROT[1];
-	assign serr.AWPROT = SAWPROT[2];
+	assign serr.master.AWPROT = SAWPROT[2];
 	assign s0.AWQOS = SAWQOS[0];
 	assign s1.AWQOS = SAWQOS[1];
-	assign serr.AWQOS = SAWQOS[2];
+	assign serr.master.AWQOS = SAWQOS[2];
 	assign s0.AWREGION = SAWREGION[0];
 	assign s1.AWREGION = SAWREGION[1];
-	assign serr.AWREGION = SAWREGION[2];
+	assign serr.master.AWREGION = SAWREGION[2];
 	assign s0.AWVALID = SAWVALID[0];
 	assign s1.AWVALID = SAWVALID[1];
-	assign serr.AWVALID = SAWVALID[2];
+	assign serr.master.AWVALID = SAWVALID[2];
 
 
 	assign SWREADY[0] = s0.WREADY;
 	assign SWREADY[1] = s1.WREADY;
-	assign SWREADY[2] = serr.WREADY;
+	assign SWREADY[2] = serr.master.WREADY;
 	assign s0.WDATA = SWDATA[0];
 	assign s1.WDATA = SWDATA[1];
-	assign serr.WDATA = SWDATA[2];
+	assign serr.master.WDATA = SWDATA[2];
 	assign s0.WSTRB = SWSTRB[0];
 	assign s1.WSTRB = SWSTRB[1];
-	assign serr.WSTRB = SWSTRB[2];
+	assign serr.master.WSTRB = SWSTRB[2];
 	assign s0.WLAST = SWLAST[0];
 	assign s1.WLAST = SWLAST[1];
-	assign serr.WLAST = SWLAST[2];
+	assign serr.master.WLAST = SWLAST[2];
 	assign s0.WVALID = SWVALID[0];
 	assign s1.WVALID = SWVALID[1];
-	assign serr.WVALID = SWVALID[2];
+	assign serr.master.WVALID = SWVALID[2];
 
 
 	assign SBID[0] = s0.BID;
 	assign SBID[1] = s1.BID;
-	assign SBID[2] = serr.BID;
+	assign SBID[2] = serr.master.BID;
 	assign SBRESP[0] = s0.BRESP;
 	assign SBRESP[1] = s1.BRESP;
-	assign SBRESP[2] = serr.BRESP;
+	assign SBRESP[2] = serr.master.BRESP;
 	assign SBVALID[0] = s0.BVALID;
 	assign SBVALID[1] = s1.BVALID;
-	assign SBVALID[2] = serr.BVALID;
+	assign SBVALID[2] = serr.master.BVALID;
 	assign s0.BREADY = SBREADY[0];
 	assign s1.BREADY = SBREADY[1];
-	assign serr.BREADY = SBREADY[2];
+	assign serr.master.BREADY = SBREADY[2];
 	
 
 // Read request state machine
@@ -296,61 +316,61 @@ module axi4_interconnect_2x2 #(
 	assign m1.ARREADY = ARREADY[1];
 	
 	
-	assign RDATA[0] = m0.RDATA;
-	assign RDATA[1] = m1.RDATA;
-	assign RLAST[0] = m0.RLAST;
-	assign RLAST[1] = m1.RLAST;
-	assign RVALID[0] = m0.RVALID;
-	assign RVALID[1] = m1.RVALID;
-	assign m0.RREADY = RREADY[0];
-	assign m1.RREADY = RREADY[1];
+	assign RREADY[0] = m0.RREADY;
+	assign RREADY[1] = m1.RREADY;
+	assign m0.RDATA = RDATA[0];
+	assign m1.RDATA = RDATA[1];
+	assign m0.RLAST = RLAST[0];
+	assign m1.RLAST = RLAST[1];
+	assign m0.RVALID = RVALID[0];
+	assign m1.RVALID = RVALID[1];
 	
 	
 	// Slave requests
 	assign SARREADY[0] = s0.ARREADY;
 	assign SARREADY[1] = s1.ARREADY;
-	assign SARREADY[2] = serr.ARREADY;
+	assign SARREADY[2] = serr.master.ARREADY;
 	assign s0.ARADDR = SARADDR[0];
 	assign s1.ARADDR = SARADDR[1];
-	assign serr.ARADDR = SARADDR[2];
+	assign serr.master.ARADDR = SARADDR[2];
 	assign s0.ARID = SARID[0];
 	assign s1.ARID = SARID[1];
-	assign serr.ARID = SARID[2];
+	assign serr.master.ARID = SARID[2];
 	assign s0.ARLEN = SARLEN[0];
 	assign s1.ARLEN = SARLEN[1];
-	assign serr.ARLEN = SARLEN[2];
+	assign serr.master.ARLEN = SARLEN[2];
 	assign s0.ARSIZE = SARSIZE[0];
 	assign s1.ARSIZE = SARSIZE[1];
-	assign serr.ARSIZE = SARSIZE[2];
+	assign serr.master.ARSIZE = SARSIZE[2];
 	assign s0.ARBURST = SARBURST[0];
 	assign s1.ARBURST = SARBURST[1];
-	assign serr.ARBURST = SARBURST[2];
+	assign serr.master.ARBURST = SARBURST[2];
 	assign s0.ARCACHE = SARCACHE[0];
 	assign s1.ARCACHE = SARCACHE[1];
-	assign serr.ARCACHE = SARCACHE[2];
+	assign serr.master.ARCACHE = SARCACHE[2];
 	assign s0.ARPROT = SARPROT[0];
 	assign s1.ARPROT = SARPROT[1];
-	assign serr.ARPROT = SARPROT[2];
+	assign serr.master.ARPROT = SARPROT[2];
 	assign s0.ARREGION = SARREGION[0];
 	assign s1.ARREGION = SARREGION[1];
-	assign serr.ARREGION = SARREGION[2];
+	assign serr.master.ARREGION = SARREGION[2];
 	assign s0.ARVALID = SARVALID[0];
 	assign s1.ARVALID = SARVALID[1];
-	assign serr.ARVALID = SARVALID[2];
+	assign serr.master.ARVALID = SARVALID[2];
 	
 
-	assign SRREADY[0] = s0.RREADY;
-	assign SRREADY[1] = s1.RREADY;
-	assign SRREADY[2] = serr.RREADY;
-	assign s0.RDATA = SRDATA[0];
-	assign s1.RDATA = SRDATA[1];
-	assign serr.RDATA = SRDATA[2];
-	assign s0.RLAST = SRLAST[0];
-	assign s1.RLAST = SRLAST[1];
-	assign serr.RLAST = SRLAST[2];
-	assign s0.RVALID = SRVALID[0];
-	assign s1.RVALID = SRVALID[1];
-	assign serr.RVALID = SRVALID[2];
+	assign SRDATA[0] = s0.RDATA;
+	assign SRDATA[1] = s1.RDATA;
+	assign SRDATA[2] = serr.master.RDATA;
+	assign SRLAST[0] = s0.RLAST;
+	assign SRLAST[1] = s1.RLAST;
+	assign SRLAST[2] = serr.master.RLAST;
+	assign SRVALID[0] = s0.RVALID;
+	assign SRVALID[1] = s1.RVALID;
+	assign SRVALID[2] = serr.master.RVALID;
+	assign s0.RREADY = SRREADY[0];
+	assign s1.RREADY = SRREADY[1];
+	assign serr.master.RREADY = SRREADY[2];
 	
 
 	
@@ -362,6 +382,7 @@ module axi4_interconnect_2x2 #(
 				if (rstn == 0) begin
 					write_req_state[m_aw_i] <= 'b00;
 					write_selected_slave[m_aw_i] <= NO_SLAVE;
+					R_AWADDR_i[m_aw_i] <= 0;
 					R_AWADDR[m_aw_i] <= 0;
 					R_AWBURST[m_aw_i] <= 0;
 					R_AWCACHE[m_aw_i] <= 0;
@@ -378,7 +399,7 @@ module axi4_interconnect_2x2 #(
 						'b00: begin
 							if (AWREADY[m_aw_i] && AWVALID[m_aw_i] && !write_request_busy[m_aw_i]) begin
 								$display("Write request");
-								R_AWADDR[m_aw_i] <= AWADDR[m_aw_i];
+								R_AWADDR_i[m_aw_i] <= AWADDR[m_aw_i];
 								// Save the master ID that this request came from
 								R_AWID[m_aw_i][(N_MASTERID_BITS+AXI4_ID_WIDTH)-1:AXI4_ID_WIDTH] <= m_aw_i;
 								R_AWID[m_aw_i][AXI4_ID_WIDTH-1:0] <= AWID[m_aw_i];
@@ -396,7 +417,7 @@ module axi4_interconnect_2x2 #(
 				
 						// Decode state
 						'b01: begin
-							write_selected_slave[m_aw_i] <= addr2slave(R_AWADDR[m_aw_i]);
+							write_selected_slave[m_aw_i] <= addr2slave(m_aw_i, R_AWADDR_i[m_aw_i], R_AWADDR[m_aw_i]);
 							// Initiate the transfer when the
 							R_AWVALID[m_aw_i] <= 1;
 							write_req_state[m_aw_i] <= 'b10;
@@ -618,11 +639,12 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar m_ar_i;
 		for (m_ar_i=0; m_ar_i<N_MASTERS; m_ar_i++) begin
-			assign ARREADY[m_ar_i] = (read_req_state[m_ar_i] == 0);
+			assign ARREADY[m_ar_i] = (rstn != 0 && read_req_state[m_ar_i] == 0);
 			always @(posedge clk) begin
 				if (rstn == 0) begin
 					read_req_state[m_ar_i] <= 'b00;
 					read_selected_slave[m_ar_i] <= NO_SLAVE;
+					R_ARADDR_i[m_ar_i] <= 0;
 					R_ARADDR[m_ar_i] <= 0;
 					R_ARBURST[m_ar_i] <= 0;
 					R_ARCACHE[m_ar_i] <= 0;
@@ -637,7 +659,7 @@ module axi4_interconnect_2x2 #(
 						// Wait receipt of a request for an available target
 						'b00: begin
 							if (ARREADY[m_ar_i] && ARVALID[m_ar_i]) begin
-								R_ARADDR[m_ar_i] <= ARADDR[m_ar_i];
+								R_ARADDR_i[m_ar_i] <= ARADDR[m_ar_i];
 								// Save the master ID that this request came from
 								R_ARID[m_ar_i][(N_MASTERID_BITS+AXI4_ID_WIDTH)-1:AXI4_ID_WIDTH] <= m_ar_i;
 								R_ARID[m_ar_i][AXI4_ID_WIDTH-1:0] <= ARID[m_ar_i];
@@ -653,7 +675,7 @@ module axi4_interconnect_2x2 #(
 				
 						// Decode state
 						'b01: begin
-							read_selected_slave[m_ar_i] <= addr2slave(R_ARADDR[m_ar_i]);
+							read_selected_slave[m_ar_i] <= addr2slave(m_ar_i, R_ARADDR_i[m_ar_i], R_ARADDR[m_ar_i]);
 							// Initiate the transfer when the
 							R_ARVALID[m_ar_i] <= 1;
 							read_req_state[m_ar_i] <= 'b10;
@@ -841,7 +863,82 @@ module axi4_interconnect_2x2 #(
 			assign RDATA[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRDATA[r_slave_master_id[r_master_assign_i]];
 		end
 	endgenerate
-		
+
+	// Decode-fail target
+	reg[1:0]									write_state;
+	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		write_id;
+	assign serr.AWREADY = (write_state == 0);
+	assign serr.WREADY = (write_state == 1);
+	assign serr.BVALID = (write_state == 2);
+	assign serr.BID = (write_state == 2)?write_id:0;
+
+	always @(posedge clk) begin
+		if (rstn != 1) begin
+			write_state <= 0;
+		end else begin
+			case (write_state)
+				2'b00: begin
+					if (serr.AWVALID) begin
+						write_id <= serr.AWID;
+						write_state <= 1;
+					end
+				end
+				
+				2'b01: begin
+					if (serr.WVALID == 1'b1 && serr.WREADY == 1'b1) begin
+						if (serr.WLAST == 1'b1) begin
+							write_state <= 2;
+						end
+					end
+				end
+				
+				2'b10: begin // Send write response
+					if (serr.BVALID == 1'b1 && serr.BREADY == 1'b1) begin
+						write_state <= 2'b0;
+					end
+				end
+			endcase
+		end
+	end
+	
+	reg[1:0]									read_state;
+	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		read_id;
+	reg[7:0]									read_count;
+	reg[7:0]									read_length;
+	assign serr.ARREADY = (read_state == 0);
+	assign serr.RVALID = (read_state == 1);
+	assign serr.RDATA = 0;
+	assign serr.RLAST = (read_state == 1 && read_count == read_length);
+	assign serr.RID = (read_state == 1)?read_id:0;
+	
+	always @(posedge clk) begin
+		if (rstn != 1) begin
+			read_state <= 0;
+			read_count <= 0;
+			read_length <= 0;
+		end else begin
+			case (read_state)
+				0: begin
+					if (serr.ARVALID && serr.ARREADY) begin
+						read_state <= 1;
+						read_id <= serr.ARID;
+						read_count <= 0;
+						read_length <= serr.ARLEN;
+					end
+				end
+				
+				1: begin
+					if (serr.RVALID && serr.RREADY) begin
+						if (read_count == read_length) begin
+							read_state <= 1'b0;
+						end else begin
+							read_count <= read_count + 1;
+						end
+					end
+				end
+			endcase
+		end
+	end
 endmodule
 
 module axi4_interconnect_2x2_arbiter #(
@@ -864,8 +961,14 @@ module axi4_interconnect_2x2_arbiter #(
 	
 	wire[N_REQ-1:0] gnt_ppc;
 	wire[N_REQ-1:0]	gnt_ppc_next;
-	
-	assign gnt_ppc_next = {gnt_ppc[N_REQ-2:0], 1'b0};
+
+	generate
+		if (N_REQ > 1) begin
+			assign gnt_ppc_next = {gnt_ppc[N_REQ-2:0], 1'b0};
+		end else begin
+			assign gnt_ppc_next = gnt_ppc;
+		end
+	endgenerate
 
 	generate
 		genvar gnt_ppc_i;
@@ -955,6 +1058,8 @@ module axi4_interconnect_2x2_arbiter #(
 	
 		return result;
 	endfunction
+	
+
 
 endmodule
 

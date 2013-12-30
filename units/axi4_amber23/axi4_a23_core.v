@@ -12,7 +12,8 @@
 //  Author(s):                                                  //
 //      - Conor Santifort, csantifort.amber@gmail.com           //
 //		- Matthew Balance, matt.ballance@gmail.com				//
-//		
+//        - Add AXI4 interface									//
+//																//
 //                                                              //
 //////////////////////////////////////////////////////////////////
 //                                                              //

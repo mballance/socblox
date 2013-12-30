@@ -46,10 +46,10 @@ module axi4_sram #(
     	if (!ARESETn) begin
     		write_state <= 2'b00;
     		read_state <= 2'b00;
-//    		write_addr <= '{MEM_ADDR_BITS{1'b0}};
+    		write_addr <= {MEM_ADDR_BITS{1'b0}};
     		write_addr <= 0;
     		write_count <= 4'b0000;
-//    		read_addr <= '{MEM_ADDR_BITS{1'b0}};
+    		read_addr <= {MEM_ADDR_BITS{1'b0}};
     		read_addr <= 0;
     		read_count <= 4'b0000;
     		read_length <= 4'b0000;
@@ -57,7 +57,9 @@ module axi4_sram #(
     		case (write_state) 
     			2'b00: begin // Wait Address state
     				if (s.AWVALID == 1'b1 && s.AWREADY == 1'b1) begin
-    					write_addr <= s.AWADDR[MEM_ADDR_BITS+3:4];
+    					$display("%m: write_addr='h%08h AWADDR='h%08h", 
+    							s.AWADDR, s.AWADDR[MEM_ADDR_BITS+2:2]);
+    					write_addr <= s.AWADDR[MEM_ADDR_BITS+2:2];
     					write_id <= s.AWID;
     					write_count <= 0;
     					write_state <= 1;
@@ -89,7 +91,7 @@ module axi4_sram #(
     		case (read_state)
     			2'b00: begin // Wait address state
     				if (s.ARVALID && s.ARREADY) begin
-    					read_addr <= s.ARADDR[MEM_ADDR_BITS+3:4];
+    					read_addr <= s.ARADDR[MEM_ADDR_BITS+2:2];
     					read_length <= s.ARLEN;
     					read_count <= 0;
     					read_state <= 1;

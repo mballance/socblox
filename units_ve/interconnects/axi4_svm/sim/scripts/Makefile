@@ -1,58 +1,61 @@
 
+include $(SOCBLOX)/defs.mk
+
+UNIT_VE=axi4_interconnect_2x2
+TB=$(UNIT_VE)_tb
+
 ifeq ($(SIMX),1)
-include Vaxi4_interconnect_2x2_tb.mk
+include V$(TB).mk
 endif
 
-AXI4_SVM=$(SOCBLOX)/units_ve/interconnects/axi4_svm
+AXI4_2X2_DIR=$(SOCBLOX)/units_ve/interconnects/axi4_svm
+#include $(AXI4_AMBER23_SVM)/tests/sw/defs.mk
+#include $(AXI4_AMBER23_SVM)/svm/a23_tracer/defs.mk
+#include $(AXI4_AMBER23_SVM)/tests/defs.mk
+#include $(AXI4_AMBER23_SVM)/tb/defs.mk
 
 CXXFLAGS += -I$(SYSTEMC)/include -I$(SOCBLOX)/svm 
-CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svm
+#CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svm
 CXXFLAGS += -I$(BUILD_DIR)/obj_dir
 CXXFLAGS += -I$(VERILATOR_ROOT)/include
 CXXFLAGS += -I$(VERILATOR_ROOT)/include/vltstd
 
-CXXFLAGS += -I$(AXI4_SVM)/tb -I$(AXI4_SVM)/tests
+#CXXFLAGS += -I$(AXI4_SVM)/tb -I$(AXI4_SVM)/tests
 
 
 SV_SRC = \
  $(SOCBLOX)/common/rtl/axi4/axi4_if.sv \
- $(SOCBLOX)/common/bfm/axi4/axi4_master_bfm.sv \
- $(SOCBLOX)/common/bfm/axi4_svm/svm_axi4_master_bfm.sv \
+ $(SOCBLOX)/common/bfm/axi4_svm/axi4_svm_master_bfm.sv \
  $(SOCBLOX)/units_ve/interconnects/axi4_svm/tb/axi4_interconnect_2x2_tb.sv \
 
-SVM_SRC = \
- axi4_interconnect_env.cpp \
- axi4_interconnect_test_base.cpp \
-
-SVM_OBJS=$(foreach o,$(SVM_SRC:.cpp=.o),$(BUILD_DIR)/$(o))
-
-all : $(SV_SRC)
-	$(MAKE) -C $(SOCBLOX)
+all : $(LIB_TARGETS) $(TARGET_EXE_TARGETS)
 	verilator --trace --sc --Wno-fatal \
-		--top-module axi4_interconnect_2x2_tb $(SV_SRC)
-	$(MAKE) SIMX=1 -C obj_dir -f $(SIM_DIR)/scripts/Makefile \
-		$(BUILD_DIR)/simx
+		--top-module $(TB) -f $(SIM_DIR)/scripts/$(UNIT_VE).f
+	$(MAKE) SIMX=1 -C obj_dir -f $(SIM_DIR)/scripts/Makefile $(BUILD_DIR)/simx 
+
 
 $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
-	Vaxi4_interconnect_2x2_tb__ALL.a \
-	$(BUILD_DIR)/axi4_svm.a \
-	$(SOCBLOX)/units_ve/interconnects/axi4_svm/tb/axi4_interconnect_tb.cpp
+	V$(TB)__ALL.a \
+	$(BFM_AXI4_SVM_SRAM_LIB) \
+	$(COMMON_SVM_LIB) \
+	$(AXI4_2X2_DIR)/tb/$(TB).cpp \
+	$(A23_TESTBENCH_OBJS)
 	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/simx \
-      -Wl,--whole-archive \
-      $(BUILD_DIR)/axi4_svm.a \
-      -Wl,--no-whole-archive \
-	  $(SOCBLOX)/units_ve/interconnects/axi4_svm/tb/axi4_interconnect_tb.cpp \
-          Vaxi4_interconnect_2x2_tb__ALL.a \
+	  $(AXI4_2X2_DIR)/tb/$(TB).cpp \
+	      $(A23_TESTBENCH_OBJS) \
+	      -Wl,--whole-archive \
+          V$(TB)__ALL.a \
+	      -Wl,--no-whole-archive \
           $(VK_GLOBAL_OBJS) \
-          -L$(SOCBLOX)/libs/linux -lsvm_axi4_bfm -lsvm -lsvm_sc \
+          -L$(SOCBLOX_LIBDIR) \
+          	$(BFM_AXI4_SVM_SRAM_LINK) \
+          	$(AXI4_SVM_BFM_LINK) \
+          	$(COMMON_SVM_LINK) \
+          	$(LIBSVM_SC_LINK) \
 	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread
 
-$(BUILD_DIR)/axi4_svm.a : $(SVM_OBJS)
-	rm -f $@
-	$(AR) vcq $@ $^
-	
-$(BUILD_DIR)/%.o : $(AXI4_SVM)/tests/%.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $^
-	
-$(BUILD_DIR)/%.o : $(AXI4_SVM)/tb/%.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $^
+include $(SOCBLOX)/rules.mk
+#include $(AXI4_AMBER23_SVM)/tests/sw/rules.mk
+#include $(AXI4_AMBER23_SVM)/svm/a23_tracer/rules.mk
+#include $(AXI4_AMBER23_SVM)/tests/rules.mk
+#include $(AXI4_AMBER23_SVM)/tb/rules.mk

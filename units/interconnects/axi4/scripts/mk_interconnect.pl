@@ -404,7 +404,7 @@ sub axi4_slave_portlist($) {
 sub address_range_params($) {
 	my($n_slaves) = @_;
 	my($i);
-	my($params) = "";
+	my($params) = ",\n";
 	
 	for ($i=0; $i<$n_slaves; $i++) {
 		$params .= "\t\tparameter bit[AXI4_ADDRESS_WIDTH-1:0] SLAVE" . $i . "_ADDR_BASE='h0,\n";
@@ -422,7 +422,8 @@ sub add2slave_body($) {
 	my($i);
 	my($n) = 0;
 	my($params) = "";
-	
+
+	$params .= "\t\taddr_o = addr;\n";	
 	for ($i=0; $i<$n_slaves; $i++) {
 		$params .= "\t\tif (addr >= SLAVE" . $i . "_ADDR_BASE && addr <= SLAVE" . $i . "_ADDR_LIMIT) begin\n";
 		$params .= "\t\t\treturn " . $i . ";\n";

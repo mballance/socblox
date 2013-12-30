@@ -56,6 +56,9 @@ for ($i=0; $i <= $#ARGV; $i++) {
       $i++;
       $test=$ARGV[$i];
       push(@testlist, $ARGV[$i]);
+    } elsif ($arg eq "-testlist") {
+		$i++;
+    	push(@testlists, $ARGV[$i]);
     } elsif ($arg eq "-count") {
       $i++;
       $count=$ARGV[$i];

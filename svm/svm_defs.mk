@@ -39,6 +39,7 @@ SVM_OBJS=$(foreach o,$(SVM_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 SVM_SC_OBJS=$(foreach o,$(SVM_SC_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 
 CXXFLAGS += -I$(SOCBLOX)/svm
+CXXFLAGS += -I$(SOCBLOX)/svm/dpi
 CXXFLAGS += -I$(SOCBLOX)/svm/utils
 
 

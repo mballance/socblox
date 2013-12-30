@@ -9,7 +9,8 @@
 #define SVM_DPI_H_
 #include "svdpi.h"
 
-
+#include "svm_dpi_closure.h"
+#include "svm_dpi_mgr.h"
 
 
 #endif /* SVM_DPI_H_ */

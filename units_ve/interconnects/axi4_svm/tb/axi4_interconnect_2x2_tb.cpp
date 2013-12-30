@@ -9,7 +9,6 @@
 #include "verilated_vcd_sc.h"
 // #include "axi4_interconnect_tb.h"
 #include "Vaxi4_interconnect_2x2_tb.h"
-#include "svm_factory.h"
 #include "svm.h"
 
 class axi4_interconnect_tb : public sc_module {
@@ -25,21 +24,13 @@ class axi4_interconnect_tb : public sc_module {
 			tb->clk(clk);
 
 			SC_THREAD(run);
-
-			/*
-			master_bfm = new axi4_master_bfm("master_bfm", 0);
-
-			axi4_master_bfm_dpi_mgr::connect("foo", master_bfm->bfm_port);
-			 */
 		}
 
 		void run() {
 			wait(sc_time(1, SC_NS));
 
-			svm_test *test = svm_factory::get_default()->create_test("axi4_interconnect_test_base", "root");
-
-			test->elaborate();
-			test->run();
+			svm_runtest();
+			sc_stop();
 		}
 
 	public:
@@ -60,7 +51,7 @@ int sc_main(int argc, char **argv) {
 	tb->tb->trace(tfp, 99);
 	tfp->open("vlt_dump.vcd");
 
-	sc_start(10000, SC_NS);
+	sc_start(1000000, SC_NS);
 
 	tb->tb->final();
 	tfp->close();

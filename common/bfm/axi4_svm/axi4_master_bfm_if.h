@@ -15,6 +15,11 @@ class axi4_master_bfm_target_if {
 
 		virtual ~axi4_master_bfm_target_if() {}
 
+		virtual void get_parameters(
+				uint32_t				*AXI4_ADDRESS_WIDTH,
+				uint32_t				*AXI4_DATA_WIDTH,
+				uint32_t				*AXI4_ID_WIDTH) = 0;
+
 		virtual void aw_valid(
 				uint64_t				AWADDR,
 				uint32_t				AWID,
@@ -26,6 +31,10 @@ class axi4_master_bfm_target_if {
 				uint8_t					AWQOS,
 				uint8_t					AWREGION) = 0;
 
+		virtual void set_data(
+				uint32_t				idx,
+				uint32_t				data) = 0;
+
 };
 
 class axi4_master_bfm_host_if {
@@ -35,6 +44,8 @@ class axi4_master_bfm_host_if {
 		virtual ~axi4_master_bfm_host_if() {}
 
 		virtual void aw_ready() = 0;
+
+		virtual void bresp(uint32_t resp) = 0;
 
 };
 

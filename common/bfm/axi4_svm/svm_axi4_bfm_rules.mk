@@ -1,6 +1,6 @@
 
 
-$(SOCBLOX_LIBDIR)/$(LIBPREF)svm_axi4_bfm$(DLLEXT) : $(SVM_AXI4_BFM_OBJS) $(LIBSVM)
+$(SOCBLOX_LIBDIR)/$(LIBPREF)axi4_svm_bfm$(DLLEXT) : $(SVM_AXI4_BFM_OBJS) $(LIBSVM)
 	if test ! -d $(SOCBLOX_LIBDIR); then mkdir -p $(SOCBLOX_LIBDIR); fi
 	$(LINK) -o $@ $(DLLOUT) $(SVM_AXI4_BFM_OBJS) $(LIBSVM_LINK)
 

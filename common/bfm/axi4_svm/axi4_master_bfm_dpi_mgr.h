@@ -7,32 +7,19 @@
 
 #ifndef AXI4_MASTER_BFM_DPI_MGR_H_
 #define AXI4_MASTER_BFM_DPI_MGR_H_
+#include "svm.h"
+#include "svm_dpi.h"
 #include "axi4_master_bfm_if.h"
-#include <map>
-#include <string>
-
-using namespace std;
 
 class axi4_master_bfm_dpi_mgr;
 
-class axi4_master_bfm_dpi_closure : virtual axi4_master_bfm_target_if {
+class axi4_master_bfm_dpi_closure : public svm_dpi_closure<axi4_master_bfm_host_if, axi4_master_bfm_target_if> {
 
 	public:
 
-		typedef svm_bidi_api_port<axi4_master_bfm_host_if, axi4_master_bfm_target_if>	port_t;
+		axi4_master_bfm_dpi_closure(const string &target);
 
-		axi4_master_bfm_dpi_closure(const string &target) :
-			m_target(target), m_port(0) {
-		}
-
-		void connect(port_t *port) {
-			m_port = port;
-			m_port->set_consumes(this);
-		}
-
-		axi4_master_bfm_host_if *host_if() {
-			return m_port->provides();
-		}
+		virtual ~axi4_master_bfm_dpi_closure() {}
 
 		void aw_valid(
 				uint64_t			AWADDR,
@@ -45,28 +32,23 @@ class axi4_master_bfm_dpi_closure : virtual axi4_master_bfm_target_if {
 				uint8_t				AWQOS,
 				uint8_t				AWREGION);
 
-	private:
-		string								m_target;
-//		axi4_master_bfm_dpi_mgr				*m_mgr;
-		port_t								*m_port;
+		void get_parameters(
+				uint32_t			*ADDRESS_WIDTH,
+				uint32_t			*DATA_WIDTH,
+				uint32_t			*ID_WIDTH);
 
+		void set_data(
+				uint32_t			idx,
+				uint32_t			data);
 };
 
-class axi4_master_bfm_dpi_mgr {
+class axi4_master_bfm_dpi_mgr : public svm_dpi_mgr<axi4_master_bfm_dpi_closure> {
 
 	public:
 
-		static void connect(
-				const string 							&target,
-				axi4_master_bfm_dpi_closure::port_t 	&port);
-
-		static void register_bfm(const string &target);
-
-		static axi4_master_bfm_dpi_closure *get_closure(const string &target);
+		axi4_master_bfm_dpi_mgr();
 
 	private:
-
-		static map<string, axi4_master_bfm_dpi_closure *>				m_closure_map;
 
 };
 

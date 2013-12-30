@@ -10,7 +10,7 @@
 module ${NAME} #(
 		parameter int AXI4_ADDRESS_WIDTH=32,
 		parameter int AXI4_DATA_WIDTH=128,
-		parameter int AXI4_ID_WIDTH=4,
+		parameter int AXI4_ID_WIDTH=4
 ${ADDRESS_RANGE_PARAMS}
 		) (
 		input						clk,
@@ -29,9 +29,13 @@ ${SLAVE_PORTLIST}
 	localparam bit[N_MASTERID_BITS:0]		NO_MASTER = {(N_MASTERID_BITS+1){1'b1}};
 	
 	// Interface to the decode-fail slave
-	axi4_if				serr();
+	axi4_if				serr(.ACLK(clk), .ARESETn(rstn));
 	
-	function reg[N_SLAVEID_BITS-1:0] addr2slave(reg[AXI4_ADDRESS_WIDTH-1:0] addr);
+	function reg[N_SLAVEID_BITS-1:0] addr2slave(
+		reg[N_MASTERID_BITS-1:0]	master,
+		reg[AXI4_ADDRESS_WIDTH-1:0] addr,
+		output reg[AXI4_ADDRESS_WIDTH-1:0] addr_o
+		);
 ${ADDR2SLAVE_BODY}		
 		return (${N_SLAVES});
 	endfunction
@@ -73,6 +77,7 @@ ${ADDR2SLAVE_BODY}
 	wire										RREADY[N_MASTERS-1:0];
 
 	// Stored request
+	reg[AXI4_ADDRESS_WIDTH-1:0]					R_AWADDR_i[N_MASTERS-1:0];
 	reg[AXI4_ADDRESS_WIDTH-1:0]					R_AWADDR[N_MASTERS-1:0];
 	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		R_AWID[N_MASTERS-1:0];
 	reg[7:0]									R_AWLEN[N_MASTERS-1:0];
@@ -84,6 +89,7 @@ ${ADDR2SLAVE_BODY}
 	reg[3:0]									R_AWREGION[N_MASTERS-1:0];
 	reg											R_AWVALID[N_MASTERS-1:0];
 
+	reg[AXI4_ADDRESS_WIDTH-1:0]					R_ARADDR_i[N_MASTERS-1:0];
 	reg[AXI4_ADDRESS_WIDTH-1:0]					R_ARADDR[N_MASTERS-1:0];
 	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		R_ARID[N_MASTERS-1:0];
 	reg[7:0]									R_ARLEN[N_MASTERS-1:0];
@@ -193,6 +199,7 @@ ${R_SLAVE_ASSIGN}
 				if (rstn == 0) begin
 					write_req_state[m_aw_i] <= 'b00;
 					write_selected_slave[m_aw_i] <= NO_SLAVE;
+					R_AWADDR_i[m_aw_i] <= 0;
 					R_AWADDR[m_aw_i] <= 0;
 					R_AWBURST[m_aw_i] <= 0;
 					R_AWCACHE[m_aw_i] <= 0;
@@ -209,7 +216,7 @@ ${R_SLAVE_ASSIGN}
 						'b00: begin
 							if (AWREADY[m_aw_i] && AWVALID[m_aw_i] && !write_request_busy[m_aw_i]) begin
 								$display("Write request");
-								R_AWADDR[m_aw_i] <= AWADDR[m_aw_i];
+								R_AWADDR_i[m_aw_i] <= AWADDR[m_aw_i];
 								// Save the master ID that this request came from
 								R_AWID[m_aw_i][(N_MASTERID_BITS+AXI4_ID_WIDTH)-1:AXI4_ID_WIDTH] <= m_aw_i;
 								R_AWID[m_aw_i][AXI4_ID_WIDTH-1:0] <= AWID[m_aw_i];
@@ -227,7 +234,7 @@ ${R_SLAVE_ASSIGN}
 				
 						// Decode state
 						'b01: begin
-							write_selected_slave[m_aw_i] <= addr2slave(R_AWADDR[m_aw_i]);
+							write_selected_slave[m_aw_i] <= addr2slave(m_aw_i, R_AWADDR_i[m_aw_i], R_AWADDR[m_aw_i]);
 							// Initiate the transfer when the
 							R_AWVALID[m_aw_i] <= 1;
 							write_req_state[m_aw_i] <= 'b10;
@@ -454,6 +461,7 @@ ${R_SLAVE_ASSIGN}
 				if (rstn == 0) begin
 					read_req_state[m_ar_i] <= 'b00;
 					read_selected_slave[m_ar_i] <= NO_SLAVE;
+					R_ARADDR_i[m_ar_i] <= 0;
 					R_ARADDR[m_ar_i] <= 0;
 					R_ARBURST[m_ar_i] <= 0;
 					R_ARCACHE[m_ar_i] <= 0;
@@ -468,7 +476,7 @@ ${R_SLAVE_ASSIGN}
 						// Wait receipt of a request for an available target
 						'b00: begin
 							if (ARREADY[m_ar_i] && ARVALID[m_ar_i]) begin
-								R_ARADDR[m_ar_i] <= ARADDR[m_ar_i];
+								R_ARADDR_i[m_ar_i] <= ARADDR[m_ar_i];
 								// Save the master ID that this request came from
 								R_ARID[m_ar_i][(N_MASTERID_BITS+AXI4_ID_WIDTH)-1:AXI4_ID_WIDTH] <= m_ar_i;
 								R_ARID[m_ar_i][AXI4_ID_WIDTH-1:0] <= ARID[m_ar_i];
@@ -484,7 +492,7 @@ ${R_SLAVE_ASSIGN}
 				
 						// Decode state
 						'b01: begin
-							read_selected_slave[m_ar_i] <= addr2slave(R_ARADDR[m_ar_i]);
+							read_selected_slave[m_ar_i] <= addr2slave(m_ar_i, R_ARADDR_i[m_ar_i], R_ARADDR[m_ar_i]);
 							// Initiate the transfer when the
 							R_ARVALID[m_ar_i] <= 1;
 							read_req_state[m_ar_i] <= 'b10;

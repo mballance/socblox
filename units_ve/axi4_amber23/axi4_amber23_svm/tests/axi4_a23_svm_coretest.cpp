@@ -56,9 +56,7 @@ void axi4_a23_svm_coretest::run()
 	int ret = loader.load(target_exe.c_str());
 
 	// TODO: Wait on scoreboard
-	fprintf(stdout, "--> end_sem.get()\n");
 	m_end_sem.get();
-	fprintf(stdout, "<-- end_sem.get()\n");
 	fprintf(stdout, "Reached end\n");
 
 	if (m_test_status == 0x11) {

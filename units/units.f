@@ -1,4 +1,8 @@
 
 -f ${SOCBLOX}/units/axi4_amber23/axi4_amber23.f
 -f ${SOCBLOX}/units/interconnects/interconnects.f
+-f ${SOCBLOX}/units/ethmac/ethmac.f
+${SOCBLOX}/units/rtc/rtc.sv
 ${SOCBLOX}/units/axi4_sram/axi4_sram.sv
+
+

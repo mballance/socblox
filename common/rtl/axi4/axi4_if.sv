@@ -178,23 +178,7 @@ interface axi4_if #(
 			output RVALID,
 			input RREADY);
 
-`ifdef UNDEFINED
-	// Modport that implements a master
-	modport aw_master(
-			output AWID,
-			output AWADDR,
-			output AWLEN,
-			output AWSIZE,
-			output AWBURST,
-			output AWCACHE,
-			output AWPROT,
-			output AWQOS,
-			output AWREGION,
-			output AWVALID,
-			input AWREADY);
-
-	// Modport that implements a slave
-	modport aw_slave(
+		modport monitor(
 			input AWID,
 			input AWADDR,
 			input AWLEN,
@@ -205,50 +189,19 @@ interface axi4_if #(
 			input AWQOS,
 			input AWREGION,
 			input AWVALID,
-			output AWREADY);
-	
-	// Write data
-	modport w_master(
-			output WDATA,
-			output WSTRB,
-			output WLAST,
-			output WVALID,
-			input WREADY);
-	
-	modport w_slave(
+			input AWREADY,
+			
 			input WDATA,
 			input WSTRB,
 			input WLAST,
 			input WVALID,
-			output WREADY);
-	
-	// Write response
-	modport b_master(
+			input WREADY,
+
 			input BID,
 			input BRESP,
 			input BVALID,
-			output BREADY);
-	
-	modport b_slave(
-			output BID,
-			output BRESP,
-			output BVALID,
-			input BREADY);
-	
-	// Read address
-	modport ar_master(
-			output ARID,
-			output ARADDR,
-			output ARLEN,
-			output ARSIZE,
-			output ARBURST,
-			output ARCACHE,
-			output ARPROT,
-			output ARREGION,
-			output ARVALID,
-			input ARREADY);
-	
-	modport ar_slave(
+			input BREADY,
+		
 			input ARID,
 			input ARADDR,
 			input ARLEN,
@@ -258,25 +211,14 @@ interface axi4_if #(
 			input ARPROT,
 			input ARREGION,
 			input ARVALID,
-			output ARREADY);
-		
-	// Read data
-	modport r_master(
+			input ARREADY,
+			
 			input RID,
 			input RDATA,
 			input RRESP,
 			input RLAST,
 			input RVALID,
-			output RREADY);
-	
-	modport r_slave(
-			output RID,
-			output RDATA,
-			output RRESP,
-			output RLAST,
-			output RVALID,
 			input RREADY);
-`endif	
 
 
 endinterface

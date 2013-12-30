@@ -8,7 +8,8 @@
  * TODO: Add module documentation
  */
 
-module axi4_interconnect_2x2_tb(
+module axi4_interconnect_2x2_tb 
+		(
 		input clk
 		);
 	reg rstn = 0;
@@ -24,18 +25,94 @@ module axi4_interconnect_2x2_tb(
 
 	localparam N_MASTERS_p = 2;
 	
-			axi4_if			if2(clk, rstn);
-			axi4_master_bfm m_bfm(clk, rstn, if2.master);
-			
-			axi4_if			if2_2(clk, rstn);
-			axi4_master_bfm m_bfm_2(clk, rstn, if2.master);
-	genvar i;
-	generate
-		for (i=0; i<N_MASTERS_p; i++) begin
-//			bfm bfm_i(.clk(clk));
-		end
-	endgenerate
-
-	bind axi4_master_bfm svm_axi4_master_bfm axi4_master_bfm_i (.clk(clk), .rstn(rstn), .master(master));
+	axi4_if #(
+			.AXI4_ADDRESS_WIDTH(32),
+			.AXI4_DATA_WIDTH(32),
+			.AXI4_ID_WIDTH(4)
+		)
+		m12ic(.ACLK(clk), .ARESETn(rstn))
+		;
+		
+	axi4_if #(
+			.AXI4_ADDRESS_WIDTH(32),
+			.AXI4_DATA_WIDTH(32),
+			.AXI4_ID_WIDTH(4)
+		)
+		m22ic(.ACLK(clk), .ARESETn(rstn))
+		;
+	
+	axi4_svm_master_bfm #(
+		.AXI4_ADDRESS_WIDTH     (32    ), 
+		.AXI4_DATA_WIDTH        (32       ), 
+		.AXI4_ID_WIDTH          (4         ), 
+		.AXI4_MAX_BURST_LENGTH  (16 )
+		) 
+		bfm_1 (
+			.clk                    (clk                   ), 
+			.rstn                   (rstn                  ), 
+			.master                 (m12ic.master          ));
+	
+	axi4_svm_master_bfm #(
+		.AXI4_ADDRESS_WIDTH     (32    ), 
+		.AXI4_DATA_WIDTH        (32       ), 
+		.AXI4_ID_WIDTH          (4         ), 
+		.AXI4_MAX_BURST_LENGTH  (16 )
+		) 
+		bfm_2 (
+			.clk                    (clk                   ), 
+			.rstn                   (rstn                  ), 
+			.master                 (m22ic.master          ))
+		;
+		
+	axi4_if #(
+			.AXI4_ADDRESS_WIDTH(32),
+			.AXI4_DATA_WIDTH(32),
+			.AXI4_ID_WIDTH(5)
+		)
+		ic2s1(.ACLK(clk), .ARESETn(rstn));
+	
+	axi4_if #(
+			.AXI4_ADDRESS_WIDTH(32),
+			.AXI4_DATA_WIDTH(32),
+			.AXI4_ID_WIDTH(5)
+		)
+		ic2s2(.ACLK(clk), .ARESETn(rstn))
+		;
+		
+	axi4_interconnect_2x2 #(
+		.AXI4_ADDRESS_WIDTH  (32 ), 
+		.AXI4_DATA_WIDTH     (32    ), 
+		.AXI4_ID_WIDTH       (4      )
+		) u_ic (
+		.clk                 (clk                ), 
+		.rstn                (rstn               ), 
+		.m0                  (m12ic.slave        ), 
+		.m1                  (m22ic.slave        ), 
+		.s0                  (ic2s1.master       ), 
+		.s1                  (ic2s2.master       ));
+	
+	axi4_svm_sram #(
+		.MEM_ADDR_BITS      (10     ), 
+		.AXI_ADDRESS_WIDTH  (32 ), 
+		.AXI_DATA_WIDTH     (32    ), 
+		.AXI_ID_WIDTH       (5      )
+		) 
+		s1 (
+			.ACLK           (clk            ), 
+			.ARESETn        (rstn           ), 
+			.s              (ic2s1.master   ));
+		
+	axi4_svm_sram #(
+		.MEM_ADDR_BITS      (10     ), 
+		.AXI_ADDRESS_WIDTH  (32 ), 
+		.AXI_DATA_WIDTH     (32    ), 
+		.AXI_ID_WIDTH       (5      )
+		) 
+		s2 (
+			.ACLK           (clk            ), 
+			.ARESETn        (rstn           ), 
+			.s              (ic2s2.master   ))
+		;
+	
 endmodule
 

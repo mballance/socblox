@@ -7,4 +7,6 @@ SVM_AXI4_BFM_SRC=\
 	
 SVM_AXI4_BFM_OBJS=$(foreach o,$(SVM_AXI4_BFM_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 
-LIB_TARGETS += $(SOCBLOX_LIBDIR)/libsvm_axi4_bfm$(DLLEXT)
+LIB_TARGETS += $(SOCBLOX_LIBDIR)/libaxi4_svm_bfm$(DLLEXT)
+
+AXI4_SVM_BFM_LINK=-L$(SOCBLOX_LIBDIR) -laxi4_svm_bfm
