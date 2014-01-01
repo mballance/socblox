@@ -33,6 +33,8 @@ class axi4_master_bfm: public svm_component,
 
 		virtual void start();
 
+		void wait_for_reset();
+
 		virtual void write(
 				uint64_t			addr,
 				axi4_burst_size_t	burst_size,
@@ -64,7 +66,11 @@ class axi4_master_bfm: public svm_component,
 
 		void bresp(uint32_t resp);
 
+		void rresp(uint32_t resp);
+
 		void aw_ready();
+
+		void reset();
 
 	private:
 		uint32_t					ADDRESS_WIDTH;
@@ -76,12 +82,18 @@ class axi4_master_bfm: public svm_component,
 
 		svm_thread_mutex			m_mutex;
 		svm_thread_mutex			m_write_mutex;
+		svm_thread_mutex			m_read_mutex;
 
 		svm_thread_mutex			m_aw_mutex;
 		svm_semaphore				m_aw_sem;
+		svm_semaphore				m_bresp_sem;
+
+		svm_thread_mutex			m_ar_mutex;
+		svm_semaphore				m_rresp_sem;
 
 		svm_thread_mutex			m_b_mutex;
 
+		svm_semaphore				m_reset_sem;
 };
 
 #endif /* AXI4_MASTER_BFM_H_ */

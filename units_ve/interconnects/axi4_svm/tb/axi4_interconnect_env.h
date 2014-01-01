@@ -23,9 +23,9 @@ class axi4_interconnect_env: public svm_component {
 
 		void connect();
 
-	private:
-		axi4_master_bfm				*m_bfm;
-
+	public:
+		axi4_master_bfm				*m_m1_bfm;
+		axi4_master_bfm				*m_m2_bfm;
 
 };
 

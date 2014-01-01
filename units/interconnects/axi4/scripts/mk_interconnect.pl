@@ -371,7 +371,7 @@ sub axi4_master_portlist($) {
 	my($portlist);
 	
 	for ($i=0; $i<$n_masters; $i++) {
-		$portlist .= "\t\taxi4_if.master\t\t\t\t\tm${i}";
+		$portlist .= "\t\taxi4_if.slave\t\t\t\t\tm${i}";
 		if ($i+1 < $n_masters) {
 			$portlist .= ",\n";
 		}
@@ -388,9 +388,9 @@ sub axi4_slave_portlist($) {
 	# For now, do not emit an error port	
 	for ($i=0; $i<$n_slaves; $i++) {
 		if ($i == $n_slaves) {
-			$portlist .= "\t\taxi4_if.slave\t\t\t\t\tserr";
+			$portlist .= "\t\taxi4_if.master\t\t\t\t\tserr";
 		} else {
-			$portlist .= "\t\taxi4_if.slave\t\t\t\t\ts${i}";
+			$portlist .= "\t\taxi4_if.master\t\t\t\t\ts${i}";
 		}
 #		if ($i+1 <= $n_slaves) {
 		if ($i+1 < $n_slaves) {

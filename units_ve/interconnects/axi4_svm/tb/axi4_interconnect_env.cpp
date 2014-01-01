@@ -7,10 +7,8 @@
 
 #include "axi4_interconnect_env.h"
 
-svm_component_ctor_def(axi4_interconnect_env)
-
 axi4_interconnect_env::axi4_interconnect_env(const char *name, svm_component *parent) :
-	svm_component(name, parent), m_bfm(0) {
+	svm_component(name, parent) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -22,13 +20,14 @@ axi4_interconnect_env::~axi4_interconnect_env() {
 void axi4_interconnect_env::build()
 {
 	fprintf(stdout, "env::build this=%p\n", this);
-	m_bfm = axi4_master_bfm::type_id.create("m_bfm", this);
-	fprintf(stdout, "m_bfm=%p\n", m_bfm);
+	m_m1_bfm = axi4_master_bfm::type_id.create("m_m1_bfm", this);
+	m_m2_bfm = axi4_master_bfm::type_id.create("m_m2_bfm", this);
 }
 
 void axi4_interconnect_env::connect()
 {
-	fprintf(stdout, "env::connect: m_bfm=%p this=%p\n", m_bfm, this);
-	axi4_master_bfm_dpi_mgr::connect("foo", m_bfm->bfm_port);
+	fprintf(stdout, "env::connect: m_m1_bfm=%p this=%p\n", m_m1_bfm, this);
 
 }
+
+svm_component_ctor_def(axi4_interconnect_env)

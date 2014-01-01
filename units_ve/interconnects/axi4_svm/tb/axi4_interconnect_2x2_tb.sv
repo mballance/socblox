@@ -51,12 +51,12 @@ module axi4_interconnect_2x2_tb
 			.clk                    (clk                   ), 
 			.rstn                   (rstn                  ), 
 			.master                 (m12ic.master          ));
-	
+
 	axi4_svm_master_bfm #(
 		.AXI4_ADDRESS_WIDTH     (32    ), 
-		.AXI4_DATA_WIDTH        (32       ), 
-		.AXI4_ID_WIDTH          (4         ), 
-		.AXI4_MAX_BURST_LENGTH  (16 )
+		.AXI4_DATA_WIDTH        (32    ), 
+		.AXI4_ID_WIDTH          (4     ), 
+		.AXI4_MAX_BURST_LENGTH  (16    ) 
 		) 
 		bfm_2 (
 			.clk                    (clk                   ), 
@@ -82,7 +82,9 @@ module axi4_interconnect_2x2_tb
 	axi4_interconnect_2x2 #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32    ), 
-		.AXI4_ID_WIDTH       (4      )
+		.AXI4_ID_WIDTH       (4      ),
+		.SLAVE0_ADDR_BASE(0),
+		.SLAVE0_ADDR_LIMIT('hffffffff)
 		) u_ic (
 		.clk                 (clk                ), 
 		.rstn                (rstn               ), 

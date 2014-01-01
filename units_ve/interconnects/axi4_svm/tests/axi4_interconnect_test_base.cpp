@@ -6,6 +6,7 @@
  */
 
 #include "axi4_interconnect_test_base.h"
+#include "axi4_master_bfm_dpi_mgr.h"
 
 axi4_interconnect_test_base::axi4_interconnect_test_base(const char *name) : svm_test(name) {
 
@@ -22,7 +23,8 @@ void axi4_interconnect_test_base::build()
 
 void axi4_interconnect_test_base::connect()
 {
-
+	axi4_master_bfm_dpi_mgr::connect("tb.tb.v.bfm_1", m_env->m_m1_bfm->bfm_port);
+	axi4_master_bfm_dpi_mgr::connect("tb.tb.v.bfm_2", m_env->m_m2_bfm->bfm_port);
 }
 
 void axi4_interconnect_test_base::start()

@@ -11,9 +11,19 @@
 #include "axi4_interconnect_test_base.h"
 
 class axi4_interconnect_basic_rw_test: public axi4_interconnect_test_base {
-public:
-	axi4_interconnect_basic_rw_test();
-	virtual ~axi4_interconnect_basic_rw_test();
+	svm_test_ctor_decl(axi4_interconnect_basic_rw_test)
+
+	public:
+		axi4_interconnect_basic_rw_test(const char *name);
+
+		virtual ~axi4_interconnect_basic_rw_test();
+
+		virtual void start();
+
+		void run();
+
+	private:
+		svm_thread				m_run_thread;
 };
 
 #endif /* AXI4_INTERCONNECT_BASIC_RW_TEST_H_ */

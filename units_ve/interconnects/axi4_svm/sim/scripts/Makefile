@@ -9,6 +9,8 @@ include V$(TB).mk
 endif
 
 AXI4_2X2_DIR=$(SOCBLOX)/units_ve/interconnects/axi4_svm
+include $(SIM_DIR)/../tests/defs_rules.mk
+include $(SIM_DIR)/../tb/defs_rules.mk
 #include $(AXI4_AMBER23_SVM)/tests/sw/defs.mk
 #include $(AXI4_AMBER23_SVM)/svm/a23_tracer/defs.mk
 #include $(AXI4_AMBER23_SVM)/tests/defs.mk
@@ -39,10 +41,10 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
 	$(BFM_AXI4_SVM_SRAM_LIB) \
 	$(COMMON_SVM_LIB) \
 	$(AXI4_2X2_DIR)/tb/$(TB).cpp \
-	$(A23_TESTBENCH_OBJS)
+	$(TESTBENCH_OBJS)
 	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/simx \
 	  $(AXI4_2X2_DIR)/tb/$(TB).cpp \
-	      $(A23_TESTBENCH_OBJS) \
+	      $(TESTBENCH_OBJS) \
 	      -Wl,--whole-archive \
           V$(TB)__ALL.a \
 	      -Wl,--no-whole-archive \
@@ -54,7 +56,10 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
           	$(LIBSVM_SC_LINK) \
 	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread
 
+RULES := 1
 include $(SOCBLOX)/rules.mk
+include $(SIM_DIR)/../tests/defs_rules.mk
+include $(SIM_DIR)/../tb/defs_rules.mk
 #include $(AXI4_AMBER23_SVM)/tests/sw/rules.mk
 #include $(AXI4_AMBER23_SVM)/svm/a23_tracer/rules.mk
 #include $(AXI4_AMBER23_SVM)/tests/rules.mk

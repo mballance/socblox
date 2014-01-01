@@ -17,28 +17,70 @@ module axi4_svm_master_bfm #(
 			input			rstn,
 			axi4_if.master	master
 		);
-	bit[AXI4_DATA_WIDTH-1:0]			wdata_buf[AXI4_MAX_BURST_LENGTH];
-	reg[(AXI4_ADDRESS_WIDTH-1):0]		AWADDR_r;
-	reg[(AXI4_ID_WIDTH-1):0]			AWID_r;
-	reg[7:0]							AWLEN_r;
-	reg[2:0]							AWSIZE_r;
-	reg[1:0]							AWBURST_r;
-	reg[3:0]							AWCACHE_r;
-	reg[2:0]							AWPROT_r;
-	reg[3:0]							AWQOS_r;
-	reg[3:0]							AWREGION_r;
-	reg									AWVALID_r;
-	reg									aw_req;
+	reg									reset = 0;
 	
-	assign master.AWADDR = AWADDR_r;
-	assign master.AWID = AWID_r;
-	assign master.AWLEN = AWLEN_r;
-	assign master.AWSIZE = AWSIZE_r;
-	assign master.AWBURST = AWBURST_r;
-	assign master.AWCACHE = AWCACHE_r;
-	assign master.AWPROT = AWPROT_r;
-	assign master.AWQOS = AWQOS_r;
-	assign master.AWREGION = AWREGION_r;
+	bit[AXI4_DATA_WIDTH-1:0]			wdata_buf[AXI4_MAX_BURST_LENGTH];
+	reg									aw_req = 0;
+	reg[(AXI4_ADDRESS_WIDTH-1):0]		AWADDR_r;
+	reg[(AXI4_ADDRESS_WIDTH-1):0]		AWADDR_rs;
+	reg[(AXI4_ID_WIDTH-1):0]			AWID_r;
+	reg[(AXI4_ID_WIDTH-1):0]			AWID_rs;
+	reg[7:0]							AWLEN_r;
+	reg[7:0]							AWLEN_rs;
+	reg[2:0]							AWSIZE_r;
+	reg[2:0]							AWSIZE_rs;
+	reg[1:0]							AWBURST_r;
+	reg[1:0]							AWBURST_rs;
+	reg[3:0]							AWCACHE_r;
+	reg[3:0]							AWCACHE_rs;
+	reg[2:0]							AWPROT_r;
+	reg[2:0]							AWPROT_rs;
+	reg[3:0]							AWQOS_r;
+	reg[3:0]							AWQOS_rs;
+	reg[3:0]							AWREGION_r;
+	reg[3:0]							AWREGION_rs;
+	reg									AWVALID_r;
+
+	bit[AXI4_DATA_WIDTH-1:0]			rdata_buf[AXI4_MAX_BURST_LENGTH];
+	reg									ar_req = 0;
+	reg[(AXI4_ADDRESS_WIDTH-1):0]		ARADDR_r;
+	reg[(AXI4_ADDRESS_WIDTH-1):0]		ARADDR_rs;
+	reg[(AXI4_ID_WIDTH-1):0]			ARID_r;
+	reg[(AXI4_ID_WIDTH-1):0]			ARID_rs;
+	reg[7:0]							ARLEN_r;
+	reg[7:0]							ARLEN_rs;
+	reg[2:0]							ARSIZE_r;
+	reg[2:0]							ARSIZE_rs;
+	reg[1:0]							ARBURST_r;
+	reg[1:0]							ARBURST_rs;
+	reg[3:0]							ARCACHE_r;
+	reg[3:0]							ARCACHE_rs;
+	reg[2:0]							ARPROT_r;
+	reg[2:0]							ARPROT_rs;
+	reg[3:0]							ARREGION_r;
+	reg[3:0]							ARREGION_rs;
+	reg									ARVALID_r;
+	
+	assign master.AWVALID = AWVALID_r;
+	assign master.AWADDR = AWADDR_rs;
+	assign master.AWID = AWID_rs;
+	assign master.AWLEN = AWLEN_rs;
+	assign master.AWSIZE = AWSIZE_rs;
+	assign master.AWBURST = AWBURST_rs;
+	assign master.AWCACHE = AWCACHE_rs;
+	assign master.AWPROT = AWPROT_rs;
+	assign master.AWQOS = AWQOS_rs;
+	assign master.AWREGION = AWREGION_rs;
+
+	assign master.ARVALID = ARVALID_r;
+	assign master.ARADDR = ARADDR_rs;
+	assign master.ARID = ARID_rs;
+	assign master.ARLEN = ARLEN_rs;
+	assign master.ARSIZE = ARSIZE_rs;
+	assign master.ARBURST = ARBURST_rs;
+	assign master.ARCACHE = ARCACHE_rs;
+	assign master.ARPROT = ARPROT_rs;
+	assign master.ARREGION = ARREGION_rs;
 	
 	task axi4_master_bfm_get_parameters(
 			output int unsigned ADDRESS_WIDTH,
@@ -54,10 +96,17 @@ module axi4_svm_master_bfm #(
 	import "DPI-C" context task axi4_master_bfm_bresp(
 			int unsigned resp);
 	
+	task axi4_master_bfm_has_been_reset(
+		output int unsigned was_reset);
+		was_reset = reset;
+	endtask
+	export "DPI-C" task axi4_master_bfm_has_been_reset;
+	
+	import "DPI-C" context task axi4_master_bfm_reset();
+	
 	initial begin
 		axi4_master_bfm_register();
 	end
-
 
 	// AW state machine
 	reg[2:0]				aw_state;
@@ -65,10 +114,26 @@ module axi4_svm_master_bfm #(
 	always @(posedge clk) begin
 		if (rstn != 1) begin
 			aw_state <= 0;
+			reset <= 1;
 		end else begin
+			if (reset == 1) begin
+				axi4_master_bfm_reset();
+				reset <= 0;
+			end
+				
 			case (aw_state)
 				0: begin
 					if (aw_req) begin
+						AWADDR_rs <= AWADDR_r;
+						AWID_rs <= AWID_r;
+						AWBURST_rs <= AWBURST_r;
+						AWCACHE_rs <= AWCACHE_r;
+						AWLEN_rs <= AWLEN_r;
+						AWPROT_rs <= AWPROT_r;
+						AWQOS_rs <= AWQOS_r;
+						AWREGION_rs <= AWREGION_r;
+						AWSIZE_rs <= AWSIZE_r;
+
 						AWVALID_r <= 1;
 						aw_state <= 1;
 						aw_req = 0;
@@ -79,7 +144,6 @@ module axi4_svm_master_bfm #(
 					if (master.AWVALID && master.AWREADY) begin
 						AWVALID_r <= 0;
 						aw_state <= 2;
-						axi4_master_bfm_aw_ready();
 					end
 				end
 			
@@ -89,6 +153,8 @@ module axi4_svm_master_bfm #(
 						if (write_count == AWLEN_r) begin
 							write_count <= 0;
 							aw_state <= 3;
+						end else begin
+							write_count <= write_count + 1;
 						end
 					end
 				end
@@ -118,6 +184,7 @@ module axi4_svm_master_bfm #(
 		byte unsigned					AWPROT,
 		byte unsigned					AWQOS,
 		byte unsigned					AWREGION);
+		aw_req = 1;
 		AWADDR_r = AWADDR;
 		AWID_r = AWID;
 		AWLEN_r = AWLEN;
@@ -137,7 +204,88 @@ module axi4_svm_master_bfm #(
 	endtask
 	export "DPI-C" task axi4_master_bfm_set_data;
 
-	import "DPI-C" context task axi4_master_bfm_aw_ready();
+	// AR state machine
+	reg[2:0]				ar_state;
+	reg[7:0]				read_count;
+	always @(posedge clk) begin
+		if (rstn != 1) begin
+			ar_state <= 0;
+		end else begin
+			case (ar_state)
+				0: begin
+					if (ar_req) begin
+						ARADDR_rs <= ARADDR_r;
+						ARID_rs <= ARID_r;
+						ARBURST_rs <= ARBURST_r;
+						ARCACHE_rs <= ARCACHE_r;
+						ARLEN_rs <= ARLEN_r;
+						ARPROT_rs <= ARPROT_r;
+						ARREGION_rs <= ARREGION_r;
+						ARSIZE_rs <= ARSIZE_r;
+
+						ARVALID_r <= 1;
+						ar_state <= 1;
+						ar_req = 0;
+					end
+				end
+				
+				1: begin
+					if (master.ARVALID && master.ARREADY) begin
+						ARVALID_r <= 0;
+						ar_state <= 2;
+					end
+				end
+			
+				// Receive data
+				2: begin
+					if (master.RREADY && master.RVALID) begin
+						rdata_buf[read_count] <= master.RDATA;
+						if (master.RLAST) begin
+							read_count <= 0;
+							ar_state <= 0;
+							axi4_master_bfm_rresp(master.RRESP);
+						end else begin
+							read_count <= read_count + 1;
+						end
+					end
+				end
+			endcase
+		end
+	end
+	
+	assign master.RREADY = (ar_state == 2);
+	
+	task axi4_master_bfm_ar_valid(
+		longint unsigned				ARADDR,
+		int unsigned					ARID,
+		byte unsigned					ARLEN,
+		byte unsigned					ARSIZE,
+		byte unsigned					ARBURST,
+		byte unsigned					ARCACHE,
+		byte unsigned					ARPROT,
+		byte unsigned					ARREGION);
+		ar_req = 1;
+		ARADDR_r = ARADDR;
+		ARID_r = ARID;
+		ARLEN_r = ARLEN;
+		ARSIZE_r = ARSIZE;
+		ARBURST_r = ARBURST;
+		ARCACHE_r = ARCACHE;
+		ARPROT_r = ARPROT;
+		ARREGION_r = ARREGION;
+	endtask
+	export "DPI-C" task axi4_master_bfm_ar_valid;
+	
+	import "DPI-C" context task axi4_master_bfm_rresp(
+		int unsigned					RRESP);
+	
+	task axi4_master_bfm_get_data(
+		int unsigned					idx,
+		output int unsigned				data);
+		data = rdata_buf[idx];
+	endtask
+	export "DPI-C" task axi4_master_bfm_get_data;
+
 	
 
 endmodule

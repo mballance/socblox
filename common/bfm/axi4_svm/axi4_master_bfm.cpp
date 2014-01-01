@@ -23,7 +23,14 @@ axi4_master_bfm::~axi4_master_bfm() {
 void axi4_master_bfm::start()
 {
 	// Retrieve the parameters
-	bfm_port.consumes()->get_parameters(ADDRESS_WIDTH, DATA_WIDTH, ID_WIDTH);
+	bfm_port.consumes()->get_parameters(&ADDRESS_WIDTH, &DATA_WIDTH, &ID_WIDTH);
+	fprintf(stdout, "ADDRESS_WIDTH=%d\n", ADDRESS_WIDTH);
+}
+
+void axi4_master_bfm::wait_for_reset()
+{
+	fprintf(stdout, "wait_for_reset %p\n", this);
+	m_reset_sem.get();
 }
 
 void axi4_master_bfm::write(
@@ -42,13 +49,17 @@ void axi4_master_bfm::write(
 	m_aw_mutex.lock();
 
 	// Pack the data
+	for (uint32_t i=0; i<=burst_len; i++) {
+		// TODO: must deal with complexities
+		bfm_port()->set_data(i, data[i]);
+	}
 
 	bfm_port()->aw_valid(
 			addr,
 			m_aw_id, // AWID
-			0, // AWLEN
-			0, // AWSIZE
-			0, // AWBURST
+			burst_len, // AWLEN
+			burst_size, // AWSIZE
+			burst_type, // AWBURST
 			0, // AWCACHE
 			0, // AWPROT
 			0, // AWQOS
@@ -57,7 +68,7 @@ void axi4_master_bfm::write(
 
 	m_aw_id = ((m_aw_id + 1) % (1 << ID_WIDTH));
 
-	m_aw_sem.get(); // Wait for acknowledge of the AW phase
+	m_bresp_sem.get(); // Wait for acknowledge of the AW phase
 
 	// TODO: data phase, etc
 
@@ -76,7 +87,33 @@ void axi4_master_bfm::read(
 		uint8_t					&resp,
 		axi4_burst_type_t		burst_type)
 {
+	uint32_t id;
 
+	m_read_mutex.lock();
+
+	id = m_ar_id;
+
+	bfm_port()->ar_valid(
+			addr,
+			m_ar_id,
+			burst_len,
+			burst_size,
+			burst_type,
+			0,
+			0,
+			0
+			);
+
+	m_ar_id = ((m_ar_id + 1) % (1 << ID_WIDTH));
+
+	m_rresp_sem.get();
+
+	for (uint32_t i=0; i<=burst_len; i++) {
+		// TODO: must be more complex
+		bfm_port()->get_data(i, &data[i]);
+	}
+
+	m_read_mutex.lock();
 }
 
 uint8_t axi4_master_bfm::read8(uint64_t addr)
@@ -121,12 +158,23 @@ void axi4_master_bfm::write64(uint64_t addr, uint64_t data)
 
 void axi4_master_bfm::bresp(uint32_t resp)
 {
-
+	m_bresp_sem.put();
 }
 
 void axi4_master_bfm::aw_ready()
 {
 	m_aw_sem.put();
+}
+
+void axi4_master_bfm::rresp(uint32_t resp)
+{
+	m_rresp_sem.put();
+}
+
+void axi4_master_bfm::reset()
+{
+	fprintf(stdout, "reset %p\n", this);
+	m_reset_sem.put();
 }
 
 svm_component_ctor_def(axi4_master_bfm)

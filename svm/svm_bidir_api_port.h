@@ -25,6 +25,8 @@ template <class P, class C> class svm_bidi_api_port {
 
 		C *operator ()() const { return m_consumes; }
 
+		C *operator ->() const { return m_consumes; }
+
 		P *provides() const { return m_provides; }
 		C *consumes() const { return m_consumes; }
 

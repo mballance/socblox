@@ -19,10 +19,10 @@ module axi4_interconnect_2x2 #(
 		) (
 		input						clk,
 		input						rstn,
-		axi4_if.master					m0,
-		axi4_if.master					m1,
-		axi4_if.slave					s0,
-		axi4_if.slave					s1
+		axi4_if.slave					m0,
+		axi4_if.slave					m1,
+		axi4_if.master					s0,
+		axi4_if.master					s1
 		);
 	
 	localparam int AXI4_DATA_MSB = (AXI4_DATA_WIDTH-1);
