@@ -7,8 +7,11 @@
  * 
  * TODO: Add module documentation
  */
-
+ 
 module axi4_interconnect_2x2_tb 
+		#(
+		parameter int N_MASTERS=4
+		)
 		(
 		input clk
 		);
@@ -80,11 +83,13 @@ module axi4_interconnect_2x2_tb
 		;
 		
 	axi4_interconnect_2x2 #(
-		.AXI4_ADDRESS_WIDTH  (32 ), 
-		.AXI4_DATA_WIDTH     (32    ), 
-		.AXI4_ID_WIDTH       (4      ),
-		.SLAVE0_ADDR_BASE(0),
-		.SLAVE0_ADDR_LIMIT('hffffffff)
+		.AXI4_ADDRESS_WIDTH  	(32 	), 
+		.AXI4_DATA_WIDTH     	(32    	), 
+		.AXI4_ID_WIDTH       	(4      ),
+		.SLAVE0_ADDR_BASE 		('h0000 ),
+		.SLAVE0_ADDR_LIMIT		('h0fff	),
+		.SLAVE1_ADDR_BASE 		('h1000 ),
+		.SLAVE1_ADDR_LIMIT		('h1fff	)
 		) u_ic (
 		.clk                 (clk                ), 
 		.rstn                (rstn               ), 

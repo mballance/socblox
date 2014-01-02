@@ -20,10 +20,12 @@ class axi4_interconnect_basic_rw_test: public axi4_interconnect_test_base {
 
 		virtual void start();
 
-		void run();
+		void run_m1();
+		void run_m2();
 
 	private:
-		svm_thread				m_run_thread;
+		svm_thread				m_m1_run_thread;
+		svm_thread				m_m2_run_thread;
 };
 
 #endif /* AXI4_INTERCONNECT_BASIC_RW_TEST_H_ */

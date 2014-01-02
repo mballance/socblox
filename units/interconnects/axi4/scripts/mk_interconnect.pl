@@ -168,7 +168,7 @@ sub axi4_r_master_assign($) {
 	my($n_masters) = @_;
 	my($i,$out,$name);
 	my(@LHS) = ("RREADY");
-	my(@RHS) = ("RDATA", "RLAST", "RVALID");
+	my(@RHS) = ("RDATA", "RLAST", "RVALID", "RID");
 
 	foreach (@LHS) {
 		$name=$_;
@@ -306,7 +306,7 @@ sub axi4_w_slave_assign($) {
 sub axi4_r_slave_assign($) {
 	my($n_slaves) = @_;
 	my($i,$out,$name);
-	my(@LHS) = ("RDATA", "RLAST", "RVALID");
+	my(@LHS) = ("RDATA", "RLAST", "RVALID", "RID");
 	my(@RHS) = ("RREADY");
 
 	foreach (@LHS) {

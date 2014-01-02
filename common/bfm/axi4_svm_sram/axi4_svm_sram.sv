@@ -100,7 +100,7 @@ module axi4_svm_sram #(
     		case (write_state) 
     			2'b00: begin // Wait Address state
     				if (s.AWVALID == 1'b1 && s.AWREADY == 1'b1) begin
-    					write_addr <= s.AWADDR[MEM_ADDR_BITS+2:2];
+    					write_addr <= s.AWADDR[MEM_ADDR_BITS+1:2];
     					write_id <= s.AWID;
     					write_count <= 0;
     					write_state <= 1;
@@ -132,7 +132,7 @@ module axi4_svm_sram #(
     		case (read_state)
     			2'b00: begin // Wait address state
     				if (s.ARVALID && s.ARREADY) begin
-    					read_addr <= s.ARADDR[MEM_ADDR_BITS+2:2];
+    					read_addr <= s.ARADDR[MEM_ADDR_BITS+1:2];
     					read_length <= s.ARLEN;
     					read_count <= 0;
     					read_state <= 1;
@@ -157,7 +157,7 @@ module axi4_svm_sram #(
 //    		endcase
     	end
     end
-   
+    
     assign s.AWREADY = (write_state == 0);
     assign s.WREADY = (write_state == 1);
     

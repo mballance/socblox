@@ -93,7 +93,7 @@ void axi4_master_bfm::read(
 
 	id = m_ar_id;
 
-	bfm_port()->ar_valid(
+	bfm_port->ar_valid(
 			addr,
 			m_ar_id,
 			burst_len,

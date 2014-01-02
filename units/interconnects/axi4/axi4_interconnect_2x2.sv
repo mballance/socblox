@@ -324,6 +324,8 @@ module axi4_interconnect_2x2 #(
 	assign m1.RLAST = RLAST[1];
 	assign m0.RVALID = RVALID[0];
 	assign m1.RVALID = RVALID[1];
+	assign m0.RID = RID[0];
+	assign m1.RID = RID[1];
 	
 	
 	// Slave requests
@@ -368,6 +370,9 @@ module axi4_interconnect_2x2 #(
 	assign SRVALID[0] = s0.RVALID;
 	assign SRVALID[1] = s1.RVALID;
 	assign SRVALID[2] = serr.master.RVALID;
+	assign SRID[0] = s0.RID;
+	assign SRID[1] = s1.RID;
+	assign SRID[2] = serr.master.RID;
 	assign s0.RREADY = SRREADY[0];
 	assign s1.RREADY = SRREADY[1];
 	assign serr.master.RREADY = SRREADY[2];

@@ -17,6 +17,8 @@ template <class C> class svm_api_port {
 
 		C *operator ()() { return m_api; }
 
+		C *operator ->() { return m_api; }
+
 		void connect(svm_api_export<C> &exp) {
 			m_api = exp.provides();
 		}
