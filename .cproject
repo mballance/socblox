@@ -21,7 +21,7 @@
 								<option id="gnu.both.asm.option.include.paths.696830309" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${SYSTEMC}/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${VERILATOR_ROOT}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/socblox/units_ve/interconnects/axi4_svm/tb/obj_dir}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/socblox/units_ve/interconnects/axi4_svf/tb/obj_dir}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${VERILATOR_ROOT}/include/vltstd&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.693850413" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
