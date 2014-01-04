@@ -222,68 +222,68 @@ module axi4_interconnect_2x2 #(
 	// Slave requests
 	assign SAWREADY[0] = s0.AWREADY;
 	assign SAWREADY[1] = s1.AWREADY;
-	assign SAWREADY[2] = serr.master.AWREADY;
+	assign SAWREADY[2] = serr.AWREADY;
 	assign s0.AWADDR = SAWADDR[0];
 	assign s1.AWADDR = SAWADDR[1];
-	assign serr.master.AWADDR = SAWADDR[2];
+	assign serr.AWADDR = SAWADDR[2];
 	assign s0.AWID = SAWID[0];
 	assign s1.AWID = SAWID[1];
-	assign serr.master.AWID = SAWID[2];
+	assign serr.AWID = SAWID[2];
 	assign s0.AWLEN = SAWLEN[0];
 	assign s1.AWLEN = SAWLEN[1];
-	assign serr.master.AWLEN = SAWLEN[2];
+	assign serr.AWLEN = SAWLEN[2];
 	assign s0.AWSIZE = SAWSIZE[0];
 	assign s1.AWSIZE = SAWSIZE[1];
-	assign serr.master.AWSIZE = SAWSIZE[2];
+	assign serr.AWSIZE = SAWSIZE[2];
 	assign s0.AWBURST = SAWBURST[0];
 	assign s1.AWBURST = SAWBURST[1];
-	assign serr.master.AWBURST = SAWBURST[2];
+	assign serr.AWBURST = SAWBURST[2];
 	assign s0.AWCACHE = SAWCACHE[0];
 	assign s1.AWCACHE = SAWCACHE[1];
-	assign serr.master.AWCACHE = SAWCACHE[2];
+	assign serr.AWCACHE = SAWCACHE[2];
 	assign s0.AWPROT = SAWPROT[0];
 	assign s1.AWPROT = SAWPROT[1];
-	assign serr.master.AWPROT = SAWPROT[2];
+	assign serr.AWPROT = SAWPROT[2];
 	assign s0.AWQOS = SAWQOS[0];
 	assign s1.AWQOS = SAWQOS[1];
-	assign serr.master.AWQOS = SAWQOS[2];
+	assign serr.AWQOS = SAWQOS[2];
 	assign s0.AWREGION = SAWREGION[0];
 	assign s1.AWREGION = SAWREGION[1];
-	assign serr.master.AWREGION = SAWREGION[2];
+	assign serr.AWREGION = SAWREGION[2];
 	assign s0.AWVALID = SAWVALID[0];
 	assign s1.AWVALID = SAWVALID[1];
-	assign serr.master.AWVALID = SAWVALID[2];
+	assign serr.AWVALID = SAWVALID[2];
 
 
 	assign SWREADY[0] = s0.WREADY;
 	assign SWREADY[1] = s1.WREADY;
-	assign SWREADY[2] = serr.master.WREADY;
+	assign SWREADY[2] = serr.WREADY;
 	assign s0.WDATA = SWDATA[0];
 	assign s1.WDATA = SWDATA[1];
-	assign serr.master.WDATA = SWDATA[2];
+	assign serr.WDATA = SWDATA[2];
 	assign s0.WSTRB = SWSTRB[0];
 	assign s1.WSTRB = SWSTRB[1];
-	assign serr.master.WSTRB = SWSTRB[2];
+	assign serr.WSTRB = SWSTRB[2];
 	assign s0.WLAST = SWLAST[0];
 	assign s1.WLAST = SWLAST[1];
-	assign serr.master.WLAST = SWLAST[2];
+	assign serr.WLAST = SWLAST[2];
 	assign s0.WVALID = SWVALID[0];
 	assign s1.WVALID = SWVALID[1];
-	assign serr.master.WVALID = SWVALID[2];
+	assign serr.WVALID = SWVALID[2];
 
 
 	assign SBID[0] = s0.BID;
 	assign SBID[1] = s1.BID;
-	assign SBID[2] = serr.master.BID;
+	assign SBID[2] = serr.BID;
 	assign SBRESP[0] = s0.BRESP;
 	assign SBRESP[1] = s1.BRESP;
-	assign SBRESP[2] = serr.master.BRESP;
+	assign SBRESP[2] = serr.BRESP;
 	assign SBVALID[0] = s0.BVALID;
 	assign SBVALID[1] = s1.BVALID;
-	assign SBVALID[2] = serr.master.BVALID;
+	assign SBVALID[2] = serr.BVALID;
 	assign s0.BREADY = SBREADY[0];
 	assign s1.BREADY = SBREADY[1];
-	assign serr.master.BREADY = SBREADY[2];
+	assign serr.BREADY = SBREADY[2];
 	
 
 // Read request state machine
@@ -331,51 +331,51 @@ module axi4_interconnect_2x2 #(
 	// Slave requests
 	assign SARREADY[0] = s0.ARREADY;
 	assign SARREADY[1] = s1.ARREADY;
-	assign SARREADY[2] = serr.master.ARREADY;
+	assign SARREADY[2] = serr.ARREADY;
 	assign s0.ARADDR = SARADDR[0];
 	assign s1.ARADDR = SARADDR[1];
-	assign serr.master.ARADDR = SARADDR[2];
+	assign serr.ARADDR = SARADDR[2];
 	assign s0.ARID = SARID[0];
 	assign s1.ARID = SARID[1];
-	assign serr.master.ARID = SARID[2];
+	assign serr.ARID = SARID[2];
 	assign s0.ARLEN = SARLEN[0];
 	assign s1.ARLEN = SARLEN[1];
-	assign serr.master.ARLEN = SARLEN[2];
+	assign serr.ARLEN = SARLEN[2];
 	assign s0.ARSIZE = SARSIZE[0];
 	assign s1.ARSIZE = SARSIZE[1];
-	assign serr.master.ARSIZE = SARSIZE[2];
+	assign serr.ARSIZE = SARSIZE[2];
 	assign s0.ARBURST = SARBURST[0];
 	assign s1.ARBURST = SARBURST[1];
-	assign serr.master.ARBURST = SARBURST[2];
+	assign serr.ARBURST = SARBURST[2];
 	assign s0.ARCACHE = SARCACHE[0];
 	assign s1.ARCACHE = SARCACHE[1];
-	assign serr.master.ARCACHE = SARCACHE[2];
+	assign serr.ARCACHE = SARCACHE[2];
 	assign s0.ARPROT = SARPROT[0];
 	assign s1.ARPROT = SARPROT[1];
-	assign serr.master.ARPROT = SARPROT[2];
+	assign serr.ARPROT = SARPROT[2];
 	assign s0.ARREGION = SARREGION[0];
 	assign s1.ARREGION = SARREGION[1];
-	assign serr.master.ARREGION = SARREGION[2];
+	assign serr.ARREGION = SARREGION[2];
 	assign s0.ARVALID = SARVALID[0];
 	assign s1.ARVALID = SARVALID[1];
-	assign serr.master.ARVALID = SARVALID[2];
+	assign serr.ARVALID = SARVALID[2];
 	
 
 	assign SRDATA[0] = s0.RDATA;
 	assign SRDATA[1] = s1.RDATA;
-	assign SRDATA[2] = serr.master.RDATA;
+	assign SRDATA[2] = serr.RDATA;
 	assign SRLAST[0] = s0.RLAST;
 	assign SRLAST[1] = s1.RLAST;
-	assign SRLAST[2] = serr.master.RLAST;
+	assign SRLAST[2] = serr.RLAST;
 	assign SRVALID[0] = s0.RVALID;
 	assign SRVALID[1] = s1.RVALID;
-	assign SRVALID[2] = serr.master.RVALID;
+	assign SRVALID[2] = serr.RVALID;
 	assign SRID[0] = s0.RID;
 	assign SRID[1] = s1.RID;
-	assign SRID[2] = serr.master.RID;
+	assign SRID[2] = serr.RID;
 	assign s0.RREADY = SRREADY[0];
 	assign s1.RREADY = SRREADY[1];
-	assign serr.master.RREADY = SRREADY[2];
+	assign serr.RREADY = SRREADY[2];
 	
 
 	

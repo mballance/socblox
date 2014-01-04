@@ -1,0 +1,3 @@
+
+run -a
+quit -f

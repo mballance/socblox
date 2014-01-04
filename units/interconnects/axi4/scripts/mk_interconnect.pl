@@ -220,7 +220,7 @@ sub axi4_aw_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -231,7 +231,7 @@ sub axi4_aw_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -251,7 +251,7 @@ sub axi4_ar_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -262,7 +262,7 @@ sub axi4_ar_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -282,7 +282,7 @@ sub axi4_w_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -293,7 +293,7 @@ sub axi4_w_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -313,7 +313,7 @@ sub axi4_r_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -324,7 +324,7 @@ sub axi4_r_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -344,7 +344,7 @@ sub axi4_b_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.master.${name};\n";
+				$out .= "\tassign S${name}[$i] = serr.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -355,7 +355,7 @@ sub axi4_b_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.master.${name} = S${name}[$i];\n";
+				$out .= "\tassign serr.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}

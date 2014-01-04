@@ -23,7 +23,7 @@ module axi4_svf_sram #(
     task axi4_svf_sram_write8(
     	longint unsigned	offset,
     	int unsigned 		data);
-    	bit[AXI_DATA_WIDTH-1:0] tmp = ram[offset >> 2];
+    	automatic bit[AXI_DATA_WIDTH-1:0] tmp = ram[offset >> 2];
     	tmp &= ~('hff << offset[2:0]);
     	tmp |= (data << offset[2:0]);
     	ram[offset] = tmp;

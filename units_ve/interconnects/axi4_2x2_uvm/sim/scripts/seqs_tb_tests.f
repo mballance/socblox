@@ -1,0 +1,3 @@
+-f ${PROJECT_LOC}/stim/stim_seqs.f
+-f ${PROJECT_LOC}/tests/tests.f
+-f ${PROJECT_LOC}/tb/tb.f

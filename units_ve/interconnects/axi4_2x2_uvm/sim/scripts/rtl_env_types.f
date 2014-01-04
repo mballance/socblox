@@ -1,0 +1,6 @@
+-f ${SOCBLOX}/units_ve/interconnects/axi4_2x2_uvm/sv/sv.f
+-f ${SOCBLOX}/common/rtl/common_rtl.f
+-f ${SOCBLOX}/units/interconnects/interconnects.f
+-f ${SOCBLOX}/common/bfm/bfm.f
+-f ${SOCBLOX}/units_ve/interconnects/axi4_2x2_uvm/stim/stim_types.f
+-f ${SOCBLOX}/units_ve/interconnects/axi4_2x2_uvm/tb/env.f
