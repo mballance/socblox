@@ -81,8 +81,11 @@ module axi4_svf_sram #(
     reg[1:0] 						read_state;
     reg[MEM_ADDR_BITS-1:0]			read_addr;
     reg[3:0]						read_count;
+    reg[3:0]						read_offset;
     reg[3:0]						read_length;
     reg[AXI_ID_WIDTH-1:0]			read_id;
+    reg[1:0]						read_burst;
+    reg[3:0]						read_wrap_mask;
 
     always @(posedge ACLK)
     begin
@@ -95,6 +98,7 @@ module axi4_svf_sram #(
     		read_addr <= {MEM_ADDR_BITS{1'b0}};
     		read_addr <= 0;
     		read_count <= 4'b0000;
+    		read_offset <= 4'b0000;
     		read_length <= 4'b0000;
     	end else begin
     		case (write_state) 
@@ -132,22 +136,66 @@ module axi4_svf_sram #(
     		case (read_state)
     			2'b00: begin // Wait address state
     				if (s.ARVALID && s.ARREADY) begin
-    					read_addr <= s.ARADDR[MEM_ADDR_BITS+1:2];
     					read_length <= s.ARLEN;
     					read_count <= 0;
+    					if (s.ARBURST == 2) begin
+    						// TODO: consider the case where accesses are < bus width
+	    					$display("READ: address='h%08h read_offset='h%08h read_addr='h%08h", 
+	    							s.ARADDR, (s.ARADDR[$bits(s.ARLEN)+2:2]), 
+	    							{s.ARADDR[MEM_ADDR_BITS+1:$bits(s.ARLEN)+1], {$bits(s.ARLEN){1'b0}}});
+	    					case (s.ARLEN) 
+	    						0,1: begin
+	    							read_wrap_mask <= 1;
+	    							read_addr <= (s.ARADDR[MEM_ADDR_BITS+1:2] & {{(MEM_ADDR_BITS-1){1'b1}}, 1'b0});
+	    							read_offset <= (s.ARADDR[2]);
+	    						end
+	    						2,3: begin
+	    							read_wrap_mask <= 3;
+	    							read_addr <= (s.ARADDR[MEM_ADDR_BITS+1:2] & {{(MEM_ADDR_BITS-2){1'b1}}, 2'b0});
+	    							read_offset <= (s.ARADDR[3:2]);
+	    						end
+	    						4,5,6,7: begin
+	    							read_wrap_mask <= 7;
+	    							read_addr <= (s.ARADDR[MEM_ADDR_BITS+1:2] & {{(MEM_ADDR_BITS-3){1'b1}}, 3'b0});
+	    							read_offset <= (s.ARADDR[4:2]);
+	    						end
+	    						8,9,10,11,12,13,14,15: begin
+	    							read_wrap_mask <= 15;
+	    							read_addr <= (s.ARADDR[MEM_ADDR_BITS+1:2] & {{(MEM_ADDR_BITS-4){1'b1}}, 4'b0});
+	    							read_offset <= (s.ARADDR[5:2]);
+	    						end
+	    					endcase
+    					end else begin
+    						read_offset <= 0;
+	    					read_addr <= s.ARADDR[MEM_ADDR_BITS+1:2];
+	    					read_wrap_mask <= 'hf;
+    					end
     					read_state <= 1;
+    					read_burst <= s.ARBURST;
     					read_id <= s.ARID;
     				end
     			end
     			
     			2'b01: begin 
     				if (s.RVALID && s.RREADY) begin
-    					$display("%m: read 'h%08h='h%08h", (read_addr+read_count), ram[read_addr+read_count]);
+    					$display("%m: read 'h%08h='h%08h", (read_addr+read_offset), ram[read_addr+read_offset]);
     					if (read_count == read_length) begin
     						read_state <= 1'b0;
     					end else begin
     						read_count <= read_count + 1;
     					end
+    					// TODO: consider the case where accesses are < bus width
+    					if (read_burst == 2) begin
+    						read_offset <= (read_offset & ~read_wrap_mask) | ((read_offset + 1) & read_wrap_mask);
+	    					$display("read_offset %0d", read_offset);
+//	    					read_offset <= ((read_offset+1) & ((1 << (1+read_length))-1));
+	    					/*
+	    					$display("read_offset %0d => %0d", read_offset,
+	    							((read_offset+1) & ((1 << (1+read_length))-1)));
+   							 */
+    					end else begin
+    						read_offset <= read_offset+1;
+   						end
     				end
     			end
     		endcase
@@ -167,7 +215,7 @@ module axi4_svf_sram #(
     assign s.ARREADY = (read_state == 1'b0);
     assign s.RVALID = (read_state == 1'b1);
 
-    assign s.RDATA = ram[read_addr + read_count];
+    assign s.RDATA = ram[read_addr + read_offset];
     assign s.RLAST = (read_state == 1'b01 && read_count == read_length)?1'b1:1'b0;
     assign s.RID = (read_state == 1)?read_id:0;
 

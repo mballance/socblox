@@ -99,8 +99,10 @@ output                              o_stall,
 
 // WB Read Request                                                          
 output                              o_wb_req,          // Read Request
-axi4_if.master						master
-// input                               i_wb_stall         // wb_stb && !wb_ack
+input      [31:0]                   i_wb_address,      // wb bus                                 
+input      [31:0]                   i_wb_read_data,    // wb bus        
+input								i_read_data_valid,
+input                               i_wb_stall         // wb_stb && !wb_ack
 );
 
 `include "a23_localparams.v"
@@ -240,49 +242,54 @@ always @ ( posedge i_clk )
                     c_state     <= CS_TURN_AROUND;
                     end 
                        
-             CS_IDLE : begin
+             CS_IDLE :
+                begin
                 source_sel  <= 1'd1 << C_CORE;
                 
-                if ( ex_read_hit || ex_read_hit_r ) begin
+                if ( ex_read_hit || ex_read_hit_r )
+                    begin
                     select_way  <= data_hit_way | ex_read_hit_way;
                     c_state     <= CS_EX_DELETE;        
                     source_sel  <= 1'd1 << C_INVA;
-                end else if ( read_miss ) begin
-                    // AXI read request asserted, wait for ack
-                    if ( master.ARVALID && master.ARREADY )
+                    end
+                else if ( read_miss ) 
+                    begin
+                    // wb read request asserted, wait for ack
+                    if ( !i_wb_stall )   
                         c_state <= CS_FILL1; 
-                end else if ( write_hit )
+                    end           
+                else if ( write_hit )
                     c_state <= CS_WRITE_HIT1;        
-             end
+               end
                    
                    
-             CS_FILL1 : begin
+             CS_FILL1 :
+                begin
                 // wb read request asserted, wait for ack
-                if (master.RREADY && master.RVALID) begin
-                	c_state <= CS_FILL2;
+                if ( !i_wb_stall )
+                    c_state <= CS_FILL2;
                 end
-             end
                 
-             CS_FILL2 : begin
+                
+             CS_FILL2 :
                 // first read of burst of 4
                 // wb read request asserted, wait for ack
-                if (master.RREADY && master.RVALID) begin
-                	c_state <= CS_FILL3;
-                end
-             end
+                if ( !i_wb_stall )
+                    c_state <= CS_FILL3;
 
-             CS_FILL3 : begin
+
+             CS_FILL3 :
                 // second read of burst of 4
                 // wb read request asserted, wait for ack
-                if (master.RREADY && master.RVALID) begin
+                if ( !i_wb_stall )
                     c_state <= CS_FILL4;
-                end
-             end
                 
-             CS_FILL4 : begin
+                
+             CS_FILL4 :
                 // third read of burst of 4
                 // wb read request asserted, wait for ack
-				if (master.RREADY && master.RVALID) begin
+                if ( !i_wb_stall ) 
+                    begin
                     c_state     <= CS_FILL_COMPLETE;
                     source_sel  <= 1'd1 << C_FILL;
                 
@@ -293,23 +300,22 @@ always @ ( posedge i_clk )
                     select_way  <= next_way; 
                     random_num  <= {random_num[2], random_num[1], random_num[0], 
                                      random_num[3]^random_num[2]};
-				end
-			end
+                    end
 
 
              // Write the read fetch data in this cycle
-				CS_FILL_COMPLETE : begin
+             CS_FILL_COMPLETE : 
                 // fourth read of burst of 4
                 // wb read request asserted, wait for ack
-				if (master.RREADY && master.RVALID) begin
+                if ( !i_wb_stall )
+                    begin
                     // Back to normal cache operations, but
                     // use physical address for first read as
                     // address moved before the stall was asserted for the read_miss
                     // However don't use it if its a non-cached address!
                     source_sel  <= 1'd1 << C_CORE;              
                     c_state     <= CS_TURN_AROUND;    
-				end                     
-				end
+                    end                                 
                                                         
 
              // Ignore the tag read data in this cycle   
@@ -332,13 +338,13 @@ always @ ( posedge i_clk )
                 end
                 
                                  
-             CS_WRITE_HIT1: begin
+             CS_WRITE_HIT1:
+                begin
                 // wait for an ack on the wb bus to complete the write
-//                if ( !i_wb_stall )           
-				if (master.BREADY && master.BVALID) begin
+                if ( !i_wb_stall )           
                     c_state     <= CS_IDLE;
-				end
-			end
+                    
+                end
         endcase                       
 
 
@@ -346,31 +352,29 @@ always @ ( posedge i_clk )
 // Capture WB Block Read - burst of 4 words
 // ======================================
 always @ ( posedge i_clk )
-    if ( master.RREADY && master.RVALID ) 
-        wb_rdata_burst <= {master.RDATA, wb_rdata_burst[127:32]};
+	if ( i_read_data_valid ) begin
+        wb_rdata_burst <= {i_wb_read_data, wb_rdata_burst[127:32]};
+	end
 
 
 // ======================================
 // WB Read Buffer
 // ======================================
-always @ ( posedge i_clk ) begin
-	if ( c_state == CS_IDLE ) begin
-		if (master.ARREADY && master.ARVALID) begin
-			// Capture the address
-            wb_read_buf_address <= master.ARADDR;
-		end
-	end
-	
+always @ ( posedge i_clk )
+    begin
     if ( c_state == CS_FILL1 || c_state == CS_FILL2 || 
-         c_state == CS_FILL3 || c_state == CS_FILL4 ) begin
-		if ( master.RREADY && master.RVALID ) begin
-			wb_read_buf_valid   <= 1'd1;
-			wb_read_buf_data    <= master.RDATA;
-		end
-	end else begin
+         c_state == CS_FILL3 || c_state == CS_FILL4 )
+        begin
+        if ( !i_wb_stall )
+            begin
+            wb_read_buf_valid   <= 1'd1;
+            wb_read_buf_address <= i_wb_address;
+            wb_read_buf_data    <= i_wb_read_data;
+            end
+        end
+    else    
         wb_read_buf_valid   <= 1'd0;
-	end
-end
+    end
         
 
 // ======================================
@@ -490,13 +494,9 @@ assign ex_read_cache_busy = exclusive_access && !i_write_enable && c_state != CS
                           // Need to stall for a write miss to wait for the current wb 
                           // read miss access to complete. Also for a write hit, need 
                           // to stall for 1 cycle while the data cache is being written to
-/* TODO:
 assign write_stall      = ( write_hit  && c_state != CS_WRITE_HIT1 ) ||
                           ( write_miss && ( c_state != CS_IDLE ) )   ||
                            i_wb_stall                                ;
-                            */
-assign write_stall      = ( write_hit  && c_state != CS_WRITE_HIT1 ) ||
-                          ( write_miss && ( c_state != CS_IDLE ));
 
 assign read_stall       = read_miss;
 

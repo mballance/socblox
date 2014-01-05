@@ -11,6 +11,10 @@ A23_CORE_TESTS_SRC=\
 	bic_bug.S \
 	bl.S \
 	\
+	cache1.S \
+	cache2.S \
+	cache3.S \
+	\
 	ldm1.S \
 	ldm2.S \
 	ldm3.S \

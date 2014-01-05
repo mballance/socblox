@@ -11,7 +11,7 @@
 
 axi4_a23_svf_coretest::axi4_a23_svf_coretest(const char *name) :
 	axi4_a23_svf_test_base(name), tracer_port(this) {
-	m_instr_timeout = 1000;
+	m_instr_timeout = 10000;
 	m_instr_count = 0;
 
 }
@@ -87,10 +87,17 @@ void axi4_a23_svf_coretest::execute(
 		uint32_t			addr,
 		uint32_t			op)
 {
+	uint32_t mem_op = m_env->m_s0_bfm->read32(addr);
 	fprintf(stdout, "CoreTest: execute 0x%08x 0x%08x\n", addr, op);
 	m_instr_count++;
 
+	if (mem_op != op) {
+		fprintf(stdout, "CoreTest ERROR: opcode in memory is 0x%08x\n", mem_op);
+		m_end_sem.put();
+	}
+
 	if (m_instr_count > m_instr_timeout) {
+		fprintf(stdout, "CoreTest ERROR: timeout - %d instructions executed\n", m_instr_count);
 		m_end_sem.put();
 	}
 }

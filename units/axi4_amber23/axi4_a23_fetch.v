@@ -73,12 +73,19 @@ axi4_if.master				master
 // `include "memory_configuration.v"
 
 wire                        cache_stall;
+wire                        stall_cache;
 wire                        wb_stall;
 wire    [31:0]              cache_read_data;
 wire                        sel_cache;
 wire                        sel_wb;
 wire                        cache_wb_req;
 wire                        address_cachable;
+
+always @(posedge i_clk) begin
+	if (i_address_valid && !o_fetch_stall) begin
+		$display("FETCH: 'h%08h 'h%08h", i_address, o_read_data);
+	end
+end
 
 // ======================================
 // Memory Decode
@@ -108,7 +115,7 @@ wire[31:0]						i_wb_dat;
 // ======================================
 // L1 Cache (Unified Instruction and Data)
 // ======================================
-a23_cache #(
+axi4_a23_cache #(
 		.WAYS(A23_CACHE_WAYS)
 		) 
 	u_cache 
@@ -130,9 +137,12 @@ a23_cache #(
     .i_core_stall               ( o_fetch_stall         ),
     
     .o_wb_req                   ( cache_wb_req          ),
-    .i_wb_address               ( o_wb_adr              ),
-    .i_wb_read_data             ( i_wb_dat              ),
-    .i_wb_stall                 ( o_wb_stb & ~i_wb_ack  )
+//    .i_wb_address               ( o_wb_adr              ),
+    .i_wb_address               ( master.ARADDR         ),
+    .i_wb_read_data             ( master.RDATA			),
+    .i_read_data_valid			( master.RVALID			),
+//    .i_wb_stall                 ( o_wb_stb & ~i_wb_ack  )
+    .i_wb_stall                 ( stall_cache			)
 );
 
 
@@ -157,6 +167,8 @@ axi4_a23_axi_if u_axi4 (
     // Cache Accesses to Wishbone bus 
     // L1 Cache enable - used for hprot
     .i_cache_req                ( cache_wb_req          ),
+    
+    .o_stall_cache				( stall_cache			),
     
     .master						( master				)
 );

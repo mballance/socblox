@@ -73,6 +73,9 @@ output                      o_stall,
 // Cache Accesses to Wishbone bus
 input                       i_cache_req,
 
+// Indicates that data is not ready for the cache
+output						o_stall_cache,
+
 axi4_if.master				master
 );
 
@@ -94,26 +97,37 @@ reg                         servicing_cache = 'd0;
 wire    [3:0]               byte_enable;
 reg                         exclusive_access = 'd0;
 wire                        read_ack;
+wire                        cache_read_ack;
 wire                        wait_write_ack;
 wire                        wb_wait;
 
-// Write buffer
-reg     [31:0]              wbuf_addr_r = 'd0;
-reg     [3:0]               wbuf_sel_r  = 'd0;
-reg                         wbuf_busy_r = 'd0;
+	// Write buffer
+	reg     [31:0]              wbuf_addr_r = 'd0;
+	reg     [3:0]               wbuf_sel_r  = 'd0;
+	reg                         wbuf_busy_r = 'd0;
 
-	reg[1:0]				read_state;
+	reg[2:0]				read_state;
 	reg						data_valid;
 
 	// Read logic
 	always @(posedge i_clk) begin
 		case (read_state)
 			0: begin
+				if (cache_read_request) begin
+					$display("CACHE READ: 'h%08h", i_address);
+					read_state <= 3;
+				end else if (core_read_request) begin
+					read_state <= 1;
+				end
+					
+				/*
 				if (i_select && !i_write_enable) begin
 					read_state <= 1;
 				end
+				 */
 			end
-			
+	
+			// Core read
 			1: begin
 				if (master.ARVALID && master.ARREADY) begin
 					read_state <= 2;
@@ -121,7 +135,20 @@ reg                         wbuf_busy_r = 'd0;
 			end
 			
 			2: begin
-				if (master.RVALID && master.RREADY) begin
+				if (master.RVALID && master.RREADY && master.RLAST) begin
+					read_state <= 0;
+				end
+			end
+			
+			// Cache read
+			3: begin
+				if (master.ARVALID && master.ARREADY) begin
+					read_state <= 4;
+				end
+			end
+
+			4: begin
+				if (master.RVALID && master.RREADY && master.RLAST) begin
 					read_state <= 0;
 				end
 			end
@@ -164,24 +191,31 @@ reg                         wbuf_busy_r = 'd0;
 	end
 	
 	assign read_ack = (read_state == 2 && master.RVALID && master.RREADY);
+	assign cache_read_ack = (read_state == 4 && master.RVALID && master.RREADY);
 	assign write_ack = (write_state == 3 && master.BREADY && master.BVALID);
+	
+	assign o_stall_cache = (cache_read_request && ~cache_read_ack);
 	
 	assign core_read_request    = i_select && !i_write_enable;
 	assign core_write_request   = i_select &&  i_write_enable;
+	
+	// o_stall is for the core
 	assign o_stall = 
-		( core_read_request  && !read_ack )       || 
+		( core_read_request  && !read_ack )			|| 
 		/*
 		( core_read_request  && servicing_cache ) ||
 		( core_write_request && servicing_cache ) || */
 		( core_write_request && !write_ack) /* ||
-		( cache_write_request && wishbone_st == WB_WAIT_ACK) ||
-		wbuf_busy_r */;	
+		( cache_write_request && wishbone_st == WB_WAIT_ACK)*/ ||
+		wbuf_busy_r;	
 	
-	assign master.ARVALID = ((i_select && !i_write_enable) && (read_state == 1));
+//	assign master.ARVALID = ((i_select && !i_write_enable) && (read_state == 1));
+	assign master.ARVALID = (read_state == 1 || read_state == 3);
 	assign master.ARADDR = (master.ARVALID)?i_address:32'h0;
-	assign master.ARLEN = 0;
+	assign master.ARLEN = (read_state == 3)?3:0;
+	assign master.ARBURST = (read_state == 3)?'b10:'b01;
 	assign master.ARSIZE = 2;
-	assign master.RREADY = 1;
+	assign master.RREADY = (read_state == 2 || read_state ==4);
 	
 	assign master.AWVALID = ((i_select && i_write_enable) && (write_state == 1));
 	assign master.AWADDR = (master.AWVALID)?i_address:{32{0}};
@@ -194,6 +228,29 @@ reg                         wbuf_busy_r = 'd0;
 	assign master.WSTRB = (write_state == 2)?{4{1}}:0;
 
 	assign master.BREADY = (write_state == 3);
+	
+	assign core_read_request    = i_select && !i_write_enable;
+	assign core_write_request   = i_select &&  i_write_enable;
+
+	assign cache_read_request   = i_cache_req && !i_write_enable;
+	assign cache_write_request  = i_cache_req &&  i_write_enable;
+	
+	// ======================================
+	// Write buffer
+	// ======================================
+	/*
+	always @( posedge i_clk ) begin
+		if ( wb_wait && !wbuf_busy_r && (core_write_request || cache_write_request) )
+		begin
+			wbuf_addr_r <= i_address;
+			wbuf_sel_r  <= i_byte_enable;
+			wbuf_busy_r <= 1'd1;
+		end else if (!o_wb_stb) begin
+			wbuf_busy_r <= 1'd0;	
+		end
+	end
+	 */
+	
 
 `ifdef UNDEFINED
 assign read_ack             = !o_wb_we && i_wb_ack;
@@ -208,11 +265,6 @@ assign o_stall              = ( core_read_request  && !read_ack )       ||
                               // Wishbone is doing burst read so make core wait to execute the write
                               // ( core_write_request && !i_wb_ack )  ;
                               
-assign core_read_request    = i_select && !i_write_enable;
-assign core_write_request   = i_select &&  i_write_enable;
-
-assign cache_read_request   = i_cache_req && !i_write_enable;
-assign cache_write_request  = i_cache_req &&  i_write_enable;
 
 assign wb_wait              = o_wb_stb && !i_wb_ack;
 assign start_access         = (core_read_request || core_write_request || i_cache_req) && !wb_wait ;
@@ -224,20 +276,7 @@ assign byte_enable          = wbuf_busy_r                                   ? wb
                                     
 
 
-// ======================================
-// Write buffer
-// ======================================
 
-
-always @( posedge i_clk )
-    if ( wb_wait && !wbuf_busy_r && (core_write_request || cache_write_request) )
-        begin
-        wbuf_addr_r <= i_address;
-        wbuf_sel_r  <= i_byte_enable;
-        wbuf_busy_r <= 1'd1;
-        end
-    else if (!o_wb_stb)
-        wbuf_busy_r <= 1'd0;
     
 // ======================================
 // Register Accesses

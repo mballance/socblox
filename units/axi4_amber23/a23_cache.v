@@ -351,8 +351,9 @@ always @ ( posedge i_clk )
 // Capture WB Block Read - burst of 4 words
 // ======================================
 always @ ( posedge i_clk )
-    if ( !i_wb_stall )
+	if ( !i_wb_stall ) begin
         wb_rdata_burst <= {i_wb_read_data, wb_rdata_burst[127:32]};
+	end
 
 
 // ======================================

@@ -112,7 +112,6 @@ interface axi4_uvm_master_bfm #(
 	endclass
 	
 	class axi4_connector extends uvm_component;
-		`uvm_component_utils(axi4_connector)
 		
 		typedef axi4_vip_config #(
 			AXI4_ADDRESS_WIDTH, 
@@ -215,12 +214,11 @@ interface axi4_uvm_master_bfm #(
 	
 	
 	initial begin
-		connector = new("connector", null);
+		uvm_config_db #(mgc_axi4_vif_t)::set(null, 
+				$sformatf("%m*"), "AXI_VIF", bfm);
+		connector = new($sformatf("%m.connector"), null);
 	
-		uvm_config_db #(mgc_axi4_vif_t)::set(connector, "*", "AXI_VIF", bfm);
 	end
-
-	
 
 
 endinterface

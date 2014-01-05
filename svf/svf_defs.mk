@@ -3,10 +3,12 @@ SVF_DIR=$(SOCBLOX)/svf
 
 LIBSVF=$(SOCBLOX_LIBDIR)/$(LIBPREF)svf$(DLLEXT)
 LIBSVF_SC=$(SOCBLOX_LIBDIR)/$(LIBPREF)svf_sc$(DLLEXT)
+LIBSVF_HOST=$(SOCBLOX_LIBDIR)/$(LIBPREF)svf_host$(DLLEXT)
 LIBSVF_LINK=-L$(SOCBLOX_LIBDIR) -lsvf
 LIBSVF_SC_LINK=-L$(SOCBLOX_LIBDIR) -lsvf -lsvf_sc
+LIBSVF_HOST_LINK=-L$(SOCBLOX_LIBDIR) -lsvf -lsvf_host
 
-LIB_TARGETS += $(LIBSVF) $(LIBSVF_SC)
+LIB_TARGETS += $(LIBSVF) $(LIBSVF_SC) $(LIBSVF_HOST)
 
 SVF_SRC= \
   svf_bfm.cpp \
@@ -35,8 +37,18 @@ SVF_SC_SRC= \
 	svf_cmdline_sc.cpp \
 	svf_argfile_parser.cpp
 	
+SVF_HOST_SRC= \
+	svf_thread_host.cpp \
+	svf_thread_mutex_host.cpp \
+	svf_thread_cond_host.cpp \
+	svf_cmdline_host.cpp \
+	svf_argfile_parser.cpp
+	
+
+	
 SVF_OBJS=$(foreach o,$(SVF_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 SVF_SC_OBJS=$(foreach o,$(SVF_SC_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
+SVF_HOST_OBJS=$(foreach o,$(SVF_HOST_SRC:.cpp=.o),$(SOCBLOX_OBJDIR)/$(o))
 
 CXXFLAGS += -I$(SOCBLOX)/svf
 CXXFLAGS += -I$(SOCBLOX)/svf/dpi
