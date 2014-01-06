@@ -67,7 +67,10 @@ module axi4_amber23_svf_tb(
 		.s0                  (ic2s0.master       ));
 	
 	
-	axi4_svf_sram #(.AXI_DATA_WIDTH(32)) s0(
+	axi4_svf_sram #(
+			.AXI_DATA_WIDTH(32),
+			.MEM_ADDR_BITS(22)
+		) s0(
 			.ACLK(clk),
 			.ARESETn(rstn),
 			.s(ic2s0.slave)

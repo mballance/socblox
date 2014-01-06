@@ -11,7 +11,7 @@
 
 axi4_a23_svf_coretest::axi4_a23_svf_coretest(const char *name) :
 	axi4_a23_svf_test_base(name), tracer_port(this) {
-	m_instr_timeout = 10000;
+	m_instr_timeout = 100000;
 	m_instr_count = 0;
 
 }

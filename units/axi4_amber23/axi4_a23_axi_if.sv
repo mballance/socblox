@@ -96,8 +96,8 @@ wire                        start_access;
 reg                         servicing_cache = 'd0;
 wire    [3:0]               byte_enable;
 reg                         exclusive_access = 'd0;
-wire                        read_ack;
-wire                        cache_read_ack;
+wire                        read_ack, write_ack;
+wire                        cache_read_ack, cache_write_ack;
 wire                        wait_write_ack;
 wire                        wb_wait;
 
@@ -119,12 +119,6 @@ wire                        wb_wait;
 				end else if (core_read_request) begin
 					read_state <= 1;
 				end
-					
-				/*
-				if (i_select && !i_write_enable) begin
-					read_state <= 1;
-				end
-				 */
 			end
 	
 			// Core read
@@ -155,13 +149,15 @@ wire                        wb_wait;
 		endcase
 	end
 	
-	reg[1:0]				write_state;
+	reg[3:0]				write_state;
 	
 	// Write logic
 	always @(posedge i_clk) begin
 		case (write_state)
 			0: begin
-				if (i_select && i_write_enable) begin
+				if (cache_write_request) begin
+					write_state <= 4;
+				end else if (core_write_request) begin
 					write_state <= 1;
 				end
 			end
@@ -187,12 +183,34 @@ wire                        wb_wait;
 					write_state <= 0;
 				end
 			end
+		
+			// Cache write-back
+			4: begin
+				// address phase complete
+				if (master.AWVALID && master.AWREADY) begin
+					write_state <= 5;
+				end
+			end
+			
+			5: begin
+				if (master.WREADY && master.WVALID) begin
+					// If last
+					write_state <= 6;
+				end
+			end
+			
+			6: begin
+				if (master.BREADY && master.BVALID) begin
+					write_state <= 0;
+				end
+			end
 		endcase
 	end
 	
 	assign read_ack = (read_state == 2 && master.RVALID && master.RREADY);
 	assign cache_read_ack = (read_state == 4 && master.RVALID && master.RREADY);
 	assign write_ack = (write_state == 3 && master.BREADY && master.BVALID);
+	assign cache_write_ack = (write_state == 6 && master.BREADY && master.BVALID);
 	
 	assign o_stall_cache = (cache_read_request && ~cache_read_ack);
 	
@@ -205,8 +223,8 @@ wire                        wb_wait;
 		/*
 		( core_read_request  && servicing_cache ) ||
 		( core_write_request && servicing_cache ) || */
-		( core_write_request && !write_ack) /* ||
-		( cache_write_request && wishbone_st == WB_WAIT_ACK)*/ ||
+		( core_write_request && !write_ack) ||
+		( cache_write_request && !cache_write_ack) || 
 		wbuf_busy_r;	
 	
 //	assign master.ARVALID = ((i_select && !i_write_enable) && (read_state == 1));
@@ -217,17 +235,17 @@ wire                        wb_wait;
 	assign master.ARSIZE = 2;
 	assign master.RREADY = (read_state == 2 || read_state ==4);
 	
-	assign master.AWVALID = ((i_select && i_write_enable) && (write_state == 1));
+	assign master.AWVALID = (write_state == 1 || write_state == 4);
 	assign master.AWADDR = (master.AWVALID)?i_address:{32{0}};
 	assign master.AWLEN = 0;
 	assign master.AWSIZE = 2;
 	
-	assign master.WVALID = (write_state == 2)?1:0;
-	assign master.WDATA = (write_state == 2)?i_write_data:{32{0}};
-	assign master.WLAST = (write_state == 2)?1:0;
-	assign master.WSTRB = (write_state == 2)?{4{1}}:0;
+	assign master.WVALID = (write_state == 2 || write_state == 5)?1:0;
+	assign master.WDATA = (write_state == 2 || write_state == 5)?i_write_data:{32{0}};
+	assign master.WLAST = (write_state == 2 || write_state == 5)?1:0;
+	assign master.WSTRB = (write_state == 2 || write_state == 5)?{4{1}}:0;
 
-	assign master.BREADY = (write_state == 3);
+	assign master.BREADY = (write_state == 3 || write_state == 6);
 	
 	assign core_read_request    = i_select && !i_write_enable;
 	assign core_write_request   = i_select &&  i_write_enable;
