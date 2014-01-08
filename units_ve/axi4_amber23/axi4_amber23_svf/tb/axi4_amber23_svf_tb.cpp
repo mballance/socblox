@@ -6,23 +6,36 @@
  */
 #include <systemc.h>
 #include "svf.h"
+
+#ifdef QUESTA
+#include "axi4_amber23_svf_tb_wrapper.h"
+#else
+#if VM_TRACE
 #include "verilated_vcd_sc.h"
+#endif
 #include "Vaxi4_amber23_svf_tb.h"
+#define axi4_amber23_svf_tb	Vaxi4_amber23_svf_tb
+#endif
+
 #include "axi4_svf_sram_dpi_mgr.h"
 #include "axi4_svf_sram_bfm.h"
 #include "svf_elf_loader.h"
 #include "svdpi.h"
 
-class axi4_amber23_svf_tb : public sc_module {
+class axi4_amber23_svf_tb_sc : public sc_module {
 
 	public:
 
-		SC_HAS_PROCESS(axi4_amber23_svf_tb);
+		SC_HAS_PROCESS(axi4_amber23_svf_tb_sc);
 
-		axi4_amber23_svf_tb(const sc_module_name &in) :
-			sc_module(in), clk("clk", sc_time(10, SC_NS)) {
+		axi4_amber23_svf_tb_sc(const sc_module_name &in) :
+			sc_module(in), clk("clk", sc_time(10, SC_NS)), clk_n("clk_n") {
 
-			tb = new Vaxi4_amber23_svf_tb("tb");
+#ifdef QUESTA
+			tb = new axi4_amber23_svf_tb("tb", "axi4_amber23_svf_tb");
+#else
+			tb = new axi4_amber23_svf_tb("tb");
+#endif
 			tb->clk(clk);
 
 			SC_THREAD(run);
@@ -38,7 +51,8 @@ class axi4_amber23_svf_tb : public sc_module {
 
 	public:
 		sc_clock					clk;
-		Vaxi4_amber23_svf_tb		*tb;
+		sc_signal<bool>				clk_n;
+		axi4_amber23_svf_tb			*tb;
 };
 
 
@@ -47,21 +61,31 @@ int sc_main(int argc, char **argv)
 	for (int i=0; i<argc; i++) {
 		fprintf(stdout, "ARGV[%d]=%s\n", i, argv[i]);
 	}
-	Verilated::commandArgs(argc, argv);
 
-	axi4_amber23_svf_tb *tb = new axi4_amber23_svf_tb("tb");
+#ifdef VERILATOR
+	Verilated::commandArgs(argc, argv);
+#endif
+
+	axi4_amber23_svf_tb_sc *tb = new axi4_amber23_svf_tb_sc("tb");
+
+#ifdef VERILATOR
 	Verilated::traceEverOn(true);
+#endif
 
 	sc_start(1, SC_NS);
 
+#if VM_TRACE
 	VerilatedVcdSc *tfp = new VerilatedVcdSc();
 	tb->tb->trace(tfp, 99);
 	tfp->open("vlt_dump.vcd");
+#endif
 
 	sc_start(1000000, SC_NS);
 
+#if VM_TRACE
 	tb->tb->final();
 	tfp->close();
+#endif
 
 	return 0;
 }

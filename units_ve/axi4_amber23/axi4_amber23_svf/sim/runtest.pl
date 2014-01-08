@@ -42,6 +42,7 @@ $quiet="";
 $interactive=0;
 $builddir="";
 $enable_qvip=0;
+$sim="vl";
 
 # Global PID list
 @pid_list;
@@ -54,11 +55,12 @@ for ($i=0; $i <= $#ARGV; $i++) {
   if ($arg =~ /^-/) {
     if ($arg eq "-test") {
       $i++;
-      $test=$ARGV[$i];
+#      $test=$ARGV[$i];
       push(@testlist, $ARGV[$i]);
-    } elsif ($arg eq "-testlist") {
+    } elsif ($arg eq "-testlist" or $arg eq "-tl") {
 		$i++;
-    	push(@testlists, $ARGV[$i]);
+		process_testlist($ARGV[$i]);
+#    	push(@testlists, $ARGV[$i]);
     } elsif ($arg eq "-count") {
       $i++;
       $count=$ARGV[$i];
@@ -82,6 +84,9 @@ for ($i=0; $i <= $#ARGV; $i++) {
        $interactive=1;
     } elsif ($arg eq "-quiet") {
        $quiet=1;
+    } elsif ($arg eq "-sim") {
+    	$i++;
+    	$sim=$ARGV[$i];
     } else {
       print "[ERROR] Unknown option $arg\n";
       printhelp();
@@ -117,7 +122,7 @@ if ($cmd eq "build") {
   exit 0;
 }
 
-if ($test eq "") {
+if ($#testlist < 0) {
   print "[ERROR] no test specified\n";
   printhelp();
   exit 1
@@ -135,7 +140,7 @@ if ($build == 0 && $clean == 1) {
 
 
 if ($quiet eq "") {
-  if ($count == 1) {
+  if ($#testlist <= 0) {
     $quiet=0;
   } else {
     $quiet=1;
@@ -164,6 +169,90 @@ sub printhelp {
   print "    runtest -test ethmac_simple_rxtx_test\n";
 }
 
+$unget_ch_1 = -1;
+$unget_ch_2 = -1;
+
+sub process_testlist($) {
+	my($testlist_f) = @_;
+	my($ch,$ch2,$tok);
+	my($cc1, $cc2);
+	
+	open(my $fh, "<", "$testlist_f") or die "Failed to open $testlist_f";
+	$unget_ch_1 = -1;
+	$unget_ch_2 = -1;
+
+	while (($ch = get_ch($fh)) != -1) {
+		if ($ch eq "/") {
+			$ch2 = get_ch($fh);
+			if ($ch2 eq "*") {
+				$cc1 = -1;
+				$cc2 = -1;
+				
+				while (($ch = get_ch($fh)) != -1) {
+					$cc2 = $cc1;
+					$cc1 = $ch;
+					if ($cc1 eq "/" && $cc2 eq "*") {
+						last;
+					}
+				}
+				
+				next;
+			} elsif ($ch2 eq "/") {
+				while (($ch = get_ch($fh)) != -1 && !($ch eq "\n")) {
+					;
+				}
+				unget_ch($ch);
+				next;
+			} else {
+				unget_ch($ch2);
+			}
+		} elsif ($ch =~/^\s*$/) {
+			while (($ch = get_ch($fh)) != -1 && $ch =~/^\s*$/) { }
+			unget_ch($ch);
+			next;
+		}
+	
+		$tok = "";
+		
+		while ($ch != -1 && !($ch =~/^\s*$/)) {
+			$tok .= $ch;
+			$ch = get_ch($fh);
+		}
+		unget_ch($ch);
+	
+		push(@testlist, $tok);
+	}
+	
+	close($fh);
+}
+
+sub unget_ch($) {
+	my($ch) = @_;
+
+	$unget_ch_2 = $unget_ch_1;	
+	$unget_ch_1 = $ch;
+}
+
+sub get_ch($) {
+	my($fh) = @_;
+	my($ch) = -1;
+	my($count);
+	
+	if ($unget_ch_1 != -1) {
+		$ch = $unget_ch_1;
+		$unget_ch_1 = $unget_ch_2;
+		$unget_ch_2 = -1;
+	} else {
+		$count = read($fh, $ch, 1);
+		
+		if ($count <= 0) {
+			$ch = -1;
+		}
+	}
+	
+	return $ch;
+}
+
 #*********************************************************************
 #* run_jobs
 #*********************************************************************
@@ -190,7 +279,7 @@ sub build {
     chdir("$builddir");
 
     # First, build the testbench
-    open(CP, "${SIM_DIR}/scripts/build.sh |");
+    open(CP, "${SIM_DIR}/scripts/build_${sim}.sh |");
     open(LOG,"> ${builddir}/compile.log");
     while (<CP>) {
        print($_);
@@ -224,9 +313,10 @@ sub run_jobs {
     my($run_dir,$i, $alive, $pid);
     my(@pid_list_tmp,@cmdline);
     my($launch_sims, $n_complete, $n_started, $wpid);
-    my($seed,$report_interval,$seed_str);
+    my($seed,$report_interval,$seed_str,$testlist_idx);
 
     $report_interval=20;
+    $testlist_idx=0;
 
     if ($start eq "") {
       $start=1;
@@ -240,20 +330,36 @@ sub run_jobs {
 
         if ($launch_sims) {
             # Start up as many clients as possible (1-N)
-            while ($#pid_list+1 < $max_par && $n_started < $count) {
+            while ($#pid_list+1 < $max_par && $testlist_idx <= $#testlist) {
 
                 $seed_str = sprintf("%04d", $seed);
-                $run_dir="${run_root}/rundir_${seed_str}";
+                $test=$testlist[$testlist_idx];
+                $test=basename($test);
+                $test =~ s/\.f//g;
+                $run_dir="${run_root}/${test}_${seed_str}";
+                $testlist_idx++;
 
                 $pid = fork();
                 if ($pid == 0) {
+                	my($result);
                     setpgrp;
                     system("rm -rf $run_dir");
                     system("mkdir ${run_dir}");
                     chdir("$run_dir");
-print "running test\n";
-                    print "$SIM_DIR/scripts/runone.sh\n";
-                    system("$SIM_DIR/scripts/runone.sh", "-seed", "$seed", "-quiet", "$quiet", "$test", "-interactive", $interactive);
+                    system("$SIM_DIR/scripts/runone_${sim}.sh", 
+                    	"-seed", "$seed", 
+                    	"-quiet", "$quiet", 
+                    	"$test", 
+                    	"-interactive", $interactive);
+                    
+                    open(my $fh, "$SIM_DIR/scripts/status.sh $test |") or die "Failed to launch check program";
+                    
+                    $result = <$fh>;
+                    
+                    print "$result";
+                    
+                    close($fh);
+                    
                     exit 0;
                 }
 
@@ -262,7 +368,7 @@ print "running test\n";
                 $seed++;
 
                 # Launched the number requested
-                if ($n_started >= $count) {
+                if ($testlist_idx >= $#testlist) {
                   $launch_sims = 0;
                 }
             }
@@ -282,9 +388,9 @@ print "running test\n";
         # Update the PID list
         do {
             $n_completed++;
-            if (($n_completed) % $report_interval == 0) {
-              print "$n_completed Complete\n";
-            }
+#            if (($n_completed) % $report_interval == 0) {
+#              print "$n_completed Complete\n";
+#            }
             @pid_list_tmp = (); # empty pid list
             for ($i=0; $i<=$#pid_list; $i++) {
                 if ($pid_list[$i] != $pid) {
@@ -295,7 +401,7 @@ print "running test\n";
             $pid = waitpid(-1, WNOHANG);
         } while ($pid > 0);
     }
-    print "$n_completed Complete\n";
+#    print "$n_completed Complete\n";
 }
 
 sub cleanup {

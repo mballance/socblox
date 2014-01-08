@@ -23,6 +23,10 @@ CXXFLAGS += -I$(VERILATOR_ROOT)/include/vltstd
 
 CXXFLAGS += -I$(AXI4_SVF)/tb -I$(AXI4_SVF)/tests
 
+ifeq (1,$(VM_TRACE))
+CXXFLAGS  += -DVM_TRACE=1
+endif
+
 
 SV_SRC = \
  $(SOCBLOX)/common/rtl/axi4/axi4_if.sv \
@@ -36,10 +40,12 @@ SV_SRC = \
 
 #SVF_OBJS=$(foreach o,$(SVF_SRC:.cpp=.o),$(BUILD_DIR)/$(o))
 
+#TRACE=--trace
+
 all : $(LIB_TARGETS) $(TARGET_EXE_TARGETS)
-	verilator --trace --sc --Wno-fatal \
+	verilator $(TRACE) --sc --Wno-fatal \
 		--top-module $(TB) -f $(AXI4_AMBER23_SVF)/sim/scripts/axi4_amber23_svf.f
-	$(MAKE) SIMX=1 -C obj_dir -f $(SIM_DIR)/scripts/Makefile \
+	$(MAKE) SIMX=1 -C obj_dir -f $(SIM_DIR)/scripts/Makefile.vl \
 		$(BUILD_DIR)/simx
 		
 #          	-lsvf_axi4_bfm \
@@ -59,8 +65,9 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
 	      -Wl,--no-whole-archive \
           $(VK_GLOBAL_OBJS) \
           -L$(SOCBLOX_LIBDIR) \
+          -L$(SOCBLOX_LIBDIR)/sc \
           	$(BFM_AXI4_SVF_SRAM_LINK) \
-          	$(COMMON_SVF_LINK) \
+		$(COMMON_SVF_LINK) \
           	$(LIBSVF_SC_LINK) \
 	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread
 

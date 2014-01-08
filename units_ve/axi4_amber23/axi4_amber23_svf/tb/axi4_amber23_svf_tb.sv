@@ -11,8 +11,27 @@
 module axi4_amber23_svf_tb(
 		input				clk
 		);
+`ifndef VERILATOR
+	import svf_dpi_pkg::*;
+`endif
+
 	reg 		rstn = 0;
 	reg[15:0]	rstn_cnt = 0;
+	
+`ifndef VERILATOR
+	reg			clk_r = 0;
+
+	initial begin
+		forever begin
+			#10ns;
+			clk_r <= 1;
+			#10ns;
+			clk_r <= 0;
+		end
+	end
+	
+	assign clk = clk_r;
+`endif
 	
 	always @(posedge clk) begin
 		if (rstn_cnt == 100) begin
@@ -33,6 +52,9 @@ module axi4_amber23_svf_tb(
 	
 	wire i_irq, i_firq;
 	reg i_system_rdy = 1;
+	
+	assign i_irq = 0;
+	assign i_firq = 0;
 	
 	axi4_a23_core #(
 		.A23_CACHE_WAYS  (4 )
@@ -76,23 +98,6 @@ module axi4_amber23_svf_tb(
 			.s(ic2s0.slave)
 			);
 	
-
-	/*
-	bind a23_tracer axi4_amber23_svf_tracer u_svf_tracer (
-		.i_clk                    (i_clk                   ), 
-		.i_fetch_stall            (i_fetch_stall           ), 
-		.i_instruction            (i_instruction           ), 
-		.i_instruction_valid      (i_instruction_valid     ), 
-		.i_instruction_undefined  (i_instruction_undefined ), 
-		.i_instruction_execute    (i_instruction_execute   ), 
-		.i_interrupt              (i_interrupt             ), 
-		.i_interrupt_state        (i_interrupt_state       ), 
-		.i_instruction_address    (i_instruction_address   ), 
-		.i_pc_sel                 (i_pc_sel                ), 
-		.i_pc_wen                 (i_pc_wen                ));
-		
-		 */
-
 	bind a23_tracer axi4_a23_svf_tracer u_svf_tracer (
 		.i_clk                    (i_clk                   ), 
 		.i_fetch_stall            (i_fetch_stall           ), 

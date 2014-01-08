@@ -6,7 +6,6 @@
  */
 
 #include "svf_cmdline.h"
-#include "systemc.h"
 #include "svf_argfile_parser.h"
 #include <vector>
 #include <string>
@@ -18,6 +17,8 @@ using namespace std;
 
 vector<string> svf_cmdline::args()
 {
+	vector<string> ret;
+#ifdef UNDEFINED
 	int argc = sc_argc();
 	const char *const *argv = sc_argv();
 
@@ -27,6 +28,8 @@ vector<string> svf_cmdline::args()
 
 
 	return parser.cmdline();
+#endif
+	return ret;
 }
 
 

@@ -3,6 +3,7 @@ A23_CORE_TESTS_DIR=$(AXI4_AMBER23_SVF)/tests/sw
 A23_CORE_TESTS_SRC=\
 	adc.S \
 	add.S \
+	addr_ex.S \
 	\
 	barrel_shift_rs.S \
 	barrel_shift.S \
@@ -11,9 +12,17 @@ A23_CORE_TESTS_SRC=\
 	bic_bug.S \
 	bl.S \
 	\
+	cache_flush.S \
+	cache_swap_bug.S \
+	cache_swap.S \
+	\
 	cache1.S \
 	cache2.S \
 	cache3.S \
+	\
+	cacheable_area.S \
+	\
+	change_mode.S \
 	\
 	ldm1.S \
 	ldm2.S \

@@ -39,28 +39,39 @@ if test "x$SOCBLOX" = "x"; then
   export SOCBLOX=`cd ../../../.. ; pwd`
 fi  
 
-echo "SOCBLOX=$SOCBLOX"  
+# echo "SOCBLOX=$SOCBLOX"  
 
 export LD_LIBRARY_PATH=${SOCBLOX}/libs/linux:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${SOCBLOX}/libs/linux/dpi:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${BUILD_DIR}/libs:$LD_LIBRARY_PATH
 
 argfile=""
 
 if test -f ${SIM_DIR}/${testname}; then
-	argfile="-f ${SIM_DIR}/${testname}"
+	argfile="-sc_arg -f -sc_arg ${SIM_DIR}/${testname}"
 	testname=`basename ${testname}`
 	testname=`echo $testname | sed -e 's%\..*$%%g'`
+elif test -f $SIM_DIR/tests/${testname}; then
+	argfile="-sc_arg -f -sc_arg ${SIM_DIR}/tests/${testname}"
 elif test -f $SIM_DIR/tests/${testname}.f; then
-	argfile="-f ${SIM_DIR}/tests/${testname}.f"
+	argfile="-sc_arg -f -sc_arg ${SIM_DIR}/tests/${testname}.f"
 fi
+
+vmap work ${BUILD_DIR}/work > /dev/null 2>&1
 
 
 #${BUILD_DIR}/simx +TARGET_EXE=${BUILD_DIR}/core_tests/adc.elf
 
 if test $quiet -eq 1; then
-	${BUILD_DIR}/simx +TESTNAME=${testname} ${argfile} > simx.log 2>&1
+	vsim -c -do "log -r /*; run 1ms; quit -f" axi4_amber23_svf_tb_opt \
+		-sc_arg +TESTNAME=${testname} ${argfile} \
+		-sv_lib ${SOCBLOX}/libs/linux/dpi/libsvf_dpi \
+                -sv_lib ${BUILD_DIR}/libs/liba23_dpi > simx.log 2>&1
 else
-	${BUILD_DIR}/simx +TESTNAME=${testname} ${argfile} 2>&1 | tee simx.log
+	vsim -c -do "log -r /*; run 1ms; quit -f" axi4_amber23_svf_tb_opt \
+		-sc_arg +TESTNAME=${testname} ${argfile} \
+		-sv_lib ${SOCBLOX}/libs/linux/dpi/libsvf_dpi \
+                -sv_lib ${BUILD_DIR}/libs/liba23_dpi > simx.log 2>&1 | tee vsim.log
 fi
 
 #+TARGET_EXE=${BUILD_DIR}/core_tests/add.elf  \

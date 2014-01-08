@@ -34,6 +34,9 @@ using namespace std;
 	extern "C" void prefix ## _ ## method  prototype ; \
 	void prefix ## _dpi_closure :: method prototype { \
 		svScope scope = svGetScopeFromName(m_target.c_str()); \
+		if (!scope) { \
+			fprintf(stdout, "Failed to obtain sv scope for %s\n", m_target.c_str()); \
+		} \
 		svSetScope(scope); \
 		\
 		prefix ## _ ## method args; \

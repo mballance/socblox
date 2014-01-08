@@ -106,8 +106,8 @@ wire                        wb_wait;
 	reg     [3:0]               wbuf_sel_r  = 'd0;
 	reg                         wbuf_busy_r = 'd0;
 
-	reg[2:0]				read_state;
-	reg						data_valid;
+	reg[2:0]				read_state = 0;
+	reg						data_valid = 0;
 
 	// Read logic
 	always @(posedge i_clk) begin
@@ -149,7 +149,7 @@ wire                        wb_wait;
 		endcase
 	end
 	
-	reg[3:0]				write_state;
+	reg[3:0]				write_state = 0;
 	
 	// Write logic
 	always @(posedge i_clk) begin

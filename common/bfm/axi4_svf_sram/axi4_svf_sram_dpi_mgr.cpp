@@ -9,7 +9,7 @@
 #include "dpi/svf_dpi.h"
 
 extern "C" {
-	void axi4_svf_sram_register();
+	int axi4_svf_sram_register();
 	void axi4_svf_sram_write8(uint64_t addr, uint8_t data);
 	void axi4_svf_sram_write16(uint64_t addr, uint16_t data);
 	void axi4_svf_sram_write32(uint64_t addr, uint32_t data);
@@ -22,6 +22,9 @@ extern "C" {
 void axi4_svf_sram_dpi_closure::write32(uint64_t addr, uint32_t data)
 {
 	svScope scope = svGetScopeFromName(m_target.c_str());
+	if (!scope) {
+		fprintf(stdout, "Failed to lookup scope %s\n", m_target.c_str());
+	}
 	svSetScope(scope);
 
 	axi4_svf_sram_write32(addr, data);
@@ -128,7 +131,7 @@ axi4_svf_sram_dpi_closure *axi4_svf_sram_dpi_mgr::get_closure(const string &targ
 }
 
 
-void axi4_svf_sram_register()
+int axi4_svf_sram_register()
 {
 	svScope scope = svGetScope();
 	const char *name = svGetNameFromScope(scope);
@@ -136,6 +139,8 @@ void axi4_svf_sram_register()
 	fprintf(stdout, "axi4_svf_sram_dpi_mgr: %s\n", name);
 
 	axi4_svf_sram_dpi_mgr::register_bfm(name);
+
+	return 0;
 }
 
 
