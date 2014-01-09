@@ -10,6 +10,7 @@
 
 #include "svf_component.h"
 #include "svf_objection.h"
+#include "svf_config_db.h"
 
 class svf_cmdline;
 
@@ -30,6 +31,8 @@ class svf_root : public svf_component {
 
 		virtual void drop_objection();
 
+		svf_config_db &config_db();
+
 	private:
 
 		void do_build(svf_component *level);
@@ -42,6 +45,7 @@ class svf_root : public svf_component {
 
 		svf_cmdline					*m_cmdline;
 		svf_objection				m_objection;
+		svf_config_db				m_config_db;
 
 };
 

@@ -5,6 +5,8 @@
  *      Author: ballance
  */
 #include "svf_thread_mutex.h"
+#include "svf_dpi_int.h"
+#include <stdio.h>
 #ifdef UNDEFINED
 #include "svf_thread_mutex_sc.h"
 
@@ -41,23 +43,26 @@ void svf_thread_mutex_sc::unlock()
 
 svf_thread_mutex_h svf_thread_mutex::create()
 {
-//	return new svf_thread_mutex_sc();
-	return 0;
+	return (svf_thread_mutex_h *)get_svf_dpi_api()->create_mutex();
 }
 
 void svf_thread_mutex::destroy(svf_thread_mutex_h m)
 {
-//	delete static_cast<svf_thread_mutex_sc *>(m);
+//	get_svf_dpi_api()->mutex_destroy((uint32_t)m);
 }
 
 void svf_thread_mutex::lock(svf_thread_mutex_h m)
 {
-//	static_cast<svf_thread_mutex_sc *>(m)->lock();
+	fprintf(stderr, "--> mutex_lock\n");
+	get_svf_dpi_api()->mutex_lock((uint32_t)m);
+	fprintf(stderr, "<-- mutex_lock\n");
 }
 
 void svf_thread_mutex::unlock(svf_thread_mutex_h m)
 {
-//	static_cast<svf_thread_mutex_sc *>(m)->unlock();
+	fprintf(stderr, "--> mutex_lock\n");
+	get_svf_dpi_api()->mutex_unlock((uint32_t)m);
+	fprintf(stderr, "<-- mutex_lock\n");
 }
 
 

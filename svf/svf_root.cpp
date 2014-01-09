@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 svf_root::svf_root(const char *name) :
-	svf_component(name, 0), m_cmdline(0)
+	svf_component(name, 0), m_cmdline(0), m_config_db(svf_config_db::get_default())
 {
 
 }
@@ -48,6 +48,11 @@ void svf_root::raise_objection()
 void svf_root::drop_objection()
 {
 	m_objection.drop();
+}
+
+svf_config_db &svf_root::config_db()
+{
+	return m_config_db;
 }
 
 svf_cmdline &svf_root::cmdline()

@@ -1,5 +1,7 @@
 
 #include "svf_thread_cond.h"
+#include <stdio.h>
+#include "svf_dpi_int.h"
 
 #ifdef UNDEFINED
 #include "svf_thread_mutex_sc.h"
@@ -64,8 +66,10 @@ void svf_thread_cond_sc::notify_all()
 
 svf_thread_cond_h svf_thread_cond::create()
 {
-//	return new svf_thread_cond_sc();
-	return 0;
+	void *ret;
+	uint32_t cond_id = get_svf_dpi_api()->create_cond();
+
+	return reinterpret_cast<svf_thread_cond_h>(cond_id);
 }
 
 void svf_thread_cond::destroy(svf_thread_cond_h c)
@@ -75,16 +79,16 @@ void svf_thread_cond::destroy(svf_thread_cond_h c)
 
 void svf_thread_cond::wait(svf_thread_cond_h c, svf_thread_mutex_h m)
 {
-//	static_cast<svf_thread_cond_sc *>(c)->wait(static_cast<svf_thread_mutex_sc *>(m));
+	get_svf_dpi_api()->cond_wait((uint32_t)c, (uint32_t)m);
 }
 
 void svf_thread_cond::notify(svf_thread_cond_h c)
 {
-//	static_cast<svf_thread_cond_sc *>(c)->notify();
+	get_svf_dpi_api()->cond_notify((uint32_t)c);
 }
 
 void svf_thread_cond::notify_all(svf_thread_cond_h c)
 {
-//	static_cast<svf_thread_cond_sc *>(c)->notify_all();
+	get_svf_dpi_api()->cond_notify_all((uint32_t)c);
 }
 

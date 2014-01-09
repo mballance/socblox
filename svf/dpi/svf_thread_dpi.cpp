@@ -18,7 +18,15 @@ int svf_dpi_create_thread_trampoline(void *ud)
 {
 	const svf_closure_base *closure = static_cast<const svf_closure_base *>(ud);
 
+	fprintf(stdout, "--> svf_dpi_create_thread_trampoline\n");
+	fflush(stdout);
+	fprintf(stderr, "--> svf_dpi_create_thread_trampoline\n");
+
 	(*closure)();
+
+	fprintf(stdout, "<-- svf_dpi_create_thread_trampoline\n");
+	fflush(stdout);
+	fprintf(stderr, "<-- svf_dpi_create_thread_trampoline\n");
 	return 0;
 }
 
@@ -27,20 +35,17 @@ svf_native_thread_h svf_thread::create_thread(const svf_closure_base *closure)
 {
 	svf_native_thread_h *thread;
 
-	get_svf_dpi_api()->create_thread((void *)closure, (void **)&thread);
+	get_svf_dpi_api()->create_thread((void *)closure, (uint32_t *)&thread);
 
-	fprintf(stdout, "thread=%p\n", thread);
+	fprintf(stdout, "thread=%d\n", thread);
 
 	return thread;
 }
 
 void svf_thread::yield_thread()
 {
-	/*
-	sc_simcontext *context_p = sc_get_curr_simcontext();
-
-	// Wait for a delta cycle
-	wait(sc_time(0, SC_NS), context_p);
-	 */
+	fprintf(stderr, "--> yield\n");
+	get_svf_dpi_api()->thread_yield();
+	fprintf(stderr, "--> yield\n");
 }
 

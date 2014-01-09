@@ -19,6 +19,7 @@ SVF_SRC= \
   svf_cmdline.cpp \
   svf_component_ctor.cpp \
   svf_component.cpp \
+  svf_config_db.cpp \
   svf_factory.cpp \
   svf_object_ctor.cpp \
   svf_object.cpp \
@@ -39,7 +40,8 @@ SVF_SC_SRC= \
 	svf_thread_mutex_sc.cpp \
 	svf_thread_cond_sc.cpp \
 	svf_cmdline_sc.cpp \
-	svf_argfile_parser.cpp
+	svf_argfile_parser.cpp \
+	svf_sc_api.cpp 
 	
 SVF_HOST_SRC= \
 	svf_thread_host.cpp \
@@ -50,6 +52,7 @@ SVF_HOST_SRC= \
 	
 SVF_DPI_SRC= \
 	svf_cmdline_dpi.cpp			\
+	svf_argfile_parser.cpp		\
 	svf_thread_dpi.cpp			\
 	svf_thread_mutex_dpi.cpp	\
 	svf_thread_cond_dpi.cpp		\

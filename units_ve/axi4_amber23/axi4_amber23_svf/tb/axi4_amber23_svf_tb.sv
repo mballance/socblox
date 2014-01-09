@@ -11,13 +11,14 @@
 module axi4_amber23_svf_tb(
 		input				clk
 		);
-`ifndef VERILATOR
-	import svf_dpi_pkg::*;
-`endif
+	import svf_pkg::*;
 
 	reg 		rstn = 0;
 	reg[15:0]	rstn_cnt = 0;
-	
+
+	/** 
+	 * SV DPI method of launching a test 
+	 */
 `ifndef VERILATOR
 	reg			clk_r = 0;
 
@@ -31,7 +32,22 @@ module axi4_amber23_svf_tb(
 	end
 	
 	assign clk = clk_r;
+	
+	initial begin
+		svf_runtest();
+	end
 `endif
+
+	/**
+	 * Specify the root path of the testbench, since this can differ
+	 * across harnesses
+	 */
+	initial begin
+		automatic string path;
+		
+		$sformat(path, "%m");
+		set_config_string("*", "TB_ROOT", path);
+	end
 	
 	always @(posedge clk) begin
 		if (rstn_cnt == 100) begin

@@ -36,6 +36,8 @@ class svf_component {
 
 		virtual void drop_objection();
 
+		bool get_config_string(const char *key, const char **val);
+
 	private:
 
 		svf_root *get_root();

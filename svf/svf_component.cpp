@@ -7,6 +7,7 @@
 
 #include "svf_component.h"
 #include "svf_root.h"
+#include <stdio.h>
 
 svf_component::svf_component(const char *name, svf_component *parent) :
 	m_parent(parent), m_name(name) {
@@ -52,13 +53,32 @@ void svf_component::drop_objection()
 	root->drop_objection();
 }
 
+bool svf_component::get_config_string(const char *key, const char **val)
+{
+	svf_root *root = get_root();
+
+	fprintf(stderr, "root=%p\n", root);
+
+	// TODO: get path
+	return root->config_db().get_string("", key, val);
+}
+
 svf_root *svf_component::get_root()
 {
-	svf_component *p = m_parent;
+	if (m_parent) {
+		svf_component *p = m_parent;
 
-	while (p->m_parent) {
-		p = p->m_parent;
+		fprintf(stderr, "--> get_root %p\n", p);
+
+		while (p->m_parent) {
+			fprintf(stderr, "  -- p=%p\n", p);
+			p = p->m_parent;
+		}
+
+		fprintf(stderr, "<-- get_root\n");
+
+		return static_cast<svf_root *>(p);
+	} else {
+		return static_cast<svf_root *>(this);
 	}
-
-	return static_cast<svf_root *>(p);
 }
