@@ -140,10 +140,10 @@ if ($build == 0 && $clean == 1) {
 
 
 if ($quiet eq "") {
-  if ($#testlist <= 0) {
-    $quiet=0;
-  } else {
+  if ($#testlist > 0) {
     $quiet=1;
+  } else {
+    $quiet=0;
   }
 }
 

@@ -48,13 +48,13 @@ export LD_LIBRARY_PATH=${BUILD_DIR}/libs:$LD_LIBRARY_PATH
 argfile=""
 
 if test -f ${SIM_DIR}/${testname}; then
-	argfile="-sc_arg -f -sc_arg ${SIM_DIR}/${testname}"
+	argfile="-f ${SIM_DIR}/${testname}"
 	testname=`basename ${testname}`
 	testname=`echo $testname | sed -e 's%\..*$%%g'`
 elif test -f $SIM_DIR/tests/${testname}; then
-	argfile="-sc_arg -f -sc_arg ${SIM_DIR}/tests/${testname}"
+	argfile="-f ${SIM_DIR}/tests/${testname}"
 elif test -f $SIM_DIR/tests/${testname}.f; then
-	argfile="-sc_arg -f -sc_arg ${SIM_DIR}/tests/${testname}.f"
+	argfile="-f ${SIM_DIR}/tests/${testname}.f"
 fi
 
 vmap work ${BUILD_DIR}/work > /dev/null 2>&1
@@ -64,12 +64,12 @@ vmap work ${BUILD_DIR}/work > /dev/null 2>&1
 
 if test $quiet -eq 1; then
 	vsim -c -do "log -r /*; run 1ms; quit -f" axi4_amber23_svf_tb_opt \
-		-sc_arg +TESTNAME=${testname} ${argfile} \
+		+TESTNAME=${testname} ${argfile} \
 		-sv_lib ${SOCBLOX}/libs/linux/dpi/libsvf_dpi \
                 -sv_lib ${BUILD_DIR}/libs/liba23_dpi > simx.log 2>&1
 else
 	vsim -c -do "log -r /*; run 1ms; quit -f" axi4_amber23_svf_tb_opt \
-		-sc_arg +TESTNAME=${testname} ${argfile} \
+		+TESTNAME=${testname} ${argfile} \
 		-sv_lib ${SOCBLOX}/libs/linux/dpi/libsvf_dpi \
                 -sv_lib ${BUILD_DIR}/libs/liba23_dpi > simx.log 2>&1 | tee vsim.log
 fi

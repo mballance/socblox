@@ -44,7 +44,9 @@ SV_SRC = \
 
 all : $(LIB_TARGETS) $(TARGET_EXE_TARGETS)
 	verilator $(TRACE) --sc --Wno-fatal \
-		--top-module $(TB) -f $(AXI4_AMBER23_SVF)/sim/scripts/axi4_amber23_svf.f
+		--top-module $(TB) \
+		$(SOCBLOX)/svf/sc/svf_pkg.sv \
+		-f $(AXI4_AMBER23_SVF)/sim/scripts/axi4_amber23_svf.f
 	$(MAKE) SIMX=1 -C obj_dir -f $(SIM_DIR)/scripts/Makefile.vl \
 		$(BUILD_DIR)/simx
 		
