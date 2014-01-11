@@ -1,6 +1,7 @@
 
 
 $(LIBSVF) : $(SVF_OBJS)
+	echo "MAKE LIBSVF"
 	if test ! -d $(SOCBLOX_LIBDIR)/core; then mkdir -p $(SOCBLOX_LIBDIR)/core; fi
 	$(LINK) -o $(LIBSVF) $(DLLOUT) $(SVF_OBJS)
 	

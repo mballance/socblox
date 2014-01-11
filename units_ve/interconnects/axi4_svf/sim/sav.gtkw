@@ -1,15 +1,15 @@
 [*]
-[*] GTKWave Analyzer v3.3.49 (w)1999-2013 BSI
-[*] Thu Jan 02 20:51:57 2014
+[*] GTKWave Analyzer v3.3.52 (w)1999-2013 BSI
+[*] Sat Jan  4 19:04:46 2014
 [*]
-[dumpfile] "C:\usr1\fun\socblox\socblox_mballance\units_ve\interconnects\axi4_svf\sim\rundir\rundir_0001\vlt_dump.vcd"
-[dumpfile_mtime] "Thu Jan 02 19:41:11 2014"
-[dumpfile_size] 8536055636021829654
-[savefile] "C:\usr1\fun\socblox\socblox_mballance\units_ve\interconnects\axi4_svf\sim\sav.gtkw"
+[dumpfile] "/usr1/fun/socblox/socblox_mballance/units_ve/interconnects/axi4_svf/sim/rundir/rundir_0001/vlt_dump.vcd"
+[dumpfile_mtime] "Sat Jan  4 19:02:14 2014"
+[dumpfile_size] 876566
+[savefile] "/usr1/fun/socblox/socblox_mballance/units_ve/interconnects/axi4_svf/sim/sav.gtkw"
 [timestart] 2874800
-[size] 1680 1034
+[size] 1680 943
 [pos] -1 -1
-*-17.213881 3500400 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-17.213881 3150000 3080000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb.
 [treeopen] tb.tb.
 [treeopen] tb.tb.v.
@@ -20,7 +20,7 @@
 [sst_vpaned_height] 411
 @28
 tb.tb.clk
-@c00200
+@800200
 -M1
 @200
 -READ
@@ -36,6 +36,14 @@ tb.tb.v.m12ic.ARID[3:0]
 tb.tb.v.m12ic.ARLEN[7:0]
 @28
 tb.tb.v.m12ic.ARSIZE[2:0]
+@23
+tb.tb.v.m12ic.RDATA[31:0]
+tb.tb.v.m12ic.RID[3:0]
+@29
+tb.tb.v.m12ic.RLAST
+tb.tb.v.m12ic.RREADY
+tb.tb.v.m12ic.RRESP[1:0]
+tb.tb.v.m12ic.RVALID
 @200
 -WRITE
 @28
@@ -57,14 +65,6 @@ tb.tb.v.m12ic.BREADY
 tb.tb.v.m12ic.BRESP[1:0]
 tb.tb.v.m12ic.BVALID
 @22
-tb.tb.v.m12ic.RDATA[31:0]
-tb.tb.v.m12ic.RID[3:0]
-@28
-tb.tb.v.m12ic.RLAST
-tb.tb.v.m12ic.RREADY
-tb.tb.v.m12ic.RRESP[1:0]
-tb.tb.v.m12ic.RVALID
-@22
 tb.tb.v.m12ic.WDATA[31:0]
 @28
 tb.tb.v.m12ic.WLAST
@@ -73,7 +73,7 @@ tb.tb.v.m12ic.WREADY
 tb.tb.v.m12ic.WSTRB[3:0]
 @28
 tb.tb.v.m12ic.WVALID
-@1401200
+@1000200
 -M1
 @c00200
 -M2

@@ -14,5 +14,6 @@ clean :
 	rm -rf $(SOCBLOX_LIBDIR) $(SOCBLOX_OBJDIR) inc_targets lib_targets
 #	rm -rf $(CLEAN_LIST)
 
+RULES := 1
 include $(SOCBLOX)/rules.mk
 

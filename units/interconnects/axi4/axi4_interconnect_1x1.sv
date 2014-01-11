@@ -17,8 +17,8 @@ module axi4_interconnect_1x1 #(
 		) (
 		input						clk,
 		input						rstn,
-		axi4_if.master					m0,
-		axi4_if.slave					s0
+		axi4_if.slave					m0,
+		axi4_if.master					s0
 		);
 	
 	localparam int AXI4_DATA_MSB = (AXI4_DATA_WIDTH-1);
@@ -194,49 +194,49 @@ module axi4_interconnect_1x1 #(
 	
 	// Slave requests
 	assign SAWREADY[0] = s0.AWREADY;
-	assign SAWREADY[1] = serr.master.AWREADY;
+	assign SAWREADY[1] = serr.AWREADY;
 	assign s0.AWADDR = SAWADDR[0];
-	assign serr.master.AWADDR = SAWADDR[1];
+	assign serr.AWADDR = SAWADDR[1];
 	assign s0.AWID = SAWID[0];
-	assign serr.master.AWID = SAWID[1];
+	assign serr.AWID = SAWID[1];
 	assign s0.AWLEN = SAWLEN[0];
-	assign serr.master.AWLEN = SAWLEN[1];
+	assign serr.AWLEN = SAWLEN[1];
 	assign s0.AWSIZE = SAWSIZE[0];
-	assign serr.master.AWSIZE = SAWSIZE[1];
+	assign serr.AWSIZE = SAWSIZE[1];
 	assign s0.AWBURST = SAWBURST[0];
-	assign serr.master.AWBURST = SAWBURST[1];
+	assign serr.AWBURST = SAWBURST[1];
 	assign s0.AWCACHE = SAWCACHE[0];
-	assign serr.master.AWCACHE = SAWCACHE[1];
+	assign serr.AWCACHE = SAWCACHE[1];
 	assign s0.AWPROT = SAWPROT[0];
-	assign serr.master.AWPROT = SAWPROT[1];
+	assign serr.AWPROT = SAWPROT[1];
 	assign s0.AWQOS = SAWQOS[0];
-	assign serr.master.AWQOS = SAWQOS[1];
+	assign serr.AWQOS = SAWQOS[1];
 	assign s0.AWREGION = SAWREGION[0];
-	assign serr.master.AWREGION = SAWREGION[1];
+	assign serr.AWREGION = SAWREGION[1];
 	assign s0.AWVALID = SAWVALID[0];
-	assign serr.master.AWVALID = SAWVALID[1];
+	assign serr.AWVALID = SAWVALID[1];
 
 
 	assign SWREADY[0] = s0.WREADY;
-	assign SWREADY[1] = serr.master.WREADY;
+	assign SWREADY[1] = serr.WREADY;
 	assign s0.WDATA = SWDATA[0];
-	assign serr.master.WDATA = SWDATA[1];
+	assign serr.WDATA = SWDATA[1];
 	assign s0.WSTRB = SWSTRB[0];
-	assign serr.master.WSTRB = SWSTRB[1];
+	assign serr.WSTRB = SWSTRB[1];
 	assign s0.WLAST = SWLAST[0];
-	assign serr.master.WLAST = SWLAST[1];
+	assign serr.WLAST = SWLAST[1];
 	assign s0.WVALID = SWVALID[0];
-	assign serr.master.WVALID = SWVALID[1];
+	assign serr.WVALID = SWVALID[1];
 
 
 	assign SBID[0] = s0.BID;
-	assign SBID[1] = serr.master.BID;
+	assign SBID[1] = serr.BID;
 	assign SBRESP[0] = s0.BRESP;
-	assign SBRESP[1] = serr.master.BRESP;
+	assign SBRESP[1] = serr.BRESP;
 	assign SBVALID[0] = s0.BVALID;
-	assign SBVALID[1] = serr.master.BVALID;
+	assign SBVALID[1] = serr.BVALID;
 	assign s0.BREADY = SBREADY[0];
-	assign serr.master.BREADY = SBREADY[1];
+	assign serr.BREADY = SBREADY[1];
 	
 
 // Read request state machine
@@ -263,39 +263,42 @@ module axi4_interconnect_1x1 #(
 	assign m0.RDATA = RDATA[0];
 	assign m0.RLAST = RLAST[0];
 	assign m0.RVALID = RVALID[0];
+	assign m0.RID = RID[0];
 	
 	
 	// Slave requests
 	assign SARREADY[0] = s0.ARREADY;
-	assign SARREADY[1] = serr.master.ARREADY;
+	assign SARREADY[1] = serr.ARREADY;
 	assign s0.ARADDR = SARADDR[0];
-	assign serr.master.ARADDR = SARADDR[1];
+	assign serr.ARADDR = SARADDR[1];
 	assign s0.ARID = SARID[0];
-	assign serr.master.ARID = SARID[1];
+	assign serr.ARID = SARID[1];
 	assign s0.ARLEN = SARLEN[0];
-	assign serr.master.ARLEN = SARLEN[1];
+	assign serr.ARLEN = SARLEN[1];
 	assign s0.ARSIZE = SARSIZE[0];
-	assign serr.master.ARSIZE = SARSIZE[1];
+	assign serr.ARSIZE = SARSIZE[1];
 	assign s0.ARBURST = SARBURST[0];
-	assign serr.master.ARBURST = SARBURST[1];
+	assign serr.ARBURST = SARBURST[1];
 	assign s0.ARCACHE = SARCACHE[0];
-	assign serr.master.ARCACHE = SARCACHE[1];
+	assign serr.ARCACHE = SARCACHE[1];
 	assign s0.ARPROT = SARPROT[0];
-	assign serr.master.ARPROT = SARPROT[1];
+	assign serr.ARPROT = SARPROT[1];
 	assign s0.ARREGION = SARREGION[0];
-	assign serr.master.ARREGION = SARREGION[1];
+	assign serr.ARREGION = SARREGION[1];
 	assign s0.ARVALID = SARVALID[0];
-	assign serr.master.ARVALID = SARVALID[1];
+	assign serr.ARVALID = SARVALID[1];
 	
 
 	assign SRDATA[0] = s0.RDATA;
-	assign SRDATA[1] = serr.master.RDATA;
+	assign SRDATA[1] = serr.RDATA;
 	assign SRLAST[0] = s0.RLAST;
-	assign SRLAST[1] = serr.master.RLAST;
+	assign SRLAST[1] = serr.RLAST;
 	assign SRVALID[0] = s0.RVALID;
-	assign SRVALID[1] = serr.master.RVALID;
+	assign SRVALID[1] = serr.RVALID;
+	assign SRID[0] = s0.RID;
+	assign SRID[1] = serr.RID;
 	assign s0.RREADY = SRREADY[0];
-	assign serr.master.RREADY = SRREADY[1];
+	assign serr.RREADY = SRREADY[1];
 	
 
 	

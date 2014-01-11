@@ -103,6 +103,12 @@ module axi4_2x2_uvm_tb;
 		.s1                  (ic2s1.master       ));		
 	
 	initial begin
+		typedef virtual axi4_uvm_master_bfm #(
+			.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),
+			.AXI4_DATA_WIDTH(AXI4_DATA_WIDTH),
+			.AXI4_ID_WIDTH(AXI4_ID_WIDTH)) bfm_vif_t;
+		
+		uvm_config_db #(bfm_vif_t)::set(null, ", field_name, value)
 		run_test();
 	end
 

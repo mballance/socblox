@@ -86,6 +86,7 @@ VSIM_OPTIONS="$VSIM_OPTIONS -f ${testfile}"
 # VSIM_OPTIONS="$VSIM_OPTIONS -uvmcontrol=struct"
 # VSIM_OPTIONS="$VSIM_OPTIONS -solveengine bdd"
 VSIM_OPTIONS="$VSIM_OPTIONS -msgmode both -displaymsgmode both"
+VSIM_OPTIONS="$VSIM_OPTIONS -mvchome $QUESTA_MVC_HOME"
 
 BATCH="-c"
 
