@@ -9,3 +9,4 @@ ${SOCBLOX}/common/bfm/axi4_svf_sram/axi4_svf_sram.sv
 
 +incdir+${SOCBLOX}/common/bfm/wb_svf
 ${SOCBLOX}/common/bfm/wb_svf/wb_svf_master_bfm.sv
+${SOCBLOX}/common/bfm/wb_svf/wb_sram_bfm.sv

@@ -21,13 +21,18 @@ module wb_sram_bfm #(
 	reg[(DATA_WIDTH-1):0]		ram[1 << MEM_ADDR_BITS];
 	reg[DATA_WIDTH-1:0]			DAT_R;
 
-	localparam WIDTH_BITS = $bits(DATA_WIDTH/8);
-	
+	localparam WIDTH_BITS = (DATA_WIDTH==128)?7:
+							(DATA_WIDTH==64)?6:
+							(DATA_WIDTH==32)?2:
+							(DATA_WIDTH==16)?1:0;
+
+	/*
 	initial begin
 		$display("WIDTH_BITS=%0d", WIDTH_BITS);
 	end
+	 */
 	
-	assign slave.DAT_R = ram[slave.ADR[MEM_ADDR_BITS+WIDTH_BITS-1:WIDTH_BITS-1]];
+	assign slave.DAT_R = ram[slave.ADR[MEM_ADDR_BITS+WIDTH_BITS-1:WIDTH_BITS]];
 	
 	always @(posedge clk) begin
 		if (rstn == 0) begin
@@ -39,7 +44,12 @@ module wb_sram_bfm #(
 			end
 			if (slave.STB && slave.CYC) begin
 				if (slave.WE) begin
-					ram[slave.ADR[MEM_ADDR_BITS+WIDTH_BITS-1:WIDTH_BITS-1]] <= slave.DAT_W;
+					ram[slave.ADR[MEM_ADDR_BITS+WIDTH_BITS-1:WIDTH_BITS]] <= slave.DAT_W;
+					/*
+					$display("%m: write ram[%0d] = 'h%08h", 
+							slave.ADR[MEM_ADDR_BITS+WIDTH_BITS-1:WIDTH_BITS],
+							slave.DAT_W);
+					 */
 				end
 				slave.ACK <= 1;
 			end

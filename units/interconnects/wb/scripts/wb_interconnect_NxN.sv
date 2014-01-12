@@ -120,6 +120,7 @@ ${R_SLAVE_ASSIGN}
 							// Wait for the addressed slave to acknowledge
 							if (CYC[m_i] && STB[m_i] && ACK[m_i]) begin
 								master_state[m_i] <= 0;
+								master_selected_slave[m_i] <= NO_SLAVE;
 							end
 						end
 					endcase
