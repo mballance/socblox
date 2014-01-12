@@ -13,6 +13,7 @@ TESTS_DIR := $(SIM_DIR)/../tests
 
 WB_2x2_SVF=$(SOCBLOX)/units_ve/interconnects/$(UNIT_VE)
 include $(TESTS_DIR)/defs_rules.mk
+include $(TB_DIR)/defs_rules.mk
 #include $(AXI4_AMBER23_SVF)/tests/sw/defs.mk
 #include $(AXI4_AMBER23_SVF)/svf/a23_tracer/defs.mk
 #include $(AXI4_AMBER23_SVF)/tests/defs.mk
@@ -27,6 +28,7 @@ CXXFLAGS += -I$(VERILATOR_ROOT)/include/vltstd
 #CXXFLAGS += -I$(AXI4_SVF)/tb -I$(AXI4_SVF)/tests
 
 TRACE=--trace
+CXXFLAGS += -DVL_TRACE_EN
 
 all : $(LIB_TARGETS) $(TARGET_EXE_TARGETS)
 	verilator $(TRACE) --sc --Wno-fatal \
@@ -37,7 +39,7 @@ all : $(LIB_TARGETS) $(TARGET_EXE_TARGETS)
 		$(BUILD_DIR)/simx
 
 BFM_LIBS += $(WB_SVF_MASTER_BFM_LIB)
-#BFM_LINK = $(foreach l,$(BFM_LIBS),-L$(dir $(l)) -l$(subst lib,,$(basename $(l))))
+BFM_LINK += $(WB_SVF_MASTER_BFM_LINK)
 
 $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
 	V$(TB)__ALL.a \
@@ -52,12 +54,13 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
           V$(TB)__ALL.a \
 	      -Wl,--no-whole-archive \
           $(VK_GLOBAL_OBJS) \
+          $(TESTBENCH_OBJS) \
           -L$(SOCBLOX_LIBDIR) \
           -L$(SOCBLOX_LIBDIR)/sc \
           	$(BFM_AXI4_SVF_SRAM_LINK) \
 		$(COMMON_SVF_LINK) \
           	$(LIBSVF_SC_LINK) \
-        $(BFM_LIBS) \
+        $(BFM_LINK) \
 	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread
 	  
 vpath %.cpp $(SRC_DIRS)
@@ -67,6 +70,7 @@ CXXFLAGS += $(foreach dir, $(SRC_DIRS), -I$(dir))
 RULES := 1
 include $(SOCBLOX)/rules.mk
 include $(TESTS_DIR)/defs_rules.mk
+include $(TB_DIR)/defs_rules.mk
 #include $(AXI4_AMBER23_SVF)/tests/sw/rules.mk
 #include $(AXI4_AMBER23_SVF)/svf/a23_tracer/rules.mk
 #include $(AXI4_AMBER23_SVF)/tests/rules.mk

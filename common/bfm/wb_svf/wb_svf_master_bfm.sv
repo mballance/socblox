@@ -40,7 +40,9 @@ module wb_svf_master_bfm #(
 	assign master.CTI = CTI_rs;
 	assign master.BTE = BTE_rs;
 	assign master.DAT_W = DAT_W_rs;
+	assign master.CYC = CYC_rs;
 	assign master.SEL = SEL_rs;
+	assign master.STB = STB_rs;
 	assign master.WE  = WE_rs;
 	
 	reg[1:0] state;
@@ -52,7 +54,7 @@ module wb_svf_master_bfm #(
 	always @(posedge clk) begin
 		if (rstn == 0) begin
 			state <= 0;
-			req <= 0;
+			req = 0;
 			reset <= 1;
 		end else begin
 			if (reset == 1) begin
@@ -67,6 +69,7 @@ module wb_svf_master_bfm #(
 						ADR_rs <= ADR_r;
 						CTI_rs <= CTI_r;
 						BTE_rs <= BTE_r;
+						WE_rs <= WE_r;
 						if (WE_r) begin
 							DAT_W_rs <= write_data_buf;
 						end else begin
@@ -74,6 +77,7 @@ module wb_svf_master_bfm #(
 						end
 						SEL_rs <= SEL_r;
 						state <= 1;
+						req = 0;
 					end
 				end
 				
@@ -132,7 +136,8 @@ module wb_svf_master_bfm #(
 		CTI_r = CTI;
 		BTE_r = BTE;
 		SEL_r = SEL;
-		WE_r = SEL;
+		WE_r = WE;
+		req = 1;
 	endtask
 	export "DPI-C" task wb_master_bfm_request;
 	

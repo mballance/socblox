@@ -8,6 +8,7 @@
  * TODO: Add module documentation
  */
 module wb_2x2_svf_tb(input clk);
+	import svf_pkg::*;
 	reg[15:0]			rst_cnt = 0;
 	reg					rstn = 0;
 	
@@ -18,6 +19,14 @@ module wb_2x2_svf_tb(input clk);
 			rst_cnt <= rst_cnt + 1;
 		end
 	end
+	
+	/* verilator tracing_off */
+	initial begin
+		string TB_ROOT;
+		$sformat(TB_ROOT, "%m");
+		set_config_string("*", "TB_ROOT", TB_ROOT);
+	end
+	/* verilator tracing_on */
 	
 	wb_if #(.WB_ADDR_WIDTH(32), .WB_DATA_WIDTH(32)) m02ic;
 	wb_if #(.WB_ADDR_WIDTH(32), .WB_DATA_WIDTH(32)) m12ic;
@@ -54,6 +63,24 @@ module wb_2x2_svf_tb(input clk);
 		.m1                 (m12ic.slave	   ), 
 		.s0                 (ic2s0.master      ), 
 		.s1                 (ic2s1.master      ));
+	
+	wb_sram_bfm #(
+		.MEM_ADDR_BITS  (10 ), 
+		.ADDR_WIDTH     (32    ), 
+		.DATA_WIDTH     (32    )
+		) s0 (
+		.clk            (clk           ), 
+		.rstn           (rstn          ), 
+		.slave          (ic2s0.slave   ));
+	
+	wb_sram_bfm #(
+		.MEM_ADDR_BITS  (10 ), 
+		.ADDR_WIDTH     (32    ), 
+		.DATA_WIDTH     (32    )
+		) s1 (
+		.clk            (clk           ), 
+		.rstn           (rstn          ), 
+		.slave          (ic2s1.slave   ));
 
 endmodule
 

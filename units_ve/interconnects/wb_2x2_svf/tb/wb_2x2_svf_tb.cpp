@@ -56,7 +56,7 @@ int sc_main(int argc, char **argv)
 
 	wb_2x2_svf_tb *tb = new wb_2x2_svf_tb("tb");
 
-#ifdef VERILATOR
+#ifdef VL_TRACE_EN
 	Verilated::traceEverOn(true);
 #endif
 
