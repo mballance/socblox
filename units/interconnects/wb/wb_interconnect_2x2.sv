@@ -297,15 +297,15 @@ ${R_MASTER_ASSIGN}
 
 	wire[N_MASTERID_BITS:0]					slave_active_master[N_SLAVES:0];
 
-`ifdef UNDEFINED	
 	generate
 		genvar s_am_i;
 		
 		for (s_am_i=0; s_am_i<N_SLAVES+1; s_am_i++) begin
 			assign slave_active_master[s_am_i] =
-				(aw_master_gnt[s_am_i])?aw_master_gnt_id[s_am_i]:NO_MASTER;
+				(master_gnt[s_am_i])?master_gnt_id[s_am_i]:NO_MASTER;
 		end
 	endgenerate
+`ifdef UNDEFINED	
 `endif		
 	
 		// WB signals from slave back to master
