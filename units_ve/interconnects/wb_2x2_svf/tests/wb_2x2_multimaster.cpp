@@ -38,7 +38,9 @@ void wb_2x2_multimaster::run_m0()
 		addr |= 0x800; // m0 range
 		addr += 4*i;
 
+		fprintf(stdout, "--> m0: write32(0x%08x 0x%08x)\n", addr, 0x00000000+i+1);
 		m_env->m_m0->write32(addr, 0x00000000+i+1);
+		fprintf(stdout, "<-- m0: write32(0x%08x 0x%08x)\n", addr, 0x00000000+i+1);
 	}
 
 	for (uint32_t i=0; i<64; i++) {
@@ -49,7 +51,7 @@ void wb_2x2_multimaster::run_m0()
 		data = m_env->m_m0->read32(addr);
 		if (data != 0x00000000+i+1) {
 			fprintf(stdout, "FAIL: wb_2x2_multimaster - m0 expect 0x%08x receive 0x%08x\n",
-				(0x80000000+i+1), data);
+				(0x00000000+i+1), data);
 			drop_objection();
 			return;
 		}
@@ -73,7 +75,9 @@ void wb_2x2_multimaster::run_m1()
 		addr |= 0x000; // m1 range
 		addr += 4*i;
 
+		fprintf(stdout, "--> m1: write32(0x%08x 0x%08x)\n", addr, 0x80000000+i+1);
 		m_env->m_m1->write32(addr, 0x80000000+i+1);
+		fprintf(stdout, "<-- m1: write32(0x%08x 0x%08x)\n", addr, 0x80000000+i+1);
 	}
 
 	for (uint32_t i=0; i<64; i++) {
