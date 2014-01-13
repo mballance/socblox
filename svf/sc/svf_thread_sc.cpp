@@ -30,7 +30,7 @@ svf_native_thread_h svf_thread::create_thread(const svf_closure_base *closure)
 
 	fprintf(stdout, "m_closure1=%p\n", closure);
 
-	context_p->create_thread_process("t1", false,
+	context_p->create_thread_process(sc_gen_unique_name("svf_thread"), false,
 			static_cast<sc_core::SC_ENTRY_FUNC>(&svf_sc_thread_proc::run),
 			new svf_sc_thread_proc(closure), 0);
 

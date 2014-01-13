@@ -11,6 +11,7 @@
 #include "svf.h"
 #include "axi4_master_bfm_if.h"
 #include "axi4_master_if.h"
+#include "axi4_master_bfm_dpi_mgr.h"
 
 using namespace std;
 

@@ -1,0 +1,74 @@
+
+include $(SOCBLOX)/defs.mk
+
+UNIT_VE=axi4_wb_bridge
+TB=$(UNIT_VE)_tb
+
+ifeq ($(SIMX),1)
+include V$(TB).mk
+endif
+
+TB_DIR := $(SIM_DIR)/../tb
+TESTS_DIR := $(SIM_DIR)/../tests
+
+include $(TESTS_DIR)/defs_rules.mk
+include $(TB_DIR)/defs_rules.mk
+
+#CXXFLAGS += -I$(SYSTEMC)/include -I$(SOCBLOX)/svf 
+#CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svf
+CXXFLAGS += -I$(BUILD_DIR)/obj_dir
+CXXFLAGS += -I$(VERILATOR_ROOT)/include
+CXXFLAGS += -I$(VERILATOR_ROOT)/include/vltstd
+
+
+TRACE=--trace
+CXXFLAGS += -DVL_TRACE_EN
+
+all : $(LIB_TARGETS) $(TARGET_EXE_TARGETS)
+	verilator $(TRACE) --sc --Wno-fatal \
+		--top-module $(TB) \
+		$(SOCBLOX)/svf/sc/svf_pkg.sv \
+		-f $(SIM_DIR)/scripts/vlog.f
+	$(MAKE) SIMX=1 -C obj_dir -f $(SIM_DIR)/scripts/Makefile.vl \
+		$(BUILD_DIR)/simx
+
+BFM_LIBS += $(WB_SVF_MASTER_BFM_LIB)
+BFM_LINK += $(WB_SVF_MASTER_BFM_LINK) $(BFM_AXI4_SVF_SRAM_LINK)
+
+$(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
+	V$(TB)__ALL.a \
+	$(COMMON_SVF_LIB) \
+	$(TB_DIR)/$(TB).cpp \
+	$(TESTBENCH_OBJS) \
+	$(BFM_LIBS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/simx \
+	  $(TB_DIR)/$(TB).cpp \
+	      $(A23_TESTBENCH_OBJS) \
+	      -Wl,--whole-archive \
+          V$(TB)__ALL.a \
+	      -Wl,--no-whole-archive \
+          $(VK_GLOBAL_OBJS) \
+          $(TESTBENCH_OBJS) \
+          -L$(SOCBLOX_LIBDIR) \
+          -L$(SOCBLOX_LIBDIR)/sc \
+		$(COMMON_SVF_LINK) \
+          	$(LIBSVF_SC_LINK) \
+        $(BFM_LINK) \
+	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread
+	  
+vpath %.cpp $(SRC_DIRS)
+
+CXXFLAGS += $(foreach dir, $(SRC_DIRS), -I$(dir))
+
+RULES := 1
+include $(SOCBLOX)/rules.mk
+include $(TESTS_DIR)/defs_rules.mk
+include $(TB_DIR)/defs_rules.mk
+#include $(AXI4_AMBER23_SVF)/tests/sw/rules.mk
+#include $(AXI4_AMBER23_SVF)/svf/a23_tracer/rules.mk
+#include $(AXI4_AMBER23_SVF)/tests/rules.mk
+#include $(AXI4_AMBER23_SVF)/tb/rules.mk
+
+$(BUILD_DIR)/objs/%.o : %.cpp
+	if test ! -d $(BUILD_DIR)/objs; then mkdir -p $(BUILD_DIR)/objs; fi
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
