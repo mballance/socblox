@@ -32,7 +32,10 @@ SVF_SRC= \
   svf_thread_mutex.cpp \
   svf_thread_cond.cpp \
   \
-  svf_semaphore.cpp
+  svf_semaphore.cpp \
+  \
+  svf_task_mgr_base.cpp \
+  svf_task_base.cpp 
  
 
 SVF_SC_SRC= \

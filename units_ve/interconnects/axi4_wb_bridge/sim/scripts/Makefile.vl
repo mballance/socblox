@@ -13,8 +13,10 @@ TESTS_DIR := $(SIM_DIR)/../tests
 
 include $(TESTS_DIR)/defs_rules.mk
 include $(TB_DIR)/defs_rules.mk
+include $(SIM_DIR)/../stim/defs_rules.mk
 
 #CXXFLAGS += -I$(SYSTEMC)/include -I$(SOCBLOX)/svf 
+CXXFLAGS += -I$(SYSTEMC)/include
 #CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svf
 CXXFLAGS += -I$(BUILD_DIR)/obj_dir
 CXXFLAGS += -I$(VERILATOR_ROOT)/include
@@ -32,8 +34,8 @@ all : $(LIB_TARGETS) $(TARGET_EXE_TARGETS)
 	$(MAKE) SIMX=1 -C obj_dir -f $(SIM_DIR)/scripts/Makefile.vl \
 		$(BUILD_DIR)/simx
 
-BFM_LIBS += $(WB_SVF_MASTER_BFM_LIB)
-BFM_LINK += $(WB_SVF_MASTER_BFM_LINK) $(BFM_AXI4_SVF_SRAM_LINK)
+BFM_LIBS += $(WB_SVF_MASTER_BFM_LIB) $(SVF_AXI4_BFM_LIB)
+BFM_LINK += $(WB_SVF_MASTER_BFM_LINK) $(BFM_AXI4_SVF_SRAM_LINK) $(AXI4_SVF_BFM_LINK)
 
 $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
 	V$(TB)__ALL.a \
@@ -64,6 +66,7 @@ RULES := 1
 include $(SOCBLOX)/rules.mk
 include $(TESTS_DIR)/defs_rules.mk
 include $(TB_DIR)/defs_rules.mk
+include $(SIM_DIR)/../stim/defs_rules.mk
 #include $(AXI4_AMBER23_SVF)/tests/sw/rules.mk
 #include $(AXI4_AMBER23_SVF)/svf/a23_tracer/rules.mk
 #include $(AXI4_AMBER23_SVF)/tests/rules.mk

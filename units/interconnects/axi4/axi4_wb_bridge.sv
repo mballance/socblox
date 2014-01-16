@@ -37,13 +37,13 @@ module axi4_wb_bridge #(
 		end else begin
 			case (access_state) 
 				0: begin
-					if (axi_i.ARVALID) begin
+					if (axi_i.ARVALID && axi_i.ARREADY) begin
 						WB_ADR_r <= axi_i.ARADDR;
 						WB_WE_r <= 0;
 						WB_SEL_r <= {(WB_DATA_WIDTH/8){1'b1}};
 						AXI_LEN_r <= axi_i.ARLEN;
 						access_state <= 1;
-					end else if (axi_i.AWVALID) begin
+					end else if (axi_i.AWVALID && axi_i.AWREADY) begin
 						WB_ADR_r <= axi_i.AWADDR;
 						WB_WE_r <= 1;
 						access_state <= 3;
@@ -106,7 +106,11 @@ module axi4_wb_bridge #(
 	assign wb_o.STB = (access_state == 1 || access_state == 4);
 	assign axi_i.RDATA = AXI_DAT_R_r;
 	assign axi_i.RVALID = (access_state == 2);
+	assign axi_i.RLAST = (access_state == 2);
 
+	assign axi_i.ARREADY = (access_state == 0);
+	assign axi_i.AWREADY = (access_state == 0);
+	
 	assign axi_i.WREADY = (access_state == 3);
 	assign wb_o.DAT_W = WB_DATA_W_r;
 	

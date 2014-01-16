@@ -17,7 +17,7 @@ using namespace std;
 
 
 class axi4_master_bfm: public svf_component,
-	virtual axi4_master_bfm_host_if, virtual axi4_master_if {
+	public virtual axi4_master_bfm_host_if, public virtual axi4_master_if {
 	svf_component_ctor_decl(axi4_master_bfm)
 
 	public:
@@ -95,6 +95,7 @@ class axi4_master_bfm: public svf_component,
 		svf_thread_mutex			m_b_mutex;
 
 		svf_semaphore				m_reset_sem;
+		bool						m_init_reset;
 };
 
 #endif /* AXI4_MASTER_BFM_H_ */

@@ -14,8 +14,10 @@ using namespace std;
 #include "svf_component_ctor.h"
 
 class svf_root;
+class svf_task_base;
 class svf_component {
 	friend class svf_root;
+	friend class svf_task_base;
 
 	public:
 		svf_component(const char *name, svf_component *parent);

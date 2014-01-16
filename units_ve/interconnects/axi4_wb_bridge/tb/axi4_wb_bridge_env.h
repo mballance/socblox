@@ -29,6 +29,10 @@ class axi4_wb_bridge_env : public svf_component {
 		axi4_master_bfm				*m_m1;
 		wb_master_bfm				*m_m2;
 
+		svf_task_mgr<svf_mem_if>	*m_m0_mgr;
+		svf_task_mgr<svf_mem_if>	*m_m1_mgr;
+		svf_task_mgr<svf_mem_if>	*m_m2_mgr;
+
 };
 
 #endif /* WB_2X2_ENV_H_ */

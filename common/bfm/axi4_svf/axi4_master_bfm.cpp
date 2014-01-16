@@ -10,7 +10,8 @@
 axi4_master_bfm::axi4_master_bfm(const char *name, svf_component *parent) :
 		svf_component(name, parent),
 		master_export(this),
-		bfm_port(this) {
+		bfm_port(this),
+		m_init_reset(false) {
 	m_ar_id = 0;
 	m_aw_id = 0;
 
@@ -42,6 +43,10 @@ void axi4_master_bfm::write(
 		axi4_burst_type_t		burst_type)
 {
 	uint32_t id;
+
+	if (!m_init_reset) {
+		wait_for_reset();
+	}
 
 	m_write_mutex.lock();
 	id = m_aw_id;
@@ -89,6 +94,10 @@ void axi4_master_bfm::read(
 {
 	uint32_t id;
 
+	if (!m_init_reset) {
+		wait_for_reset();
+	}
+
 	m_read_mutex.lock();
 
 	id = m_ar_id;
@@ -128,7 +137,10 @@ uint16_t axi4_master_bfm::read16(uint64_t addr)
 
 uint32_t axi4_master_bfm::read32(uint64_t addr)
 {
-	return 0;
+	uint8_t resp;
+	uint32_t data;
+	read(addr, AXI4_BURST_SIZE_32, 0, &data, resp, AXI4_BURST_TYPE_FIXED);
+	return data;
 }
 
 uint64_t axi4_master_bfm::read64(uint64_t addr)
@@ -148,7 +160,8 @@ void axi4_master_bfm::write16(uint64_t addr, uint16_t data)
 
 void axi4_master_bfm::write32(uint64_t addr, uint32_t data)
 {
-
+	uint8_t resp;
+	write(addr, AXI4_BURST_SIZE_32, 0, &data, resp, AXI4_BURST_TYPE_FIXED);
 }
 
 void axi4_master_bfm::write64(uint64_t addr, uint64_t data)
@@ -175,6 +188,7 @@ void axi4_master_bfm::reset()
 {
 	fprintf(stdout, "reset %p\n", this);
 	m_reset_sem.put();
+	m_init_reset = true;
 }
 
 svf_component_ctor_def(axi4_master_bfm)

@@ -14,5 +14,7 @@
 #include "svf_api_publisher_port.h"
 #include "svf_bidir_api_port.h"
 #include "svf_runtest.h"
+#include "svf_task.h"
+#include "svf_task_mgr.h"
 
 #endif /* INCLUDED_SVF_H */
