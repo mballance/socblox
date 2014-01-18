@@ -609,7 +609,7 @@ module axi4_interconnect_2x2 #(
 		
 	generate
 		genvar b_assign_i;
-	
+
 		for (b_assign_i=0; b_assign_i<N_SLAVES+1; b_assign_i++) begin : b_assign
 			assign SBREADY[b_assign_i] = (write_response_state[b_assign_i] == 0);
 		end

@@ -41,6 +41,11 @@ void svf_component::start()
 	// Do nothing
 }
 
+void svf_component::shutdown()
+{
+	// Do nothing
+}
+
 void svf_component::raise_objection()
 {
 	svf_root *root = get_root();

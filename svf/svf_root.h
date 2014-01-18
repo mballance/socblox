@@ -41,6 +41,8 @@ class svf_root : public svf_component {
 
 		void do_start(svf_component *level);
 
+		void do_shutdown(svf_component *level);
+
 	private:
 
 		svf_cmdline					*m_cmdline;

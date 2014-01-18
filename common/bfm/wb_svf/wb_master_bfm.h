@@ -46,6 +46,7 @@ class wb_master_bfm :
 		svf_thread_mutex				m_access_mutex;
 		svf_semaphore					m_access_sem;
 		svf_semaphore					m_reset_sem;
+		bool							m_reset_received;
 
 };
 

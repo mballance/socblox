@@ -10,6 +10,7 @@
 wb_master_bfm::wb_master_bfm(const char *name, svf_component *parent) :
 	svf_component(name, parent), bfm_port(this)  {
 	// TODO Auto-generated constructor stub
+	m_reset_received = false;
 
 }
 
@@ -20,6 +21,10 @@ wb_master_bfm::~wb_master_bfm() {
 void wb_master_bfm::write32(uint64_t addr, uint32_t data)
 {
 	m_access_mutex.lock();
+
+	if (!m_reset_received) {
+		wait_for_reset();
+	}
 
 	bfm_port->set_data(0, data);
 	bfm_port->request(addr, 0, 0, 0xF, 1);
@@ -43,6 +48,10 @@ uint32_t wb_master_bfm::read32(uint64_t addr)
 {
 	uint32_t data;
 	m_access_mutex.lock();
+
+	if (!m_reset_received) {
+		wait_for_reset();
+	}
 
 	bfm_port->request(addr, 0, 0, 0xF, 0);
 
@@ -71,6 +80,7 @@ void wb_master_bfm::wait_for_reset()
 
 void wb_master_bfm::reset()
 {
+	m_reset_received = true;
 	m_reset_sem.put();
 }
 

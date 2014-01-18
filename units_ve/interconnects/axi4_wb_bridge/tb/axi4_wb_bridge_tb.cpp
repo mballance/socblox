@@ -24,16 +24,20 @@ class axi4_wb_bridge_tb : public sc_module {
 		axi4_wb_bridge_tb(const sc_module_name &in) :
 			sc_module(in), clk("clk", sc_time(10, SC_NS)) {
 			tb = new Vaxi4_wb_bridge_tb("tb");
-
 			tb->clk(clk);
+
+			running = false;
 
 			SC_THREAD(run);
 		}
 
 		void run() {
+			running = true;
 			wait(sc_time(1, SC_NS));
 
 			svf_runtest();
+
+			running = false;
 
 			sc_stop();
 		}
@@ -41,6 +45,7 @@ class axi4_wb_bridge_tb : public sc_module {
 	public:
 		sc_clock							clk;
 		Vaxi4_wb_bridge_tb						*tb;
+		bool								running;
 
 };
 
@@ -69,6 +74,10 @@ int sc_main(int argc, char **argv)
 #endif
 
 	sc_start(1000000, SC_NS);
+
+	if (tb->running) {
+		fprintf(stdout, "FAIL: timeout\n");
+	}
 
 #ifdef VL_TRACE_EN
 	tb->tb->final();

@@ -38,6 +38,8 @@ void svf_root::run()
 	fprintf(stdout, "--> run::wait_all_dropped\n");
 	m_objection.wait_all_dropped();
 	fprintf(stdout, "<-- run::wait_all_dropped\n");
+
+	do_shutdown(this);
 }
 
 void svf_root::raise_objection()
@@ -97,3 +99,10 @@ void svf_root::do_start(svf_component *level)
 	level->start();
 }
 
+void svf_root::do_shutdown(svf_component *level)
+{
+	for (int i=0; i<level->m_children.size(); i++) {
+		do_shutdown(level->m_children.at(i));
+	}
+	level->shutdown();
+}

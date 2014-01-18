@@ -34,6 +34,8 @@ class svf_component {
 
 		virtual void start();
 
+		virtual void shutdown();
+
 		virtual void raise_objection();
 
 		virtual void drop_objection();

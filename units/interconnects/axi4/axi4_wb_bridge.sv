@@ -10,6 +10,7 @@
 module axi4_wb_bridge #(
 		AXI4_ADDRESS_WIDTH=32,
 		AXI4_DATA_WIDTH=32,
+		AXI4_ID_WIDTH=4,
 		WB_ADDRESS_WIDTH=32,
 		WB_DATA_WIDTH=32
 		) (
@@ -30,6 +31,7 @@ module axi4_wb_bridge #(
 	reg									AXI_DATA_LAST_r;
 	reg[3:0]							AXI_LEN_r;
 	reg[AXI4_DATA_WIDTH-1:0]			AXI_DAT_R_r;
+	reg[AXI4_ID_WIDTH-1:0]				AXI_ID_r;
 	
 	always @(posedge axi_clk) begin
 		if (rstn == 0) begin
@@ -42,10 +44,12 @@ module axi4_wb_bridge #(
 						WB_WE_r <= 0;
 						WB_SEL_r <= {(WB_DATA_WIDTH/8){1'b1}};
 						AXI_LEN_r <= axi_i.ARLEN;
+						AXI_ID_r <= axi_i.ARID;
 						access_state <= 1;
 					end else if (axi_i.AWVALID && axi_i.AWREADY) begin
 						WB_ADR_r <= axi_i.AWADDR;
 						WB_WE_r <= 1;
+						AXI_ID_r <= axi_i.AWID;
 						access_state <= 3;
 					end
 				end
@@ -107,6 +111,7 @@ module axi4_wb_bridge #(
 	assign axi_i.RDATA = AXI_DAT_R_r;
 	assign axi_i.RVALID = (access_state == 2);
 	assign axi_i.RLAST = (access_state == 2);
+	assign axi_i.RID = (access_state == 2)?AXI_ID_r:0;
 
 	assign axi_i.ARREADY = (access_state == 0);
 	assign axi_i.AWREADY = (access_state == 0);
@@ -115,6 +120,7 @@ module axi4_wb_bridge #(
 	assign wb_o.DAT_W = WB_DATA_W_r;
 	
 	assign axi_i.BVALID = (access_state == 5);
+	assign axi_i.BID = (access_state == 5)?AXI_ID_r:0;
 
 endmodule
 

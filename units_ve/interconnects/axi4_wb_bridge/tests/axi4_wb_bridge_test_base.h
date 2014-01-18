@@ -22,6 +22,8 @@ class axi4_wb_bridge_test_base : public svf_test {
 
 		virtual void connect();
 
+		virtual void shutdown();
+
 	protected:
 
 		axi4_wb_bridge_env				*m_env;

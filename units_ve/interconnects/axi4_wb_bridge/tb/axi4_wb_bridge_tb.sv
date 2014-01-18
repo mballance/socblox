@@ -28,10 +28,10 @@ module axi4_wb_bridge_tb(input clk);
 	end
 	/* verilator tracing_on */
 	
-	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32)) m02ic();
-	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32)) m12ic();
-	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32)) ic2s0();
-	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32)) ic2s1();
+	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32), .AXI4_ID_WIDTH(4)) m02ic();
+	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32), .AXI4_ID_WIDTH(4)) m12ic();
+	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32), .AXI4_ID_WIDTH(6)) ic2s0();
+	axi4_if #(.AXI4_ADDRESS_WIDTH(32), .AXI4_DATA_WIDTH(32), .AXI4_ID_WIDTH(6)) ic2s1();
 	
 	axi4_svf_master_bfm #(
 		.AXI4_ADDRESS_WIDTH     (32    ), 
@@ -69,9 +69,9 @@ module axi4_wb_bridge_tb(input clk);
 	
 	axi4_svf_sram #(
 		.MEM_ADDR_BITS      (10     ), 
-		.AXI_ADDRESS_WIDTH  (32 ), 
-		.AXI_DATA_WIDTH     (32    ), 
-		.AXI_ID_WIDTH       (4      )
+		.AXI_ADDRESS_WIDTH  (32 	), 
+		.AXI_DATA_WIDTH     (32 	), 
+		.AXI_ID_WIDTH       (6 		)
 		) mem0 (
 		.ACLK               (clk            ), 
 		.ARESETn            (rstn           ), 
@@ -82,6 +82,7 @@ module axi4_wb_bridge_tb(input clk);
 	axi4_wb_bridge #(
 		.AXI4_ADDRESS_WIDTH  (32   ), 
 		.AXI4_DATA_WIDTH     (32   ), 
+		.AXI4_ID_WIDTH       (6    ),
 		.WB_ADDRESS_WIDTH    (32   ), 
 		.WB_DATA_WIDTH       (32   )
 		) axi_wb_br0 (

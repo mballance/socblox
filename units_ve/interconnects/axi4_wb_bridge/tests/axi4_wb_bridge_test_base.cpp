@@ -36,5 +36,10 @@ void axi4_wb_bridge_test_base::connect()
 	wb_master_bfm_dpi_mgr::connect(TB_ROOT + ".m2", m_env->m_m2->bfm_port);
 }
 
+void axi4_wb_bridge_test_base::shutdown()
+{
+
+}
+
 svf_test_ctor_def(axi4_wb_bridge_test_base)
 

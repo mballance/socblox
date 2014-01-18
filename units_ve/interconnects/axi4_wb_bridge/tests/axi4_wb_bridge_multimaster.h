@@ -21,6 +21,8 @@ class axi4_wb_bridge_multimaster : public axi4_wb_bridge_test_base {
 
 		virtual void start();
 
+		virtual void shutdown();
+
 	private:
 
 		axi4_wb_bridge_multislave_task		m_m0_task;
