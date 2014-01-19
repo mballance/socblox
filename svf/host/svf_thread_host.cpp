@@ -12,14 +12,14 @@
 #endif
 
 static void *svf_host_thread_proc(void *ud) {
-	const svf_closure_base *closure = static_cast<const svf_closure_base *>(ud);
+	svf_closure_base *closure = static_cast<svf_closure_base *>(ud);
 
 	(*closure)();
 
 	return 0;
 }
 
-svf_native_thread_h svf_thread::create_thread(const svf_closure_base *closure)
+svf_native_thread_h svf_thread::create_thread(svf_closure_base *closure)
 {
 	pthread_t *thread = new pthread_t;
 	void *ud = (void *)(closure);

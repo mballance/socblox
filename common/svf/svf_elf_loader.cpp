@@ -107,7 +107,7 @@ int svf_elf_loader::load(const char *filename)
 				m_mem_if->write32(shdr.sh_addr+j, 0);
 
 				if (j+4 >= shdr.sh_size) {
-					fprintf(stdout, "Fill last addr='h%08h", shdr.sh_addr+j);
+					fprintf(stdout, "Fill last addr=0x%08x", (uint32_t)(shdr.sh_addr+j));
 				}
 			}
 		}

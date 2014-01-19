@@ -11,12 +11,12 @@ svf_thread::svf_thread() : m_closure(0) {
 
 }
 
-svf_thread::svf_thread(const svf_closure_base *closure) : m_closure(closure) {
+svf_thread::svf_thread(svf_closure_base *closure) : m_closure(closure) {
 	// TODO Auto-generated constructor stub
 
 }
 
-void svf_thread::init(const svf_closure_base *closure)
+void svf_thread::init(svf_closure_base *closure)
 {
 	if (m_closure) {
 		delete m_closure;

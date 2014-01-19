@@ -4,4 +4,5 @@ include $(SOCBLOX)/common/svf/rules.mk
 include $(SOCBLOX)/common/common_rules.mk
 include $(SOCBLOX)/common/bfm/axi4_svf/svf_axi4_bfm_rules.mk
 include $(SOCBLOX)/common/bfm/wb_svf/defs_rules.mk
+include $(SOCBLOX)/common/bfm/uart/defs_rules.mk
 include $(SOCBLOX)/common/bfm/axi4_svf_sram/rules.mk

@@ -24,6 +24,8 @@ $(LIBSVF_DPI_DPI) : $(SVF_OBJS) $(LIBSVF_DPI_OBJS) $(LIBSVF_DPI)
 $(LIBSVF_HOST) : $(SVF_OBJS) $(SVF_HOST_OBJS)
 	if test ! -d $(SOCBLOX_LIBDIR)/host; then mkdir -p $(SOCBLOX_LIBDIR)/host; fi
 	$(LINK) -o $(LIBSVF_HOST) $(DLLOUT) $(SVF_OBJS) $(SVF_HOST_OBJS)
+	
+$(LIBSVF_A23) : $(SVF_A23_OBJS)	
 
 
 $(SOCBLOX_OBJDIR)/%.o : $(SVF_DIR)/%.cpp

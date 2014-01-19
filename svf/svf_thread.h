@@ -18,13 +18,13 @@ class svf_thread {
 
 		svf_thread();
 
-		svf_thread(const svf_closure_base *closure);
+		svf_thread(svf_closure_base *closure);
 
 		template <class cls> void init(cls *client, void (cls::*method)()) {
 			init(new svf_closure<cls>(client, method));
 		}
 
-		void init(const svf_closure_base *closure);
+		void init(svf_closure_base *closure);
 
 		virtual ~svf_thread();
 
@@ -41,9 +41,9 @@ class svf_thread {
 
 	private:
 
-		const svf_closure_base				*m_closure;
+		svf_closure_base				*m_closure;
 
-		static svf_native_thread_h create_thread(const svf_closure_base *closure);
+		static svf_native_thread_h create_thread(svf_closure_base *closure);
 
 		static void cleanup_thread(svf_native_thread_h);
 

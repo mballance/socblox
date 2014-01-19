@@ -11,7 +11,7 @@
 class svf_sc_thread_proc : public sc_process_host {
 	public:
 
-		svf_sc_thread_proc(const svf_closure_base *closure) : m_closure(closure) {}
+		svf_sc_thread_proc(svf_closure_base *closure) : m_closure(closure) {}
 
 		void run() {
 			fprintf(stdout, "m_closure=%p\n", m_closure);
@@ -19,10 +19,10 @@ class svf_sc_thread_proc : public sc_process_host {
 		}
 
 	private:
-		const svf_closure_base		*m_closure;
+		svf_closure_base		*const m_closure;
 };
 
-svf_native_thread_h svf_thread::create_thread(const svf_closure_base *closure)
+svf_native_thread_h svf_thread::create_thread(svf_closure_base *closure)
 {
 	sc_simcontext *context_p = sc_get_curr_simcontext();
 	sc_module *curr = context_p->hierarchy_curr();

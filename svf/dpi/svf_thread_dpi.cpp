@@ -16,7 +16,7 @@ static create_thread_f				prv_create_thread = 0;
 extern "C" int svf_dpi_create_thread_trampoline(void *ud);
 int svf_dpi_create_thread_trampoline(void *ud)
 {
-	const svf_closure_base *closure = static_cast<const svf_closure_base *>(ud);
+	svf_closure_base *closure = static_cast<svf_closure_base *>(ud);
 
 	fprintf(stdout, "--> svf_dpi_create_thread_trampoline\n");
 	fflush(stdout);
@@ -31,7 +31,7 @@ int svf_dpi_create_thread_trampoline(void *ud)
 }
 
 
-svf_native_thread_h svf_thread::create_thread(const svf_closure_base *closure)
+svf_native_thread_h svf_thread::create_thread(svf_closure_base *closure)
 {
 	svf_native_thread_h *thread;
 

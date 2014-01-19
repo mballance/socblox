@@ -5,6 +5,7 @@
 ${SOCBLOX}/units/timer/timer.sv
 ${SOCBLOX}/units/rtc/rtc.sv
 ${SOCBLOX}/units/axi4_sram/axi4_sram.sv
+${SOCBLOX}/units/wb_uart/wb_uart.sv
 
 
 
