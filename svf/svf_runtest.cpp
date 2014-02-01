@@ -15,7 +15,7 @@ void svf_runtest(const char *testname)
 	svf_factory *f = svf_factory::get_default();
 	string testname_opt;
 
-	if (!testname) {
+	if (!testname || !testname[0]) {
 		// Look up default
 		svf_cmdline &cl = svf_cmdline::get_default();
 		if (!cl.valueplusarg("SVF_TESTNAME=", testname_opt)) {

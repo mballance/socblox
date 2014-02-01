@@ -6,3 +6,4 @@ ${UVM_HOME}/src/uvm_pkg.sv
 -f ${SOCBLOX}/units/units.f
 -f ${SOCBLOX}/common/sram/common_sram.f
 -f ${SOCBLOX}/common/bfm/bfm.f
+-f ${SOCBLOX}/systems/systems.f

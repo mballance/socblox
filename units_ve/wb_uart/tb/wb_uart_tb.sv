@@ -56,7 +56,7 @@ module wb_uart_tb(input clk);
 		.WB_DWIDTH   (32  ), 
 		.WB_SWIDTH   (32  ), 
 		.CLK_PERIOD  (100 ),
-		.UART_BAUD   (230400)
+		.UART_BAUD   (2304000)
 		) u_uart (
 		.i_clk       (clk          ), 
 		.slave       (ic2uart.slave), 
@@ -69,7 +69,7 @@ module wb_uart_tb(input clk);
 
 	uart_bfm #(
 		.CLK_PERIOD  (100 ),
-		.UART_BAUD   (230400)
+		.UART_BAUD   (2304000)
 		) uart_bfm_0 (
 		.i_clk       (clk      		), 
 		.u           (co2bfm.dte   ));

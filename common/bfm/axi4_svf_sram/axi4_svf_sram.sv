@@ -1,13 +1,17 @@
 /****************************************************************************
  * axi4_sram.sv
  ****************************************************************************/
+ 
+`ifndef AXI4_SVF_SRAM_NAME
+`define AXI4_SVF_SRAM_NAME axi4_svf_sram
+`endif
 
 /**
  * Module: axi4_svf_sram
  * 
  * TODO: Add module documentation
  */
-module axi4_svf_sram #(
+module `AXI4_SVF_SRAM_NAME #(
 			parameter MEM_ADDR_BITS=10,
 			parameter AXI_ADDRESS_WIDTH=32,
 			parameter AXI_DATA_WIDTH=1024,
@@ -140,9 +144,11 @@ module axi4_svf_sram #(
     					read_count <= 0;
     					if (s.ARBURST == 2) begin
     						// TODO: consider the case where accesses are < bus width
+    						/*
 	    					$display("READ: address='h%08h read_offset='h%08h read_addr='h%08h", 
 	    							s.ARADDR, (s.ARADDR[$bits(s.ARLEN)+2:2]), 
 	    							{s.ARADDR[MEM_ADDR_BITS+1:$bits(s.ARLEN)+1], {$bits(s.ARLEN){1'b0}}});
+	    							 */
 	    					case (s.ARLEN) 
 	    						0,1: begin
 	    							read_wrap_mask <= 1;

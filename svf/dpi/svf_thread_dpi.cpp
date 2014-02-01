@@ -18,15 +18,8 @@ int svf_dpi_create_thread_trampoline(void *ud)
 {
 	svf_closure_base *closure = static_cast<svf_closure_base *>(ud);
 
-	fprintf(stdout, "--> svf_dpi_create_thread_trampoline\n");
-	fflush(stdout);
-	fprintf(stderr, "--> svf_dpi_create_thread_trampoline\n");
-
 	(*closure)();
 
-	fprintf(stdout, "<-- svf_dpi_create_thread_trampoline\n");
-	fflush(stdout);
-	fprintf(stderr, "<-- svf_dpi_create_thread_trampoline\n");
 	return 0;
 }
 
@@ -37,15 +30,11 @@ svf_native_thread_h svf_thread::create_thread(svf_closure_base *closure)
 
 	get_svf_dpi_api()->create_thread((void *)closure, (uint32_t *)&thread);
 
-	fprintf(stdout, "thread=%d\n", thread);
-
 	return thread;
 }
 
 void svf_thread::yield_thread()
 {
-	fprintf(stderr, "--> yield\n");
 	get_svf_dpi_api()->thread_yield();
-	fprintf(stderr, "--> yield\n");
 }
 

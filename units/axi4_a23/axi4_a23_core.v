@@ -44,7 +44,7 @@
 
 
 module axi4_a23_core #(
-		A23_CACHE_WAYS = 4
+		parameter int A23_CACHE_WAYS = 4
 		)
 (
 input                       i_clk,
@@ -343,6 +343,7 @@ a23_coprocessor u_coprocessor (
 
 wire [31:0]			r0_r15_user[15:0];
 
+// synopsys translate_off
 assign r0_r15_user[0] = u_execute.u_register_bank.r0;
 assign r0_r15_user[1] = u_execute.u_register_bank.r1;
 assign r0_r15_user[2] = u_execute.u_register_bank.r2;
@@ -382,6 +383,7 @@ a23_tracer u_tracer (
 	.i_read_data              (u_decode.i_read_data								),
 	.i_r0_r15_user			  (r0_r15_user										)
 	);
+// synopsys translate_on
 
 endmodule
 

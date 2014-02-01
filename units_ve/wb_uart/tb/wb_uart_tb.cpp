@@ -73,7 +73,7 @@ int sc_main(int argc, char **argv)
 	tfp->open("vlt_dump.vcd");
 #endif
 
-	sc_start(1000000, SC_NS);
+	sc_start(10, SC_MS);
 
 	if (tb->running) {
 		fprintf(stdout, "FAIL: timeout\n");

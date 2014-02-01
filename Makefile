@@ -4,6 +4,7 @@ SOCBLOX := $(shell pwd)
 include $(SOCBLOX)/defs.mk
 
 all : inc_targets lib_targets
+	echo "SRC_DIRS=$(SRC_DIRS)"
 
 lib_targets : $(LIB_TARGETS)
 

@@ -7,6 +7,7 @@ $outfile = "";
 $n_masters = -1;
 $n_slaves = -1;
 $force = 0;
+$DEFAULT_SLAVE_ERROR = 1;
 
 %REPLACE_TOKENS;
 
@@ -25,6 +26,9 @@ for ($i=0; $i<=$#ARGV; $i++) {
 			if ($idx != -1) {
 				$name = substr($name, 0, $idx);
 			}
+		} elsif ($ARGV[$i] eq "-default-slave-error") {
+			$DEFAULT_SLAVE_ERROR=1;
+		} elsif ($ARGV[$i] eq "-default-slave-passthrough") {
 		} else {
 			die "Unknown option $ARGV[$i]\n";
 		}

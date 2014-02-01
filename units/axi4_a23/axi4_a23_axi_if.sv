@@ -101,6 +101,20 @@ wire                        cache_read_ack, cache_write_ack;
 wire                        wait_write_ack;
 wire                        wb_wait;
 
+// Tie off signals
+assign master.AWID = 0;
+// TODO:
+assign master.AWBURST = 0;
+assign master.AWCACHE = 0;
+assign master.AWPROT = 0;
+assign master.AWQOS = 0;
+assign master.AWREGION = 0;
+
+assign master.ARID = 0;
+assign master.ARCACHE = 0;
+assign master.ARPROT = 0;
+assign master.ARREGION = 0;
+
 	// Write buffer
 	reg     [31:0]              wbuf_addr_r = 'd0;
 	reg     [3:0]               wbuf_sel_r  = 'd0;
@@ -214,8 +228,8 @@ wire                        wb_wait;
 	
 	assign o_stall_cache = (cache_read_request && ~cache_read_ack);
 	
-	assign core_read_request    = i_select && !i_write_enable;
-	assign core_write_request   = i_select &&  i_write_enable;
+//	assign core_read_request    = i_select && !i_write_enable;
+//	assign core_write_request   = i_select &&  i_write_enable;
 	
 	// o_stall is for the core
 	assign o_stall = 
@@ -236,14 +250,14 @@ wire                        wb_wait;
 	assign master.RREADY = (read_state == 2 || read_state ==4);
 	
 	assign master.AWVALID = (write_state == 1 || write_state == 4);
-	assign master.AWADDR = (master.AWVALID)?i_address:{32{0}};
+	assign master.AWADDR = (master.AWVALID)?i_address:{32{1'b0}};
 	assign master.AWLEN = 0;
 	assign master.AWSIZE = 2;
 	
 	assign master.WVALID = (write_state == 2 || write_state == 5)?1:0;
-	assign master.WDATA = (write_state == 2 || write_state == 5)?i_write_data:{32{0}};
+	assign master.WDATA = (write_state == 2 || write_state == 5)?i_write_data:{32{1'b0}};
 	assign master.WLAST = (write_state == 2 || write_state == 5)?1:0;
-	assign master.WSTRB = (write_state == 2 || write_state == 5)?{4{1}}:0;
+	assign master.WSTRB = (write_state == 2 || write_state == 5)?{4{1'b1}}:0;
 
 	assign master.BREADY = (write_state == 3 || write_state == 6);
 	

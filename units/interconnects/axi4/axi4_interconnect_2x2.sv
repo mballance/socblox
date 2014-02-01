@@ -7,6 +7,7 @@
  * 
  * TODO: Add module documentation
  */
+`define DEFAULT_SLAVE_ERROR_axi4_interconnect_2x2 
 module axi4_interconnect_2x2 #(
 		parameter int AXI4_ADDRESS_WIDTH=32,
 		parameter int AXI4_DATA_WIDTH=128,
@@ -33,9 +34,21 @@ module axi4_interconnect_2x2 #(
 	localparam int N_SLAVEID_BITS = $clog2(N_SLAVES+1);
 	localparam bit[N_SLAVEID_BITS:0]		NO_SLAVE  = {(N_SLAVEID_BITS+1){1'b1}};
 	localparam bit[N_MASTERID_BITS:0]		NO_MASTER = {(N_MASTERID_BITS+1){1'b1}};
+	localparam bit DEFAULT_SLAVE_ERROR = 1;
 	
 	// Interface to the decode-fail slave
-	axi4_if				serr(.ACLK(clk), .ARESETn(rstn));
+`ifdef DEFAULT_SLAVE_ERROR_axi4_interconnect_2x2	
+/*
+	axi4_if	#(
+			.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),
+			.AXI4_DATA_WIDTH(AXI4_DATA_WIDTH),
+			.AXI4_ID_WIDTH(AXI4_ID_WIDTH+N_SLAVEID_BITS)
+			) sdflt(.ACLK(clk), .ARESETn(rstn));
+			
+			 */
+	axi4_if	
+			sdflt(.ACLK(clk), .ARESETn(rstn));
+`endif /* DEFAULT_SLAVE_ERROR_axi4_interconnect_2x2 */
 	
 	function reg[N_SLAVEID_BITS-1:0] addr2slave(
 		reg[N_MASTERID_BITS-1:0]	master,
@@ -82,7 +95,7 @@ module axi4_interconnect_2x2 #(
 	wire										BVALID[N_MASTERS-1:0];
 	wire										BREADY[N_MASTERS-1:0];
 	
-	wire[AXI4_ID_WIDTH+N_SLAVEID_BITS-1:0]		RID[N_MASTERS-1:0];
+	wire[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		RID[N_MASTERS-1:0];
 	wire[AXI4_DATA_WIDTH-1:0]					RDATA[N_MASTERS-1:0];
 	wire[1:0]									RRESP[N_MASTERS-1:0];
 	wire										RLAST[N_MASTERS-1:0];
@@ -163,12 +176,27 @@ module axi4_interconnect_2x2 #(
 	wire										SARREADY[N_SLAVES:0];
 	wire										SARVALID[N_SLAVES:0];	
 	
-	wire[AXI4_ID_WIDTH+N_SLAVEID_BITS-1:0]		SRID[N_SLAVES:0];
+	wire[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		SRID[N_SLAVES:0];
 	wire[AXI4_DATA_WIDTH-1:0]					SRDATA[N_SLAVES:0];
 	wire[1:0]									SRRESP[N_SLAVES:0];
 	wire										SRLAST[N_SLAVES:0];
 	wire										SRVALID[N_SLAVES:0];
 	wire										SRREADY[N_SLAVES:0];
+	
+// checking code
+// synopsys translate_off
+	initial begin
+		if ($bits(s0.AWID) != AXI4_ID_WIDTH+N_MASTERID_BITS) begin
+			$display("Error: %m.s0 ID width is %0d ; expecting %0d", $bits(s0.AWID), (AXI4_ID_WIDTH+N_MASTERID_BITS));
+			$finish(1);
+		end
+		if ($bits(s1.AWID) != AXI4_ID_WIDTH+N_MASTERID_BITS) begin
+			$display("Error: %m.s1 ID width is %0d ; expecting %0d", $bits(s1.AWID), (AXI4_ID_WIDTH+N_MASTERID_BITS));
+			$finish(1);
+		end
+
+	end
+// synopsys translate_on
 	
 	// AW master assigns
 	assign AWADDR[0] = m0.AWADDR;
@@ -222,68 +250,68 @@ module axi4_interconnect_2x2 #(
 	// Slave requests
 	assign SAWREADY[0] = s0.AWREADY;
 	assign SAWREADY[1] = s1.AWREADY;
-	assign SAWREADY[2] = serr.AWREADY;
+	assign SAWREADY[2] = sdflt.AWREADY;
 	assign s0.AWADDR = SAWADDR[0];
 	assign s1.AWADDR = SAWADDR[1];
-	assign serr.AWADDR = SAWADDR[2];
+	assign sdflt.AWADDR = SAWADDR[2];
 	assign s0.AWID = SAWID[0];
 	assign s1.AWID = SAWID[1];
-	assign serr.AWID = SAWID[2];
+	assign sdflt.AWID = SAWID[2];
 	assign s0.AWLEN = SAWLEN[0];
 	assign s1.AWLEN = SAWLEN[1];
-	assign serr.AWLEN = SAWLEN[2];
+	assign sdflt.AWLEN = SAWLEN[2];
 	assign s0.AWSIZE = SAWSIZE[0];
 	assign s1.AWSIZE = SAWSIZE[1];
-	assign serr.AWSIZE = SAWSIZE[2];
+	assign sdflt.AWSIZE = SAWSIZE[2];
 	assign s0.AWBURST = SAWBURST[0];
 	assign s1.AWBURST = SAWBURST[1];
-	assign serr.AWBURST = SAWBURST[2];
+	assign sdflt.AWBURST = SAWBURST[2];
 	assign s0.AWCACHE = SAWCACHE[0];
 	assign s1.AWCACHE = SAWCACHE[1];
-	assign serr.AWCACHE = SAWCACHE[2];
+	assign sdflt.AWCACHE = SAWCACHE[2];
 	assign s0.AWPROT = SAWPROT[0];
 	assign s1.AWPROT = SAWPROT[1];
-	assign serr.AWPROT = SAWPROT[2];
+	assign sdflt.AWPROT = SAWPROT[2];
 	assign s0.AWQOS = SAWQOS[0];
 	assign s1.AWQOS = SAWQOS[1];
-	assign serr.AWQOS = SAWQOS[2];
+	assign sdflt.AWQOS = SAWQOS[2];
 	assign s0.AWREGION = SAWREGION[0];
 	assign s1.AWREGION = SAWREGION[1];
-	assign serr.AWREGION = SAWREGION[2];
+	assign sdflt.AWREGION = SAWREGION[2];
 	assign s0.AWVALID = SAWVALID[0];
 	assign s1.AWVALID = SAWVALID[1];
-	assign serr.AWVALID = SAWVALID[2];
+	assign sdflt.AWVALID = SAWVALID[2];
 
 
 	assign SWREADY[0] = s0.WREADY;
 	assign SWREADY[1] = s1.WREADY;
-	assign SWREADY[2] = serr.WREADY;
+	assign SWREADY[2] = sdflt.WREADY;
 	assign s0.WDATA = SWDATA[0];
 	assign s1.WDATA = SWDATA[1];
-	assign serr.WDATA = SWDATA[2];
+	assign sdflt.WDATA = SWDATA[2];
 	assign s0.WSTRB = SWSTRB[0];
 	assign s1.WSTRB = SWSTRB[1];
-	assign serr.WSTRB = SWSTRB[2];
+	assign sdflt.WSTRB = SWSTRB[2];
 	assign s0.WLAST = SWLAST[0];
 	assign s1.WLAST = SWLAST[1];
-	assign serr.WLAST = SWLAST[2];
+	assign sdflt.WLAST = SWLAST[2];
 	assign s0.WVALID = SWVALID[0];
 	assign s1.WVALID = SWVALID[1];
-	assign serr.WVALID = SWVALID[2];
+	assign sdflt.WVALID = SWVALID[2];
 
 
 	assign SBID[0] = s0.BID;
 	assign SBID[1] = s1.BID;
-	assign SBID[2] = serr.BID;
+	assign SBID[2] = sdflt.BID;
 	assign SBRESP[0] = s0.BRESP;
 	assign SBRESP[1] = s1.BRESP;
-	assign SBRESP[2] = serr.BRESP;
+	assign SBRESP[2] = sdflt.BRESP;
 	assign SBVALID[0] = s0.BVALID;
 	assign SBVALID[1] = s1.BVALID;
-	assign SBVALID[2] = serr.BVALID;
+	assign SBVALID[2] = sdflt.BVALID;
 	assign s0.BREADY = SBREADY[0];
 	assign s1.BREADY = SBREADY[1];
-	assign serr.BREADY = SBREADY[2];
+	assign sdflt.BREADY = SBREADY[2];
 	
 
 // Read request state machine
@@ -331,58 +359,58 @@ module axi4_interconnect_2x2 #(
 	// Slave requests
 	assign SARREADY[0] = s0.ARREADY;
 	assign SARREADY[1] = s1.ARREADY;
-	assign SARREADY[2] = serr.ARREADY;
+	assign SARREADY[2] = sdflt.ARREADY;
 	assign s0.ARADDR = SARADDR[0];
 	assign s1.ARADDR = SARADDR[1];
-	assign serr.ARADDR = SARADDR[2];
+	assign sdflt.ARADDR = SARADDR[2];
 	assign s0.ARID = SARID[0];
 	assign s1.ARID = SARID[1];
-	assign serr.ARID = SARID[2];
+	assign sdflt.ARID = SARID[2];
 	assign s0.ARLEN = SARLEN[0];
 	assign s1.ARLEN = SARLEN[1];
-	assign serr.ARLEN = SARLEN[2];
+	assign sdflt.ARLEN = SARLEN[2];
 	assign s0.ARSIZE = SARSIZE[0];
 	assign s1.ARSIZE = SARSIZE[1];
-	assign serr.ARSIZE = SARSIZE[2];
+	assign sdflt.ARSIZE = SARSIZE[2];
 	assign s0.ARBURST = SARBURST[0];
 	assign s1.ARBURST = SARBURST[1];
-	assign serr.ARBURST = SARBURST[2];
+	assign sdflt.ARBURST = SARBURST[2];
 	assign s0.ARCACHE = SARCACHE[0];
 	assign s1.ARCACHE = SARCACHE[1];
-	assign serr.ARCACHE = SARCACHE[2];
+	assign sdflt.ARCACHE = SARCACHE[2];
 	assign s0.ARPROT = SARPROT[0];
 	assign s1.ARPROT = SARPROT[1];
-	assign serr.ARPROT = SARPROT[2];
+	assign sdflt.ARPROT = SARPROT[2];
 	assign s0.ARREGION = SARREGION[0];
 	assign s1.ARREGION = SARREGION[1];
-	assign serr.ARREGION = SARREGION[2];
+	assign sdflt.ARREGION = SARREGION[2];
 	assign s0.ARVALID = SARVALID[0];
 	assign s1.ARVALID = SARVALID[1];
-	assign serr.ARVALID = SARVALID[2];
+	assign sdflt.ARVALID = SARVALID[2];
 	
 
 	assign SRDATA[0] = s0.RDATA;
 	assign SRDATA[1] = s1.RDATA;
-	assign SRDATA[2] = serr.RDATA;
+	assign SRDATA[2] = sdflt.RDATA;
 	assign SRLAST[0] = s0.RLAST;
 	assign SRLAST[1] = s1.RLAST;
-	assign SRLAST[2] = serr.RLAST;
+	assign SRLAST[2] = sdflt.RLAST;
 	assign SRVALID[0] = s0.RVALID;
 	assign SRVALID[1] = s1.RVALID;
-	assign SRVALID[2] = serr.RVALID;
+	assign SRVALID[2] = sdflt.RVALID;
 	assign SRID[0] = s0.RID;
 	assign SRID[1] = s1.RID;
-	assign SRID[2] = serr.RID;
+	assign SRID[2] = sdflt.RID;
 	assign s0.RREADY = SRREADY[0];
 	assign s1.RREADY = SRREADY[1];
-	assign serr.RREADY = SRREADY[2];
+	assign sdflt.RREADY = SRREADY[2];
 	
 
 	
 	// Write request state machine
 	generate
 		genvar m_aw_i;
-		for (m_aw_i=0; m_aw_i<N_MASTERS; m_aw_i++) begin
+		for (m_aw_i=0; m_aw_i<N_MASTERS; m_aw_i++) begin : m_aw
 			always @(posedge clk) begin
 				if (rstn == 0) begin
 					write_req_state[m_aw_i] <= 'b00;
@@ -461,8 +489,8 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar aw_req_i, aw_req_j;
 
-		for (aw_req_i=0; aw_req_i < N_SLAVES; aw_req_i++) begin
-			for (aw_req_j=0; aw_req_j < N_MASTERS; aw_req_j++) begin
+		for (aw_req_i=0; aw_req_i < N_SLAVES; aw_req_i++) begin : aw_req_slave
+			for (aw_req_j=0; aw_req_j < N_MASTERS; aw_req_j++) begin : aw_req_master
 				assign aw_req[aw_req_i][aw_req_j] = (write_selected_slave[aw_req_j] == aw_req_i);
 			end
 		end
@@ -490,7 +518,7 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar s_am_i;
 		
-		for (s_am_i=0; s_am_i<N_SLAVES+1; s_am_i++) begin
+		for (s_am_i=0; s_am_i<N_SLAVES+1; s_am_i++) begin : s_am
 			assign slave_active_master[s_am_i] =
 				(aw_master_gnt[s_am_i])?aw_master_gnt_id[s_am_i]:NO_MASTER;
 		end
@@ -499,7 +527,7 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar m_w_i;
 		
-		for (m_w_i=0; m_w_i<N_MASTERS; m_w_i++) begin
+		for (m_w_i=0; m_w_i<N_MASTERS; m_w_i++) begin : m_w
 			assign WREADY[m_w_i] = (write_selected_slave[m_w_i] != NO_SLAVE && 
 										aw_master_gnt[write_selected_slave[m_w_i]] && 
 										aw_master_gnt_id[write_selected_slave[m_w_i]] == m_w_i)?
@@ -510,7 +538,7 @@ module axi4_interconnect_2x2 #(
 	
 	generate
 		genvar s_w_i;
-		for(s_w_i=0; s_w_i<(N_SLAVES+1); s_w_i++) begin
+		for(s_w_i=0; s_w_i<(N_SLAVES+1); s_w_i++) begin : s_w
 			assign SWDATA[s_w_i] = (slave_active_master[s_w_i] == NO_MASTER)?0:WDATA[slave_active_master[s_w_i]];
 			assign SWSTRB[s_w_i] = (slave_active_master[s_w_i] == NO_MASTER)?0:WSTRB[slave_active_master[s_w_i]];
 			assign SWLAST[s_w_i] = (slave_active_master[s_w_i] == NO_MASTER)?0:WLAST[slave_active_master[s_w_i]];
@@ -560,8 +588,8 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar b_req_slave_i, b_req_master_i;
 
-		for (b_req_slave_i=0; b_req_slave_i<N_SLAVES+1; b_req_slave_i++) begin
-			for (b_req_master_i=0; b_req_master_i<N_MASTERS; b_req_master_i++) begin
+		for (b_req_slave_i=0; b_req_slave_i<N_SLAVES+1; b_req_slave_i++) begin : b_req_slave
+			for (b_req_master_i=0; b_req_master_i<N_MASTERS; b_req_master_i++) begin : b_req_master
 				assign b_req[b_req_master_i][b_req_slave_i] = (write_response_selected_master[b_req_slave_i] == b_req_master_i);
 			end
 		end
@@ -609,7 +637,7 @@ module axi4_interconnect_2x2 #(
 		
 	generate
 		genvar b_assign_i;
-
+	
 		for (b_assign_i=0; b_assign_i<N_SLAVES+1; b_assign_i++) begin : b_assign
 			assign SBREADY[b_assign_i] = (write_response_state[b_assign_i] == 0);
 		end
@@ -622,7 +650,7 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar b_slave_master_i;
 		
-		for (b_slave_master_i=0; b_slave_master_i<N_MASTERS; b_slave_master_i++) begin
+		for (b_slave_master_i=0; b_slave_master_i<N_MASTERS; b_slave_master_i++) begin : b_slave_master
 			assign b_slave_master_id[b_slave_master_i] = 
 				(b_gnt[b_slave_master_i])?b_gnt_id[b_slave_master_i]:NO_SLAVE;
 		end
@@ -631,7 +659,7 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar b_master_assign_i;
 	
-		for (b_master_assign_i=0; b_master_assign_i<N_MASTERS; b_master_assign_i++) begin
+		for (b_master_assign_i=0; b_master_assign_i<N_MASTERS; b_master_assign_i++) begin : b_master_assign
 			assign BID[b_master_assign_i] = (b_slave_master_id[b_master_assign_i] == NO_SLAVE)?0:R_SBID[b_slave_master_id[b_master_assign_i]];
 			assign BVALID[b_master_assign_i] = (b_slave_master_id[b_master_assign_i] == NO_SLAVE)?0:R_SBVALID[b_slave_master_id[b_master_assign_i]];
 			assign BRESP[b_master_assign_i] = (b_slave_master_id[b_master_assign_i] == NO_SLAVE)?0:R_SBRESP[b_slave_master_id[b_master_assign_i]];
@@ -643,7 +671,7 @@ module axi4_interconnect_2x2 #(
 	
 	generate
 		genvar m_ar_i;
-		for (m_ar_i=0; m_ar_i<N_MASTERS; m_ar_i++) begin
+		for (m_ar_i=0; m_ar_i<N_MASTERS; m_ar_i++) begin : m_ar
 			assign ARREADY[m_ar_i] = (rstn != 0 && read_req_state[m_ar_i] == 0);
 			always @(posedge clk) begin
 				if (rstn == 0) begin
@@ -709,8 +737,8 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar ar_req_i, ar_req_j;
 
-		for (ar_req_i=0; ar_req_i < N_SLAVES; ar_req_i++) begin
-			for (ar_req_j=0; ar_req_j < N_MASTERS; ar_req_j++) begin
+		for (ar_req_i=0; ar_req_i < N_SLAVES+1; ar_req_i++) begin : ar_req_slave
+			for (ar_req_j=0; ar_req_j < N_MASTERS; ar_req_j++) begin : ar_req_master
 				assign ar_req[ar_req_i][ar_req_j] = (read_selected_slave[ar_req_j] == ar_req_i);
 			end
 		end
@@ -738,7 +766,7 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar s_ar_m_i;
 		
-		for (s_ar_m_i=0; s_ar_m_i<N_SLAVES+1; s_ar_m_i++) begin
+		for (s_ar_m_i=0; s_ar_m_i<N_SLAVES+1; s_ar_m_i++) begin : s_ar_m
 			assign slave_active_read_master[s_ar_m_i] =
 				(ar_master_gnt[s_ar_m_i])?ar_master_gnt_id[s_ar_m_i]:NO_MASTER;
 		end
@@ -786,8 +814,8 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar r_req_slave_i, r_req_master_i;
 
-		for (r_req_slave_i=0; r_req_slave_i<N_SLAVES+1; r_req_slave_i++) begin
-			for (r_req_master_i=0; r_req_master_i<N_MASTERS; r_req_master_i++) begin
+		for (r_req_slave_i=0; r_req_slave_i<N_SLAVES+1; r_req_slave_i++) begin : r_req_slave
+			for (r_req_master_i=0; r_req_master_i<N_MASTERS; r_req_master_i++) begin : r_req_master
 				assign r_req[r_req_master_i][r_req_slave_i] = (read_response_selected_master[r_req_slave_i] == r_req_master_i);
 			end
 		end
@@ -850,7 +878,7 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar r_slave_master_i;
 		
-		for (r_slave_master_i=0; r_slave_master_i<N_MASTERS; r_slave_master_i++) begin
+		for (r_slave_master_i=0; r_slave_master_i<N_MASTERS; r_slave_master_i++) begin : r_slave_master
 			assign r_slave_master_id[r_slave_master_i] = 
 				(r_gnt[r_slave_master_i])?r_gnt_id[r_slave_master_i]:NO_SLAVE;
 		end
@@ -859,7 +887,7 @@ module axi4_interconnect_2x2 #(
 	generate
 		genvar r_master_assign_i;
 	
-		for (r_master_assign_i=0; r_master_assign_i<N_MASTERS; r_master_assign_i++) begin
+		for (r_master_assign_i=0; r_master_assign_i<N_MASTERS; r_master_assign_i++) begin : r_master_assign
 			assign RID[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRID[r_slave_master_id[r_master_assign_i]];
 			assign RVALID[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:
 				(SRVALID[r_slave_master_id[r_master_assign_i]] & SRREADY[r_slave_master_id[r_master_assign_i]]);
@@ -870,80 +898,83 @@ module axi4_interconnect_2x2 #(
 	endgenerate
 
 	// Decode-fail target
-	reg[1:0]									write_state;
-	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		write_id;
-	assign serr.AWREADY = (write_state == 0);
-	assign serr.WREADY = (write_state == 1);
-	assign serr.BVALID = (write_state == 2);
-	assign serr.BID = (write_state == 2)?write_id:0;
+`ifdef DEFAULT_SLAVE_ERROR_axi4_interconnect_2x2	
+			reg[1:0]									write_state;
+			reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		write_id;
+			assign sdflt.AWREADY = (write_state == 0);
+			assign sdflt.WREADY = (write_state == 1);
+			assign sdflt.BVALID = (write_state == 2);
+			assign sdflt.BID = (write_state == 2)?write_id:0;
 
-	always @(posedge clk) begin
-		if (rstn != 1) begin
-			write_state <= 0;
-		end else begin
-			case (write_state)
-				2'b00: begin
-					if (serr.AWVALID) begin
-						write_id <= serr.AWID;
-						write_state <= 1;
-					end
-				end
-				
-				2'b01: begin
-					if (serr.WVALID == 1'b1 && serr.WREADY == 1'b1) begin
-						if (serr.WLAST == 1'b1) begin
-							write_state <= 2;
+			always @(posedge clk) begin
+				if (rstn != 1) begin
+					write_state <= 0;
+				end else begin
+					case (write_state)
+						2'b00: begin
+							if (sdflt.AWVALID) begin
+								write_id <= sdflt.AWID;
+								write_state <= 1;
+							end
 						end
-					end
-				end
 				
-				2'b10: begin // Send write response
-					if (serr.BVALID == 1'b1 && serr.BREADY == 1'b1) begin
-						write_state <= 2'b0;
-					end
-				end
-			endcase
-		end
-	end
-	
-	reg[1:0]									read_state;
-	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		read_id;
-	reg[7:0]									read_count;
-	reg[7:0]									read_length;
-	assign serr.ARREADY = (read_state == 0);
-	assign serr.RVALID = (read_state == 1);
-	assign serr.RDATA = 0;
-	assign serr.RLAST = (read_state == 1 && read_count == read_length);
-	assign serr.RID = (read_state == 1)?read_id:0;
-	
-	always @(posedge clk) begin
-		if (rstn != 1) begin
-			read_state <= 0;
-			read_count <= 0;
-			read_length <= 0;
-		end else begin
-			case (read_state)
-				0: begin
-					if (serr.ARVALID && serr.ARREADY) begin
-						read_state <= 1;
-						read_id <= serr.ARID;
-						read_count <= 0;
-						read_length <= serr.ARLEN;
-					end
-				end
-				
-				1: begin
-					if (serr.RVALID && serr.RREADY) begin
-						if (read_count == read_length) begin
-							read_state <= 1'b0;
-						end else begin
-							read_count <= read_count + 1;
+						2'b01: begin
+							if (sdflt.WVALID == 1'b1 && sdflt.WREADY == 1'b1) begin
+								if (sdflt.WLAST == 1'b1) begin
+									write_state <= 2;
+								end
+							end
 						end
-					end
+				
+						2'b10: begin // Send write response
+							if (sdflt.BVALID == 1'b1 && sdflt.BREADY == 1'b1) begin
+								write_state <= 2'b0;
+							end
+						end
+					endcase
 				end
-			endcase
-		end
-	end
+			end
+	
+			reg[1:0]									read_state;
+			reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		read_id;
+			reg[7:0]									read_count;
+			reg[7:0]									read_length;
+			assign sdflt.ARREADY = (read_state == 0);
+			assign sdflt.RVALID = (read_state == 1);
+			assign sdflt.RDATA = 0;
+			assign sdflt.RLAST = (read_state == 1 && read_count == read_length);
+			assign sdflt.RID = (read_state == 1)?read_id:0;
+	
+			always @(posedge clk) begin
+				if (rstn != 1) begin
+					read_state <= 0;
+					read_count <= 0;
+					read_length <= 0;
+				end else begin
+					case (read_state)
+						0: begin
+							if (sdflt.ARVALID && sdflt.ARREADY) begin
+								read_state <= 1;
+								read_id <= sdflt.ARID;
+								read_count <= 0;
+								read_length <= sdflt.ARLEN;
+							end
+						end
+				
+						1: begin
+							if (sdflt.RVALID && sdflt.RREADY) begin
+								if (read_count == read_length) begin
+									read_state <= 1'b0;
+								end else begin
+									read_count <= read_count + 1;
+								end
+							end
+						end
+					endcase
+				end
+			end
+`endif /* DEFAULT_SLAVE_ERROR_axi4_interconnect_2x2 */
+
 endmodule
 
 module axi4_interconnect_2x2_arbiter #(
@@ -978,7 +1009,7 @@ module axi4_interconnect_2x2_arbiter #(
 	generate
 		genvar gnt_ppc_i;
 		
-	for (gnt_ppc_i=N_REQ-1; gnt_ppc_i>=0; gnt_ppc_i--) begin
+	for (gnt_ppc_i=N_REQ-1; gnt_ppc_i>=0; gnt_ppc_i--) begin : gnt_ppc_genblk
 		if (gnt_ppc_i == 0) begin
 			assign gnt_ppc[gnt_ppc_i] = last_gnt[0];
 		end else begin
@@ -991,7 +1022,7 @@ module axi4_interconnect_2x2_arbiter #(
 	generate
 		genvar unmasked_gnt_i;
 		
-	for (unmasked_gnt_i=0; unmasked_gnt_i<N_REQ; unmasked_gnt_i++) begin
+	for (unmasked_gnt_i=0; unmasked_gnt_i<N_REQ; unmasked_gnt_i++) begin : unmasked_gnt_genblk
 		// Prioritized unmasked grant vector. Grant to the lowest active grant
 		if (unmasked_gnt_i == 0) begin
 			assign unmasked_gnt[unmasked_gnt_i] = req[unmasked_gnt_i];
@@ -1005,7 +1036,7 @@ module axi4_interconnect_2x2_arbiter #(
 	generate
 		genvar masked_gnt_i;
 		
-	for (masked_gnt_i=0; masked_gnt_i<N_REQ; masked_gnt_i++) begin
+	for (masked_gnt_i=0; masked_gnt_i<N_REQ; masked_gnt_i++) begin : masked_gnt_genblk
 		if (masked_gnt_i == 0) begin
 			assign masked_gnt[masked_gnt_i] = (gnt_ppc_next[masked_gnt_i] & req[masked_gnt_i]);
 		end else begin
@@ -1068,3 +1099,4 @@ module axi4_interconnect_2x2_arbiter #(
 
 endmodule
 
+`undef DEFAULT_SLAVE_ERROR_axi4_interconnect_2x2

@@ -6,8 +6,8 @@ $name = "";
 $outfile = "";
 $n_masters = -1;
 $n_slaves = -1;
-$protocol = "";
 $force = 0;
+$DEFAULT_SLAVE_ERROR = 1;
 
 %REPLACE_TOKENS;
 
@@ -17,8 +17,6 @@ for ($i=0; $i<=$#ARGV; $i++) {
 			$n_slaves = $ARGV[++$i];
 		} elsif ($ARGV[$i] eq "-n_masters") {
 			$n_masters = $ARGV[++$i];
-		} elsif ($ARGV[$i] eq "-protocol") {
-			$protocol = $ARGV[++$i];
 		} elsif ($ARGV[$i] eq "-f") {
 			$force = 1;
 		} elsif ($ARGV[$i] eq "-o") {
@@ -28,6 +26,10 @@ for ($i=0; $i<=$#ARGV; $i++) {
 			if ($idx != -1) {
 				$name = substr($name, 0, $idx);
 			}
+		} elsif ($ARGV[$i] eq "-default-slave-error") {
+			$DEFAULT_SLAVE_ERROR = 1;
+		} elsif ($ARGV[$i] eq "-default-slave-passthrough") {
+			$DEFAULT_SLAVE_ERROR = 0;
 		} else {
 			die "Unknown option $ARGV[$i]\n";
 		}
@@ -37,11 +39,7 @@ for ($i=0; $i<=$#ARGV; $i++) {
 	}
 }
 
-if ($protocol eq "") {
-	die "-protocol not specified\n";
-} else {
-	$template = "scripts/${protocol}_interconnect_NxN.sv";
-}
+$template = "scripts/axi4_interconnect_NxN.sv";
 
 if ($n_masters == -1) {
 	die "-n_masters not specified\n";
@@ -63,10 +61,18 @@ $REPLACE_TOKENS{"AR_SLAVE_ASSIGN"} = axi4_ar_slave_assign($n_slaves);
 $REPLACE_TOKENS{"W_SLAVE_ASSIGN"} = axi4_w_slave_assign($n_slaves);
 $REPLACE_TOKENS{"R_SLAVE_ASSIGN"} = axi4_r_slave_assign($n_slaves);
 $REPLACE_TOKENS{"B_SLAVE_ASSIGN"} = axi4_b_slave_assign($n_slaves);
-$REPLACE_TOKENS{"MASTER_PORTLIST"} = axi4_master_portlist($n_slaves);
+$REPLACE_TOKENS{"MASTER_PORTLIST"} = axi4_master_portlist($n_masters);
 $REPLACE_TOKENS{"SLAVE_PORTLIST"} = axi4_slave_portlist($n_slaves);
 $REPLACE_TOKENS{"ADDRESS_RANGE_PARAMS"} = address_range_params($n_slaves);
 $REPLACE_TOKENS{"ADDR2SLAVE_BODY"} = add2slave_body($n_slaves);
+$REPLACE_TOKENS{"DEFAULT_SLAVE_ERROR"} = "" . $DEFAULT_SLAVE_ERROR;
+$REPLACE_TOKENS{"CHECK_ID_WIDTH"} = axi4_check_id_width($n_slaves, $n_masters);
+
+if ($DEFAULT_SLAVE_ERROR == 1) {
+	$REPLACE_TOKENS{"DEFAULT_SLAVE_ERROR_DEF"} = "`define DEFAULT_SLAVE_ERROR_${name}";
+} else {
+	$REPLACE_TOKENS{"DEFAULT_SLAVE_ERROR_DEF"} = "";
+}
 
 if (! -f $template) {
 	die "template $template does not exist\n";
@@ -220,7 +226,7 @@ sub axi4_aw_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = sdflt.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -231,7 +237,7 @@ sub axi4_aw_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign sdflt.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -251,7 +257,7 @@ sub axi4_ar_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = sdflt.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -262,7 +268,7 @@ sub axi4_ar_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign sdflt.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -282,7 +288,7 @@ sub axi4_w_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = sdflt.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -293,7 +299,7 @@ sub axi4_w_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign sdflt.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -313,7 +319,7 @@ sub axi4_r_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = sdflt.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -324,7 +330,7 @@ sub axi4_r_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign sdflt.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -344,7 +350,7 @@ sub axi4_b_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign S${name}[$i] = serr.${name};\n";
+				$out .= "\tassign S${name}[$i] = sdflt.${name};\n";
 			} else {
 				$out .= "\tassign S${name}[$i] = s${i}.${name};\n";
 			}
@@ -355,7 +361,7 @@ sub axi4_b_slave_assign($) {
 		$name=$_;
 		for ($i=0; $i<=$n_slaves; $i++) {
 			if ($i == $n_slaves) {
-				$out .= "\tassign serr.${name} = S${name}[$i];\n";
+				$out .= "\tassign sdflt.${name} = S${name}[$i];\n";
 			} else {
 				$out .= "\tassign s${i}.${name} = S${name}[$i];\n";
 			}
@@ -388,14 +394,18 @@ sub axi4_slave_portlist($) {
 	# For now, do not emit an error port	
 	for ($i=0; $i<$n_slaves; $i++) {
 		if ($i == $n_slaves) {
-			$portlist .= "\t\taxi4_if.master\t\t\t\t\tserr";
+			$portlist .= "\t\taxi4_if.master\t\t\t\t\tsdflt";
 		} else {
 			$portlist .= "\t\taxi4_if.master\t\t\t\t\ts${i}";
 		}
 #		if ($i+1 <= $n_slaves) {
-		if ($i+1 < $n_slaves) {
+		if ($i+1 < $n_slaves || $DEFAULT_SLAVE_ERROR == 0) {
 			$portlist .= ",\n";
 		}
+	}
+	
+	if ($DEFAULT_SLAVE_ERROR == 0) {
+		$portlist .= "\t\taxi4_if.master\t\t\t\t\tsdflt";
 	}
 	
 	return $portlist;
@@ -433,6 +443,21 @@ sub add2slave_body($) {
 
 	return $params;
 	
+}
+
+sub axi4_check_id_width($$) {
+	my($n_slaves, $n_masters) = @_;
+	my($i);
+	my($params) = "";
+	
+	for ($i=0; $i<$n_slaves; $i++) {
+		$params .= "\t\tif (\$bits(s" . $i . ".AWID) != AXI4_ID_WIDTH+N_MASTERID_BITS) begin\n";
+		$params .= "\t\t\t\$display(\"Error: %m.s" . $i . " ID width is %0d ; expecting %0d\", \$bits(s" . $i . ".AWID), (AXI4_ID_WIDTH+N_MASTERID_BITS));\n";
+		$params .= "\t\t\t\$finish(1);\n";
+		$params .= "\t\tend\n";
+	}
+	
+	return $params;
 }
 
 sub replace_tokens($)

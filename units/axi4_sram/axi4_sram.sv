@@ -22,7 +22,7 @@ module axi4_sram #(
 		$display("SRAM path %m");
 	end
 
-    bit [(AXI_DATA_WIDTH-1):0] ram[1<<MEM_ADDR_BITS];
+//    bit [(AXI_DATA_WIDTH-1):0] ram[1<<MEM_ADDR_BITS];
    
     assign s.RRESP = {2{1'b0}};
     assign s.BRESP = {2{1'b0}};
@@ -69,7 +69,7 @@ module axi4_sram #(
     			2'b01: begin // Wait for write data
     				if (s.WVALID == 1'b1 && s.WREADY == 1'b1) begin
     					$display("%m: write 'h%08h='h%08h", (write_addr+write_count), s.WDATA);
-    					ram[write_addr + write_count] <= s.WDATA;
+ //   					ram[write_addr + write_count] <= s.WDATA;
     					if (s.WLAST == 1'b1) begin
     						write_state <= 2;
     					end else begin
@@ -116,6 +116,17 @@ module axi4_sram #(
 //    		endcase
     	end
     end
+    
+    generic_sram_byte_en #(
+    	.DATA_WIDTH      (AXI_DATA_WIDTH), 
+    	.ADDRESS_WIDTH   (MEM_ADDR_BITS  )
+    	) ram (
+    	.i_clk           (ACLK          ), 
+    	.i_write_data    (s.WDATA   	), 
+    	.i_write_enable  (s.WVALID & s.WREADY),
+    	.i_address       (read_addr     ), 
+    	.i_byte_enable   (s.WSTRB		), 
+    	.o_read_data     (s.RDATA    ));
    
     assign s.AWREADY = (write_state == 0);
     assign s.WREADY = (write_state == 1);
@@ -126,7 +137,7 @@ module axi4_sram #(
     assign s.ARREADY = (read_state == 1'b0);
     assign s.RVALID = (read_state == 1'b1);
 
-    assign s.RDATA = ram[read_addr + read_count];
+//    assign s.RDATA = ram[read_addr + read_count];
     assign s.RLAST = (read_state == 1'b01 && read_count == read_length)?1'b1:1'b0;
     assign s.RID = (read_state == 1)?read_id:0;
 

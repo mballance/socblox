@@ -36,32 +36,24 @@ package svf_pkg;
 			m_waiters = waiter;
 		
 			m.unlock();
-			$display("--> waiter.wait");
 			@(waiter.m_ev);
-			$display("<-- waiter.wait");
 			m.lock();
 		endtask
 		
 		task cond_notify();
-			$display("--> notify");
 			if (m_waiters != null) begin
 				svf_wait_ev waiter = m_waiters;
 				m_waiters = m_waiters.m_next;
-				$display(" -- waiter.notify");
 				->waiter.m_ev;
 			end
-			$display("<-- notify");
 		endtask
 
 		task cond_notify_all();
-			$display("--> notify_all");
 			while (m_waiters != null) begin
 				svf_wait_ev waiter = m_waiters;
 				m_waiters = m_waiters.m_next;
 				->waiter.m_ev;
-				$display(" -- waiter.notify");
 			end
-			$display("<-- notify_all");
 		endtask
 		
 	endclass
@@ -84,22 +76,17 @@ package svf_pkg;
 			end
 		join_none
 
-		$display("--> sem.get()");
 		sem.get(p_tmp);
-		$display("<-- sem.get()");
 	endtask
 	
 	task svf_dpi_create_thread(input chandle hndl, output int unsigned out_p);
 		automatic process p_tmp;
 		automatic mailbox #(process) sem = new(0);
 		
-		$display("--> svf_dpi_create_thread");
-	
 		svf_dpi_int_launcher(hndl, p_tmp);	
 
 		prv_proclist.push_back(p_tmp);
 		out_p = prv_proclist.size();
-		$display("<-- svf_dpi_create_thread");
 	endtask
 	export "DPI-C" task svf_dpi_create_thread;
 	
@@ -110,25 +97,19 @@ package svf_pkg;
 		prv_mutexlist.push_back(m);
 		mutex_id = prv_mutexlist.size();
 		
-		$display("create_mutex: %0d\n", mutex_id);
-		
 		return mutex_id;
 	endfunction
 	export "DPI-C" function svf_dpi_create_mutex;
 	
 	task svf_dpi_mutex_lock(int unsigned mutex_id);
 		automatic svf_thread_mutex m = prv_mutexlist[mutex_id-1];
-		$display("--> lock");
 		m.lock();
-		$display("<-- lock");
 	endtask
 	export "DPI-C" task svf_dpi_mutex_lock;
 	
 	task svf_dpi_mutex_unlock(int unsigned mutex_id);
 		automatic svf_thread_mutex m = prv_mutexlist[mutex_id-1];
-		$display("--> unlock");
 		m.unlock();
-		$display("<-- unlock");
 	endtask
 	export "DPI-C" task svf_dpi_mutex_unlock;
 	
@@ -167,9 +148,9 @@ package svf_pkg;
 	endtask
 	export "DPI-C" task svf_dpi_thread_yield;
 	
-	import "DPI-C" context task svf_dpi_runtest(string testname=null);
+	import "DPI-C" context task svf_dpi_runtest(string testname="");
 
-	task svf_runtest(string testname=null);
+	task svf_runtest(string testname="");
 		#1;
 		svf_dpi_runtest(testname);
 	endtask

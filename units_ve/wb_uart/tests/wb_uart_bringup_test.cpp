@@ -26,11 +26,14 @@ void wb_uart_bringup_test::run() {
 
 	raise_objection();
 
-	m_env->m_m0->write32(0, 1);
+	m_env->m_m0->write32(8, (1 << 4)); // enable fifo
 
-	ch = m_env->m_uart->getc();
+	for (uint32_t i=0; i<64; i++) {
+		m_env->m_m0->write32(0, (i+1));
 
-	fprintf(stdout, "ch=%d\n", ch);
+		ch = m_env->m_uart->getc();
+		fprintf(stdout, "ch=%d\n", ch);
+	}
 
 	drop_objection();
 }

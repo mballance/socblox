@@ -18,5 +18,12 @@ $(SOCBLOX_A23_LIBDIR)/%.a :
 	if test ! -d $(SOCBLOX_A23_LIBDIR); then mkdir -p $(SOCBLOX_A23_LIBDIR); fi
 	rm -f $@
 	$(A23_AR) vcq $@ $^
-	
-	
+
+# Common link rule for shared libraries
+$(SOCBLOX_LIBDIR)/%.so :
+	if test ! -d $(SOCBLOX_LIBDIR); then mkdir -p $(SOCBLOX_LIBDIR); fi
+	echo "COMMON LINK"
+	$(LINK) -o $@ $(DLLOUT) $(filter-out %.so, $^) \
+		$(foreach l,$(filter %.so, $^), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l)))))
+
+		

@@ -56,8 +56,8 @@ module wb_interconnect_2x2 #(
 	wire[WB_DATA_WIDTH-1:0]						DAT_R[N_MASTERS-1:0];
 	wire										CYC[N_MASTERS-1:0];
 	wire										ERR[N_MASTERS-1:0];
-	wire										SEL[N_MASTERS-1:0];
-	wire[(WB_DATA_WIDTH/8)-1:0]					STB[N_MASTERS-1:0];
+	wire[(WB_DATA_WIDTH/8)-1:0]					SEL[N_MASTERS-1:0];
+	wire										STB[N_MASTERS-1:0];
 	wire										ACK[N_MASTERS-1:0];
 	wire										WE[N_MASTERS-1:0];
 	
@@ -68,8 +68,8 @@ module wb_interconnect_2x2 #(
 	wire[WB_DATA_WIDTH-1:0]						SDAT_R[N_SLAVES:0];
 	wire										SCYC[N_SLAVES:0];
 	wire										SERR[N_SLAVES:0];
-	wire										SSEL[N_SLAVES:0];
-	wire[(WB_DATA_WIDTH/8)-1:0]					SSTB[N_SLAVES:0];
+	wire[(WB_DATA_WIDTH/8)-1:0]					SSEL[N_SLAVES:0];
+	wire										SSTB[N_SLAVES:0];
 	wire										SACK[N_SLAVES:0];
 	wire										SWE[N_SLAVES:0];
 	
