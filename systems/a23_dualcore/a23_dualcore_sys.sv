@@ -3,7 +3,7 @@
  ****************************************************************************/
  
 `ifndef BOOT_ROM_FILE
-`define BOOT_ROM_FILE ""
+`define BOOT_ROM_FILE "rom.hex"
 `endif
  
 

@@ -82,7 +82,7 @@ module wb_uart  #(
 	assign i_uart_rxd = u.rxd;
 
 	wire       [31:0]          i_wb_adr;
-	assign i_wb_addr = slave.ADR;
+	assign i_wb_adr = slave.ADR;
 	wire       [WB_SWIDTH-1:0] i_wb_sel;
 	assign i_wb_sel = slave.SEL;
 	wire                       i_wb_we;
@@ -171,6 +171,10 @@ localparam real UART_WORD_PERIOD  = ( UART_BIT_PERIOD * 12 );    // nS
 //localparam real CLK_PERIOD        = 1000 / CLK_FREQ;             // nS
 localparam real CLKS_PER_WORD     = UART_WORD_PERIOD / CLK_PERIOD;
 localparam real CLKS_PER_BIT      = CLKS_PER_WORD / 12;
+
+initial begin
+	$display("CLKS_PER_BIT=%d", int'(CLKS_PER_BIT));
+end
 
 // These are rounded to the nearest whole number
 // i.e. 29.485960 -> 29

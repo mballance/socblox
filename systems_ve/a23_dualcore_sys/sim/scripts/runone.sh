@@ -2,6 +2,7 @@
 
 testname=""
 quiet=0
+debug=false
 
 PLATFORM=linux
 UNIT=a23_dualcore_sys
@@ -17,6 +18,14 @@ while test -n "$1"; do
 			;;
 		-interactive)
 			shift
+			;;
+		-debug)
+			shift
+			if test $1 -eq 1; then
+				debug=true
+			else
+				debug=false
+			fi
 			;;
 		-sim)
 			shift
@@ -58,5 +67,12 @@ elif test -f $SIM_DIR/tests/${testname}.f; then
 	argfile="-f ${SIM_DIR}/tests/${testname}.f"
 fi
 
-make SIM=${SIM} TESTNAME=${testname} ARGFILE="${argfile}" \
-	-f ${SIM_DIR}/scripts/Makefile run
+if test $quiet -eq 1; then
+	make SIM=${SIM} TESTNAME=${testname} ARGFILE="${argfile}" \
+		DEBUG=${debug} \
+		-f ${SIM_DIR}/scripts/Makefile run > simx.log 2>&1
+else
+	make SIM=${SIM} TESTNAME=${testname} ARGFILE="${argfile}" \
+		DEBUG=${debug} \
+		-f ${SIM_DIR}/scripts/Makefile run 2>&1 | tee simx.log
+fi

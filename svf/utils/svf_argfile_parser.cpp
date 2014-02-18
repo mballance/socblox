@@ -69,12 +69,11 @@ int svf_argfile_parser::process_file(
 	m_unget_ch = -1;
 
 	while (next_tok(tok)) {
-		fprintf(stdout, "tok=%s\n", tok.c_str());
 
 		if (tok == "-f") {
 			next_tok(tok2); // path
 
-			expand(tok2);
+			tok2 = expand(tok2);
 
 			process_file(basedir, false, tok2);
 		} else {
@@ -142,7 +141,7 @@ bool svf_argfile_parser::next_tok(string &tok)
 	while (ch != -1 && (isspace(ch) || ch == '/')) {
 		if (ch == '/') {
 			int ch2 = get_ch();
-			if (ch == '*') {
+			if (ch2 == '*') {
 				// multi-line comment
 				ch = -1;
 				ch2 = -1;
@@ -157,12 +156,13 @@ bool svf_argfile_parser::next_tok(string &tok)
 				if (ch != -1) {
 					ch = get_ch();
 				}
-			} else if (ch == '/') {
+			} else if (ch2 == '/') {
 				// single-line comment
 				while ((ch = get_ch()) != -1 && ch != '\n') { }
 			} else {
 				// Nothing
 				unget_ch(ch2);
+				break;
 			}
 		} else {
 			ch = get_ch();

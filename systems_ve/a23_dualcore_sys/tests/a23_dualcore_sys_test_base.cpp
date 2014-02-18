@@ -33,6 +33,11 @@ void a23_dualcore_sys_test_base::connect()
 
 	axi4_svf_rom_dpi_mgr::connect(TB_ROOT + ".u_a23_sys.boot_rom", m_env->m_bootrom->port);
 	uart_bfm_dpi_mgr::connect(TB_ROOT + ".u_uart_bfm", m_env->m_uart->bfm_port);
+
+	a23_tracer_dpi_mgr::connect(TB_ROOT + ".u_a23_sys.a23_subsys_0.u_a23_0.u_tracer.u_svf_tracer",
+			m_env->m_core1_tracer->port);
+	a23_tracer_dpi_mgr::connect(TB_ROOT + ".u_a23_sys.a23_subsys_0.u_a23_1.u_tracer.u_svf_tracer",
+			m_env->m_core2_tracer->port);
 }
 
 void a23_dualcore_sys_test_base::shutdown()

@@ -23,6 +23,8 @@ void a23_dualcore_sys_env::build() {
 
 	m_uart = uart_bfm::type_id.create("m_uart", this);
 
+	m_core1_tracer = a23_tracer::type_id.create("m_core1_tracer", this);
+	m_core2_tracer = a23_tracer::type_id.create("m_core2_tracer", this);
 }
 
 void a23_dualcore_sys_env::connect() {

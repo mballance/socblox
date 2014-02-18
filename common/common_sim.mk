@@ -1,5 +1,7 @@
 
 TOP_MODULE ?= $(TB)
+DEBUG ?= false
+TIMEOUT ?= 1ms
 
 COMMON_SIM_MK := $(lastword $(MAKEFILE_LIST))
 COMMON_SIM_MK_DIR := $(dir $(COMMON_SIM_MK))
@@ -25,7 +27,14 @@ vpath %.cpp $(SRC_DIRS)
 vpath %.S $(SRC_DIRS)
 vpath %.c $(SRC_DIRS)
 
-.phony: vlog_build
+.phony: all build vlog_build
+
+all :
+	echo "Error: Specify target of build or run
+	exit 1
+	
+
+build : compile	
 
 #********************************************************************
 #* Compile rules
@@ -63,13 +72,23 @@ endif
 endif
 
 ifeq ($(SIM),qs)
-vlog_build :
+.phony: vopt vopt_opt vopt_dbg vopt_compile
+vlog_build : vopt
+
+vopt : vopt_opt vopt_dbg
+
+vopt_opt : vopt_compile
+	vopt -o $(TB)_opt $(TB)
+
+vopt_dbg : vopt_compile
+	vopt +acc -o $(TB)_dbg $(TB)
+
+vopt_compile :
 	rm -rf work
 	vlib work
 	vlog -sv \
 		$(QS_VLOG_ARGS) \
 		$(VLOG_ARGS)
-	vopt -o $(TB)_opt $(TB) -dpiheader foo.h
 
 $(BUILD_DIR)/libs/tb_dpi.so : $(TESTBENCH_OBJS) $(BFM_LIBS) $(LIBSVF)
 	if test ! -d $(BUILD_DIR)/libs; then mkdir -p $(BUILD_DIR)/libs; fi
@@ -131,18 +150,41 @@ endif
 LD_LIBRARY_PATH := $(foreach path,$(BFM_LIBS),$(dir $(path)):)$(LD_LIBRARY_PATH)
 export LD_LIBRARY_PATH
 
+ifeq ($(SIM),qs)
+
+ifeq ($(DEBUG),true)
+	TOP=$(TOP_MODULE)_dbg
+	DOFILE_COMMANDS += "log -r /\*;"
+else
+	TOP=$(TOP_MODULE)_opt
+endif
+endif
+
 .phony: run
 
+#********************************************************************
+#* Simulation settings
+#********************************************************************
 ifeq ($(SIM),qs)
-run : 
+
+#ifeq ($(DEBUG),true)
+#	TOP=$(TOP_MODULE)_dbg
+#	DOFILE_COMMANDS += "log -r /*;"
+#else
+#	TOP=$(TOP_MODULE)_opt
+#endif
+
+run :
+	echo $(DOFILE_COMMANDS) > run.do
+	echo "run $(TIMEOUT); quit -f" >> run.do
 	vmap work ${BUILD_DIR}/work
-	vsim -c -do "run 1ms; quit -f" $(UNIT_VE)_tb_opt \
+	vsim -c -do run.do $(TOP) \
 		+TESTNAME=$(TESTNAME) $(ARGFILE) \
 		$(foreach dpi,$(DPI_LIBS),-sv_lib $(dpi))
 else
 ifeq ($(SIM),vl)
 run : 
-	$(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) $(ARGFILE)
+	$(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) -f sim.f
 endif
 endif
 

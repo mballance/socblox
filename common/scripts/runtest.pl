@@ -316,7 +316,7 @@ sub clean {
 #*********************************************************************
 sub run_jobs {
     my($run_root,$test,$count,$quiet,$max_par,$start) = @_;
-    my($run_dir,$i, $alive, $pid);
+    my($run_dir,$i, $alive, $pid, $testname);
     my(@pid_list_tmp,@cmdline);
     my($launch_sims, $n_complete, $n_started, $wpid);
     my($seed,$report_interval,$seed_str,$testlist_idx);
@@ -340,9 +340,11 @@ sub run_jobs {
 
                 $seed_str = sprintf("%04d", $seed);
                 $test=$testlist[$testlist_idx];
-                $test=basename($test);
-                $test =~ s/\.f//g;
-                $run_dir="${run_root}/${test}_${seed_str}";
+
+                $testname=basename($test);
+                $testname =~ s/\.f//g;
+                
+                $run_dir="${run_root}/${testname}_${seed_str}";
                 $testlist_idx++;
 
                 $pid = fork();
@@ -352,12 +354,25 @@ sub run_jobs {
                     system("rm -rf $run_dir");
                     system("mkdir ${run_dir}");
                     chdir("$run_dir");
+                    
+					open(my $fh, "> ${run_dir}/sim.f");
+					
+	                if (-f "${SIM_DIR}/${test}") {
+	                	print $fh "-f \${SIM_DIR}/${test}\n";
+	                } elsif (-f "${SIM_DIR}/tests/${test}") {
+	                	print $fh "-f \${SIM_DIR}/tests/${test}\n";
+	                } elsif (-f "${SIM_DIR}/tests/${testname}.f") {
+	                	print $fh "-f \${SIM_DIR}/tests/${test}.f\n";
+	                }
+                
+	                close($fh);
+                
                     system("make",
                     	"-f" ,
                     	"$SIM_DIR/scripts/Makefile",
                     	"SIM=${sim}",
                     	"SEED=${seed}",
-                    	"-quiet", "$quiet", 
+#                    	"-quiet", "$quiet", 
                     	"TESTNAME=${test}", 
                     	"INTERACTIVE=${interactive}",
                     	"DEBUG=${debug}",
