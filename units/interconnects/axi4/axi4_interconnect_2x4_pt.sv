@@ -177,7 +177,7 @@ module axi4_interconnect_2x4_pt #(
 	wire[1:0]									SBRESP[N_SLAVES:0];
 	wire										SBVALID[N_SLAVES:0];
 	wire										SBREADY[N_SLAVES:0];
-
+	
 	wire[AXI4_ADDRESS_WIDTH-1:0]				SARADDR[N_SLAVES:0];
 	wire[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		SARID[N_SLAVES:0];
 	wire[7:0]									SARLEN[N_SLAVES:0];
@@ -195,6 +195,18 @@ module axi4_interconnect_2x4_pt #(
 	wire										SRLAST[N_SLAVES:0];
 	wire										SRVALID[N_SLAVES:0];
 	wire										SRREADY[N_SLAVES:0];
+	
+	wire[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		SRID_p[N_SLAVES:0];
+	wire[AXI4_DATA_WIDTH-1:0]					SRDATA_p[N_SLAVES:0];
+	wire[1:0]									SRRESP_p[N_SLAVES:0];
+	wire										SRLAST_p[N_SLAVES:0];
+	wire										SRVALID_p[N_SLAVES:0];
+	wire										SRREADY_p[N_SLAVES:0];
+	
+	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		SRID_r[N_SLAVES:0];
+	reg[AXI4_DATA_WIDTH-1:0]					SRDATA_r[N_SLAVES:0];
+	reg[1:0]									SRRESP_r[N_SLAVES:0];
+	reg											SRLAST_r[N_SLAVES:0];
 	
 // checking code
 // synopsys translate_off
@@ -580,7 +592,7 @@ module axi4_interconnect_2x4_pt #(
 	generate
 		genvar aw_req_i, aw_req_j;
 
-		for (aw_req_i=0; aw_req_i < N_SLAVES; aw_req_i++) begin : aw_req_slave
+		for (aw_req_i=0; aw_req_i < N_SLAVES+1; aw_req_i++) begin : aw_req_slave
 			for (aw_req_j=0; aw_req_j < N_MASTERS; aw_req_j++) begin : aw_req_master
 				assign aw_req[aw_req_i][aw_req_j] = (write_selected_slave[aw_req_j] == aw_req_i);
 			end
@@ -930,6 +942,12 @@ module axi4_interconnect_2x4_pt #(
 								// Issue request for targeted master
 								read_response_selected_master[r_state_i] <= SRID[r_state_i][(AXI4_ID_WIDTH+N_MASTERID_BITS-1):AXI4_ID_WIDTH];
 								read_response_state[r_state_i] <= 1;
+								
+								// Capture initial request
+								SRID_r[r_state_i] <= SRID[r_state_i];
+								SRDATA_r[r_state_i] <= SRDATA[r_state_i];
+								SRRESP_r[r_state_i] <= SRRESP[r_state_i];
+								SRLAST_r[r_state_i] <= SRLAST[r_state_i];
 							end
 						end
 						
@@ -940,8 +958,21 @@ module axi4_interconnect_2x4_pt #(
 								read_response_state[r_state_i] <= 2;
 							end
 						end
-						
+					
+						// State in which the registered initial request is passed to the master
 						2: begin
+							if (RREADY[read_response_selected_master[r_state_i]]) begin
+								if (SRLAST_p[r_state_i]) begin
+									read_response_selected_master[r_state_i] <= NO_MASTER;
+									read_response_state[r_state_i] <= 0;
+								end else begin
+									read_response_state[r_state_i] <= 3;
+								end
+							end 
+						end
+					
+						// State in which we are connected directly to the selected master
+						3: begin
 							if (SRREADY[r_state_i] && SRVALID[r_state_i] && SRLAST[r_state_i]) begin
 								// Done
 								read_response_selected_master[r_state_i] <= NO_MASTER;
@@ -958,7 +989,17 @@ module axi4_interconnect_2x4_pt #(
 		genvar r_assign_i;
 	
 		for (r_assign_i=0; r_assign_i<N_SLAVES+1; r_assign_i++) begin : r_assign
-			assign SRREADY[r_assign_i] = (read_response_state[r_assign_i] == 2)?RREADY[read_response_selected_master[r_assign_i]]:0;
+			assign SRID_p[r_assign_i] = (read_response_state[r_assign_i] == 3)?SRID[r_assign_i]:(read_response_state[r_assign_i] == 2)?SRID_r[r_assign_i]:0;
+			assign SRDATA_p[r_assign_i] = (read_response_state[r_assign_i] == 3)?SRDATA[r_assign_i]:(read_response_state[r_assign_i] == 2)?SRDATA_r[r_assign_i]:0;
+			assign SRRESP_p[r_assign_i] = (read_response_state[r_assign_i] == 3)?SRRESP[r_assign_i]:(read_response_state[r_assign_i] == 2)?SRRESP_r[r_assign_i]:0;
+			assign SRLAST_p[r_assign_i] = (read_response_state[r_assign_i] == 3)?SRLAST[r_assign_i]:(read_response_state[r_assign_i] == 2)?SRLAST_r[r_assign_i]:0;
+			assign SRVALID_p[r_assign_i] = (read_response_state[r_assign_i] == 3)?SRVALID[r_assign_i]:(read_response_state[r_assign_i] == 2)?1:0;
+			assign SRREADY[r_assign_i] = (read_response_state[r_assign_i] == 3)?RREADY[read_response_selected_master[r_assign_i]]:(read_response_state[r_assign_i] == 0);
+//			assign SRREADY[r_assign_i] = (read_response_state[r_assign_i] == 3)?SRREADY_p[r_assign_i]:(read_response_state[r_assign_i] == 2)?1:0;
+
+//			assign SRREADY[r_assign_i] = (read_response_state[r_assign_i] == 2)?RREADY[read_response_selected_master[r_assign_i]]:0;
+			// 
+//			assign SRREADY[r_assign_i] = (read_response_state[r_assign_i] == 0)?1:(read_response_state[r_assign_i] == 1)?0:RREADY[read_response_selected_master[r_assign_i]];
 		end
 	endgenerate
 		
@@ -979,12 +1020,11 @@ module axi4_interconnect_2x4_pt #(
 		genvar r_master_assign_i;
 	
 		for (r_master_assign_i=0; r_master_assign_i<N_MASTERS; r_master_assign_i++) begin : r_master_assign
-			assign RID[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRID[r_slave_master_id[r_master_assign_i]];
-			assign RVALID[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:
-				(SRVALID[r_slave_master_id[r_master_assign_i]] & SRREADY[r_slave_master_id[r_master_assign_i]]);
-			assign RRESP[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRRESP[r_slave_master_id[r_master_assign_i]];
-			assign RLAST[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRLAST[r_slave_master_id[r_master_assign_i]];
-			assign RDATA[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRDATA[r_slave_master_id[r_master_assign_i]];
+			assign RID[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRID_p[r_slave_master_id[r_master_assign_i]];
+			assign RVALID[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRVALID_p[r_slave_master_id[r_master_assign_i]];
+			assign RRESP[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRRESP_p[r_slave_master_id[r_master_assign_i]];
+			assign RLAST[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRLAST_p[r_slave_master_id[r_master_assign_i]];
+			assign RDATA[r_master_assign_i] = (r_slave_master_id[r_master_assign_i] == NO_SLAVE)?0:SRDATA_p[r_slave_master_id[r_master_assign_i]];
 		end
 	endgenerate
 

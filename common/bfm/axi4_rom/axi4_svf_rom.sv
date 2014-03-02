@@ -32,6 +32,7 @@ module `AXI4_SVF_ROM_NAME #(
     	tmp &= ~('hff << offset[2:0]);
     	tmp |= (data << offset[2:0]);
     	rom[offset] = tmp;
+    	$display("rom[%0d] = 'h%08h", offset[(AXI_ADDRESS_WIDTH-1):2], data);
     endtask
     export "DPI-C" task axi4_svf_rom_write8;
     
@@ -45,7 +46,14 @@ module `AXI4_SVF_ROM_NAME #(
     task axi4_svf_rom_write32(
     	longint unsigned	offset,
     	int unsigned 		data);
+    	if (offset < (1 << (MEM_ADDR_BITS+2))) begin
+    	$display("%m rom(32)[%0d] = 'h%08h", offset[(AXI_ADDRESS_WIDTH-1):2], data);
     	rom[offset[(AXI_ADDRESS_WIDTH-1):2]] = data;
+    	$display("  %m rom(32)[%0d] = 'h%08h", offset[(AXI_ADDRESS_WIDTH-1):2], 
+    			rom[offset[(AXI_ADDRESS_WIDTH-1):2]]);
+    	end else begin
+    	$display("Error: rom(32)[%0d] = 'h%08h", offset[(AXI_ADDRESS_WIDTH-1):2], data);
+    	end
     endtask
     export "DPI-C" task axi4_svf_rom_write32;
 	
@@ -109,6 +117,7 @@ module `AXI4_SVF_ROM_NAME #(
     		case (write_state) 
     			2'b00: begin // Wait Address state
     				if (s.AWVALID == 1'b1 && s.AWREADY == 1'b1) begin
+    					$display("WRITE: 'h%08h", s.AWADDR);
     					write_addr <= s.AWADDR[MEM_ADDR_BITS+1:2];
     					write_id <= s.AWID;
     					write_count <= 0;
@@ -170,6 +179,8 @@ module `AXI4_SVF_ROM_NAME #(
 	    						end
 	    					endcase
     					end else begin
+	    					$display("READ(1): address='h%08h read_offset='h%08h read_addr='h%08h 'h%08h", 
+	    							s.ARADDR, 0, s.ARADDR[MEM_ADDR_BITS+1:2], rom[s.ARADDR[MEM_ADDR_BITS+1:2]]);
     						read_offset <= 0;
 	    					read_addr <= s.ARADDR[MEM_ADDR_BITS+1:2];
 	    					read_wrap_mask <= 'hf;

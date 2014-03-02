@@ -7,11 +7,8 @@ COMMON_SIM_MK := $(lastword $(MAKEFILE_LIST))
 COMMON_SIM_MK_DIR := $(dir $(COMMON_SIM_MK))
 
 include $(SOCBLOX)/defs.mk
-include $(COMMON_SIM_MK_DIR)/common_target_defs_rules.mk
+# include $(COMMON_SIM_MK_DIR)/common_target_defs_rules.mk
 
-MK_INCLUDES += \
-	$(SIM_DIR)/../tb/defs_rules.mk \
-	$(SIM_DIR)/../tests/defs_rules.mk
 
 include $(MK_INCLUDES)
 
@@ -34,8 +31,6 @@ all :
 	exit 1
 	
 
-build : compile	
-
 #********************************************************************
 #* Compile rules
 #********************************************************************
@@ -55,7 +50,7 @@ endif
 
 endif
 
-compile : $(LIB_TARGETS) $(TARGET_EXE_TARGETS) $(TESTBENCH_OBJS) vlog_build
+build : $(LIB_TARGETS) $(TARGET_EXE_TARGETS) $(TESTBENCH_OBJS) vlog_build
 
 QS_VLOG_ARGS += $(SOCBLOX)/svf/dpi/svf_pkg.sv
 VL_VLOG_ARGS += $(SOCBLOX)/svf/sc/svf_pkg.sv
@@ -113,7 +108,8 @@ vlog_build :
 		$(VL_VLOG_ARGS) \
 		$(VLOG_ARGS) 
 
-compile : 
+build : $(LIB_TARGETS) $(TARGET_EXE_TARGETS) $(TESTBENCH_OBJS) vlog_build
+	echo "build: $(TESTBENCH_OBJS)"
 	$(MAKE) SOCBLOX=$(SOCBLOX) TB=$(TB) SIMX=1 TESTBENCH_OBJS="$(TESTBENCH_OBJS)" \
 	    VERILATOR_TRACE_EN=$(VERILATOR_TRACE_EN) BFM_LIBS="$(BFM_LIBS)" \
 	    LIBSVF_LINK="$(LIBSVF_LINK)" \
@@ -132,6 +128,10 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(BUILD_DIR)/objs/$(TB).o
 			$(foreach l,$(filter %.so, $(BFM_LIBS)), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l))))) \
 			$(LIBSVF_SC_LINK) \
 			$(SYSTEMC)/lib-linux/libsystemc.a -lpthread
+			
+#$(BUILD_DIR)/objs/$(TB).o : $(TB).cpp
+$(BUILD_DIR)/objs/$(TB).o : $(SIM_DIR)/../tb/$(TB).cpp
+	$(CXX) -c $(CXXFLAGS) -o $@ $^
 			
 endif
 endif
@@ -189,9 +189,9 @@ endif
 endif
 
 RULES := 1
-include $(COMMON_SIM_MK_DIR)/common_target_defs_rules.mk
-include $(MK_INCLUDES)
+# include $(COMMON_SIM_MK_DIR)/common_target_defs_rules.mk
 include $(SOCBLOX)/rules.mk
+include $(MK_INCLUDES)
 
 $(BUILD_DIR)/objs/%.o : %.cpp
 	if test ! -d $(BUILD_DIR)/objs; then mkdir -p $(BUILD_DIR)/objs; fi

@@ -116,7 +116,7 @@ class svf_elf_loader {
 
 	public:
 
-		svf_elf_loader(svf_mem_if *mem_if);
+		svf_elf_loader(svf_mem_if *mem_if, bool debug=false);
 
 		virtual ~svf_elf_loader();
 
@@ -127,6 +127,7 @@ class svf_elf_loader {
 	private:
 		svf_mem_if					*m_mem_if;
 		map<string, uint32_t>		m_symtab;
+		bool						m_debug;
 };
 
 #endif /* SVF_ELF_LOADER_H_ */

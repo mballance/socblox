@@ -7,7 +7,8 @@
 
 #include "svf_elf_loader.h"
 
-svf_elf_loader::svf_elf_loader(svf_mem_if *mem_if) : m_mem_if(mem_if) {
+svf_elf_loader::svf_elf_loader(svf_mem_if *mem_if, bool debug) : m_mem_if(mem_if) {
+	m_debug = debug;
 }
 
 svf_elf_loader::~svf_elf_loader() {
@@ -24,6 +25,7 @@ int svf_elf_loader::load(const char *filename)
 	fp = fopen(filename, "r");
 
 	if (!fp) {
+		fprintf(stdout, "Error: Failed to open %s\n", filename);
 		return -1;
 	}
 
@@ -32,10 +34,12 @@ int svf_elf_loader::load(const char *filename)
 	if (hdr.e_ident[1] != 'E' ||
 			hdr.e_ident[2] != 'L' ||
 			hdr.e_ident[3] != 'F') {
+		fprintf(stdout, "Error: Invalid ELF file\n");
 		return -1;
 	}
 
 	if (hdr.e_machine != 40) {
+		fprintf(stdout, "Error: Invalid ELF machine\n");
 		return -1;
 	}
 

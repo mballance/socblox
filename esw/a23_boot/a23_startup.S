@@ -36,6 +36,7 @@ _reset:
 _cstartup:
 
 	/* Relocate the .fastcode section from ROM to RAM */
+/*
 	LDR			r0, =__fastcode_load
 	LDR			r1, =__fastcode_start
 	LDR			r2, =__fastcode_end
@@ -45,6 +46,7 @@ _cstartup:
 	LDMLTIA		r0!, {r3}
 	STMLTIA		r1!, {r3}
 	BLT			1b
+ */
 
 	/* Relocate the .data section from ROM to RAM */
 	LDR			r0, =__data_load
@@ -60,7 +62,7 @@ _cstartup:
 	/* Clear .bss */
 	LDR			r1, =__bss_start__
 	LDR			r2, =__bss_end__
-	LDR			r3, #0
+	MOV			r3, #0
 
 1:
 	CMP			r1, r2
@@ -71,7 +73,7 @@ _cstartup:
 	/* Fill stack section */
 	LDR			r1, =__stack_start__
 	LDR			r2, =__stack_end__
-	LDR			r3, #0
+	MOV			r3, #0
 
 1:
 	CMP			r1, r2
@@ -81,14 +83,18 @@ _cstartup:
 	/* TODO: Initialize stack pointers */
 
 	/* Invoke static constructors */
+	/*
 	LDR			r12, =__libc_init_array
 	MOV			lr, pc
-	BX			r12
+	MOV			pc, r12
+	 */
+//	B			r12
 
 	/* Finally, call C/C++ code */
 	LDR			r12, =main
 	MOV			lr, pc
-	BX			r12
+	MOV			pc, r12
+//	BL			r12
 
 	/* Cause an exception if main() returns */
 	SWI			0xFFFFFF

@@ -54,6 +54,17 @@ $sim="vl";
 $run_root=getcwd();
 $run_root .= "/rundir";
 
+# Figure out maxpar first
+if (-f "/proc/cpuinfo") {
+	open (my $fh, "cat /proc/cpuinfo | grep processor | wc -l|");
+	while (<$fh>) {
+		chomp;
+		$max_par=$_;
+	}
+} else {
+	print "no cpuinfo\n";
+}
+
 for ($i=0; $i <= $#ARGV; $i++) {
   $arg=$ARGV[$i];
   if ($arg =~ /^-/) {
@@ -285,7 +296,7 @@ sub build {
     chdir("$builddir");
 
     # First, build the testbench
-    open(CP, "make -f ${SIM_DIR}/scripts/Makefile SIM=${sim} build |");
+    open(CP, "make -j ${max_par} -f ${SIM_DIR}/scripts/Makefile SIM=${sim} build |");
     open(LOG,"> ${builddir}/compile.log");
     while (<CP>) {
        print($_);

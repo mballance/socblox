@@ -6,6 +6,7 @@ A23_TRACER_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 $(UNIT_NAME)_SRC = \
 	a23_tracer.cpp \
+	a23_disasm_tracer.cpp \
 	a23_tracer_dpi_mgr.cpp
 	
 

@@ -6,7 +6,8 @@ COMMON_SVF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 
 $(UNIT_NAME)_SRC=\
-	svf_elf_loader.cpp
+	svf_elf_loader.cpp \
+	svf_mem_mgr.cpp 
 	
 include $(SOCBLOX)/common/common_unit_rules_defs.mk
 

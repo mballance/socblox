@@ -229,7 +229,7 @@ ${R_MASTER_ASSIGN}
 	
 	generate
 		genvar m_i;
-		for (m_i=0; m_i<N_MASTERS; m_i++) begin
+		for (m_i=0; m_i<N_MASTERS; m_i++) begin : block_m_i
 			always @(posedge clk) begin
 				if (rstn == 0) begin
 					master_state[m_i] <= 0;
@@ -260,8 +260,8 @@ ${R_MASTER_ASSIGN}
 	generate
 		genvar m_req_i, m_req_j;
 
-		for (m_req_i=0; m_req_i < N_SLAVES; m_req_i++) begin
-			for (m_req_j=0; m_req_j < N_MASTERS; m_req_j++) begin
+		for (m_req_i=0; m_req_i < N_SLAVES; m_req_i++) begin : block_m_req_i
+			for (m_req_j=0; m_req_j < N_MASTERS; m_req_j++) begin : block_m_req_j
 				assign master_slave_req[m_req_i][m_req_j] = (master_selected_slave[m_req_j] == m_req_i);
 			end
 		end
@@ -289,7 +289,7 @@ ${R_MASTER_ASSIGN}
 	generate
 		genvar s_am_i;
 		
-		for (s_am_i=0; s_am_i<N_SLAVES+1; s_am_i++) begin
+		for (s_am_i=0; s_am_i<N_SLAVES+1; s_am_i++) begin : block_s_am_i
 			assign slave_active_master[s_am_i] =
 				(master_gnt[s_am_i])?master_gnt_id[s_am_i]:NO_MASTER;
 		end
@@ -301,7 +301,7 @@ ${R_MASTER_ASSIGN}
 	generate
 		genvar s2m_i;
 		
-		for (s2m_i=0; s2m_i<N_MASTERS; s2m_i++) begin
+		for (s2m_i=0; s2m_i<N_MASTERS; s2m_i++) begin : block_s2m_i
 			assign DAT_R[s2m_i] = (master_selected_slave[s2m_i] != NO_SLAVE && 
 										master_gnt[master_selected_slave[s2m_i]] && 
 										master_gnt_id[master_selected_slave[s2m_i]] == s2m_i)?
@@ -418,7 +418,7 @@ module wb_interconnect_1x2_pt_arbiter #(
 	generate
 		genvar gnt_ppc_i;
 		
-	for (gnt_ppc_i=N_REQ-1; gnt_ppc_i>=0; gnt_ppc_i--) begin
+	for (gnt_ppc_i=N_REQ-1; gnt_ppc_i>=0; gnt_ppc_i--) begin : block_gnt_ppc_i
 		if (gnt_ppc_i == 0) begin
 			assign gnt_ppc[gnt_ppc_i] = last_gnt[0];
 		end else begin
@@ -431,7 +431,7 @@ module wb_interconnect_1x2_pt_arbiter #(
 	generate
 		genvar unmasked_gnt_i;
 		
-	for (unmasked_gnt_i=0; unmasked_gnt_i<N_REQ; unmasked_gnt_i++) begin
+	for (unmasked_gnt_i=0; unmasked_gnt_i<N_REQ; unmasked_gnt_i++) begin : block_unmasked_gnt_i
 		// Prioritized unmasked grant vector. Grant to the lowest active grant
 		if (unmasked_gnt_i == 0) begin
 			assign unmasked_gnt[unmasked_gnt_i] = req[unmasked_gnt_i];
@@ -445,7 +445,7 @@ module wb_interconnect_1x2_pt_arbiter #(
 	generate
 		genvar masked_gnt_i;
 		
-	for (masked_gnt_i=0; masked_gnt_i<N_REQ; masked_gnt_i++) begin
+	for (masked_gnt_i=0; masked_gnt_i<N_REQ; masked_gnt_i++) begin : block_masked_gnt_i
 		if (masked_gnt_i == 0) begin
 			assign masked_gnt[masked_gnt_i] = (gnt_ppc_next[masked_gnt_i] & req[masked_gnt_i]);
 		end else begin

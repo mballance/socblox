@@ -23,6 +23,10 @@ class a23_tracer: public svf_component {
 
 		virtual ~a23_tracer();
 
+
+
+	private:
+
 };
 
 #endif /* A23_TRACER_H_ */

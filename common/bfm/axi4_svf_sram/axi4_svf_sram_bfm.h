@@ -9,6 +9,7 @@
 #define AXI4_SVF_SRAM_BFM_H_
 #include "svf.h"
 #include "svf_mem_if.h"
+#include "axi4_svf_sram_dpi_mgr.h"
 
 class axi4_svf_sram_bfm : public svf_component, public virtual svf_mem_if {
 

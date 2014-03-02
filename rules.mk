@@ -1,6 +1,6 @@
 
 include $(SOCBLOX)/svf/svf_rules.mk
-include $(SOCBLOX)/common/svf/rules.mk
+include $(SOCBLOX)/common/svf/defs_rules.mk
 include $(SOCBLOX)/common/common_rules.mk
 include $(SOCBLOX)/common/bfm/axi4_svf/defs_rules.mk
 include $(SOCBLOX)/common/bfm/wb_svf/defs_rules.mk
