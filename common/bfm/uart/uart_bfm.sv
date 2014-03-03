@@ -123,8 +123,8 @@ localparam real CLKS_PER_BIT      = CLKS_PER_WORD / 12;
 // These are rounded to the nearest whole number
 // i.e. 29.485960 -> 29
 //      29.566303 -> 30    
-localparam [9:0] TX_BITPULSE_COUNT         = CLKS_PER_BIT;
-localparam [9:0] TX_CLKS_PER_WORD          = CLKS_PER_WORD;
+localparam [9:0] TX_BITPULSE_COUNT         = int'(CLKS_PER_BIT);
+localparam [9:0] TX_CLKS_PER_WORD          = int'(CLKS_PER_WORD);
 
 localparam [9:0] TX_BITADJUST_COUNT        = TX_CLKS_PER_WORD - 11*TX_BITPULSE_COUNT;
 

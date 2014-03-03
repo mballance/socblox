@@ -9,7 +9,7 @@ MK_INCLUDES += $(SIM_DIR)/../tests/sw/defs_rules.mk
 MK_INCLUDES += $(SIM_DIR)/../tb/defs_rules.mk 
 MK_INCLUDES += $(SIM_DIR)/../tests/defs_rules.mk
 
-UNIT_VE=a23_dualcore_sys
+UNIT_VE=a23_unicore_sys
 TB=$(UNIT_VE)_tb
 
 TARGET=arm-none-eabi
@@ -22,7 +22,8 @@ TARGET_LDFLAGS +=-Bstatic --fix-v4bx -nostartfiles
 
 TARGET_CFLAGS += -g
 
-TARGET_CXXFLAGS += $(TARGET_CFLAGS)
+TARGET_CXXFLAGS += $(TARGET_CFLAGS) -fno-rtti -fno-exceptions -Wall
+TARGET_CXXFLAGS += $(foreach dir,$(SRC_DIRS),-I$(dir))
 
 BFMS += SVF_AXI4_SRAM SVF_AXI4_ROM UART_BFM COMMON_SVF
 BFMS += A23_TRACER

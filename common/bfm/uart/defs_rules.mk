@@ -5,6 +5,7 @@ UART_BFM_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 $(UNIT_NAME)_SRC = \
 	uart_bfm.cpp \
+	uart_bfm_monitor.cpp \
 	uart_bfm_dpi_mgr.cpp
 
 # Brings in rules to build the unit .so

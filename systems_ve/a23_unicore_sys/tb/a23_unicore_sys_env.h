@@ -13,6 +13,7 @@
 #include "svf_mem_mgr.h"
 #include "uart_bfm.h"
 #include "a23_tracer.h"
+#include "uart_bfm_monitor.h"
 //#include "wb_master_bfm.h"
 //#include "axi4_master_bfm.h"
 
@@ -38,6 +39,7 @@ class a23_unicore_sys_env : public svf_component {
 		uart_bfm					*m_uart;
 		a23_tracer					*m_core1_tracer;
 		a23_tracer					*m_core2_tracer;
+		uart_bfm_monitor			*m_uart_bfm_monitor;
 
 
 		/*

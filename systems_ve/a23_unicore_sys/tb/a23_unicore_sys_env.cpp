@@ -24,6 +24,8 @@ void a23_unicore_sys_env::build() {
 
 	m_uart = uart_bfm::type_id.create("m_uart", this);
 
+	m_uart_bfm_monitor = new uart_bfm_monitor("UART: ");
+
 	m_core1_tracer = a23_tracer::type_id.create("m_core1_tracer", this);
 	m_core2_tracer = a23_tracer::type_id.create("m_core2_tracer", this);
 }
@@ -37,6 +39,8 @@ void a23_unicore_sys_env::connect() {
 
 	m_mem_mgr->add_region(m_bootrom, 0x00000000, 0x00000FFF);
 	m_mem_mgr->add_region(m_ram, 0x20000000, 0x20003FFF);
+
+	m_uart->ap.connect(m_uart_bfm_monitor->port);
 }
 
 svf_component_ctor_def(a23_unicore_sys_env)

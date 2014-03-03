@@ -179,8 +179,8 @@ end
 // These are rounded to the nearest whole number
 // i.e. 29.485960 -> 29
 //      29.566303 -> 30    
-localparam [9:0] TX_BITPULSE_COUNT         = CLKS_PER_BIT;
-localparam [9:0] TX_CLKS_PER_WORD          = CLKS_PER_WORD;
+localparam [9:0] TX_BITPULSE_COUNT         = int'(CLKS_PER_BIT);
+localparam [9:0] TX_CLKS_PER_WORD          = int'(CLKS_PER_WORD);
 `else
 localparam [9:0] TX_BITPULSE_COUNT         = 30;
 localparam [9:0] TX_CLKS_PER_WORD          = 360;
@@ -837,6 +837,9 @@ always @( posedge i_clk )
 // ========================================================
 // Report UART Register accesses
 // ========================================================
+initial begin
+	$display("%m: TX_BITPULSE_COUNT=%0d", TX_BITPULSE_COUNT);
+end
 
 `ifdef UNDEFINED    
 `ifndef Veritak

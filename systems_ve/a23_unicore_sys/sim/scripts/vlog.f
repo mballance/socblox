@@ -19,9 +19,9 @@ ${SOCBLOX}/units/wb_uart/wb_uart.sv
 
 ${SOCBLOX}/common/bfm/uart/uart_bfm.sv
 
-${SOCBLOX}/units/a23_dualcore_subsys/a23_dualcore_subsys.sv
-${SOCBLOX}/systems/a23_dualcore/a23_dualcore_sys.sv
+${SOCBLOX}/units/a23_unicore_subsys/a23_unicore_subsys.sv
+${SOCBLOX}/systems/a23_unicore/a23_unicore_sys.sv
 
-${SOCBLOX}/systems_ve/a23_dualcore_sys/tb/a23_dualcore_sys_tb.sv
+${SOCBLOX}/systems_ve/a23_unicore_sys/tb/a23_unicore_sys_tb.sv
 
 

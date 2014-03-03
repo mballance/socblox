@@ -18,6 +18,7 @@ class uart_bfm :
 	svf_component_ctor_decl(uart_bfm)
 
 	public:
+		svf_api_publisher_port<uart_bfm_listener_if>			ap;
 		svf_bidi_api_port<uart_bfm_host_if, uart_bfm_target_if>	bfm_port;
 
 

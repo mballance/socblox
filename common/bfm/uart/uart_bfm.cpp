@@ -47,6 +47,7 @@ void uart_bfm::rx_done(uint8_t ch)
 {
 	m_rx_mutex.lock();
 	m_ch = ch;
+	ap(&uart_bfm_listener_if::getc, (int)ch);
 	m_rx_cond.notify();
 	m_rx_mutex.unlock();
 }

@@ -45,9 +45,6 @@ module wb_sram_bfm #(
 			if (slave.STB && slave.CYC) begin
 				if (slave.WE) begin
 					ram[slave.ADR[MEM_ADDR_BITS+WIDTH_BITS-1:WIDTH_BITS]] <= slave.DAT_W;
-					$display("%t %m: write ram[%0d] = 'h%08h", $time,
-							slave.ADR[MEM_ADDR_BITS+WIDTH_BITS-1:WIDTH_BITS],
-							slave.DAT_W);
 				end
 				slave.ACK <= 1;
 			end

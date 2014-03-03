@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include "a23_memory.h"
 
-extern char *__heap_start;
+extern unsigned char __heap_start;
 //extern char *__heap_end;
 
 typedef struct free_block {
@@ -21,7 +21,7 @@ void *sbrk(size_t incr) {
   char *prev_heap;
 
   if (heap == 0) {
-    heap = (unsigned char *)__heap_start;
+    heap = (unsigned char *)&__heap_start;
   }
   prev_heap = heap;
   heap += incr;

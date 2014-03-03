@@ -9,6 +9,24 @@
 #define UART_BFM_IF_H_
 #include "svf.h"
 
+class uart_bfm_if {
+	public:
+
+		virtual ~uart_bfm_if() {}
+
+		virtual int getc() = 0;
+
+		virtual void putc(char ch) = 0;
+};
+
+class uart_bfm_listener_if {
+	public:
+
+		virtual ~uart_bfm_listener_if() {}
+
+		virtual void getc(int ch) = 0;
+};
+
 class uart_bfm_target_if {
 
 	public:

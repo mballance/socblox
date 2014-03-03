@@ -18,9 +18,9 @@ module a23_unicore_sys_tb(input clk);
 	
 	initial begin
 		forever begin
-			#10ns;
+			#5;
 			clk_r <= 1;
-			#10ns;
+			#5;
 			clk_r <= 0;
 		end
 	end
@@ -60,7 +60,10 @@ module a23_unicore_sys_tb(input clk);
 		.u2  (co2bfm.dce )
 		);
 
-	uart_bfm u_uart_bfm (
+	uart_bfm #(
+			.CLK_PERIOD(10),
+			.UART_BAUD(230400)
+			) u_uart_bfm (
 		.i_clk       (clk      ), 
 		.u           (co2bfm.dte)
 		);
