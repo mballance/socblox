@@ -3,7 +3,7 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 
 MEMORY {
-	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 4k
+	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 16k
 	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 16k
 }
 

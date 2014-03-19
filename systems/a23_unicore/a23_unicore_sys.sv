@@ -70,8 +70,8 @@ module a23_unicore_sys(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32    ), 
 		.AXI4_ID_WIDTH       (MASTER_ID_WIDTH),
-		.SLAVE0_ADDR_BASE    ('h00000000    ), 
-		.SLAVE0_ADDR_LIMIT   ('h00000000 + (4096*1)-1  ),
+		.SLAVE0_ADDR_BASE    ('h00000000  ), 
+		.SLAVE0_ADDR_LIMIT   ('h00003fff  ),
 		.SLAVE1_ADDR_BASE    ('h20000000  ),
 		.SLAVE1_ADDR_LIMIT   ('h20003fff  ),
 		.SLAVE2_ADDR_BASE    (PERIPH_BASE_ADDR + (4096*1)    ), 
@@ -85,9 +85,9 @@ module a23_unicore_sys(
 		.s2                  (ic2uart.master	));
 	
 	axi4_rom #(
-		.MEM_ADDR_BITS      (10     ), 
+		.MEM_ADDR_BITS      (12 ), 
 		.AXI_ADDRESS_WIDTH  (32 ), 
-		.AXI_DATA_WIDTH     (32    ), 
+		.AXI_DATA_WIDTH     (32 ), 
 		.AXI_ID_WIDTH       (SLAVE_ID_WIDTH), 
 		.INIT_FILE          (`BOOT_ROM_FILE)
 		) boot_rom (
@@ -144,13 +144,80 @@ module a23_unicore_sys(
 		.WB_DWIDTH   (32      ), 
 		.WB_SWIDTH   (32      ), 
 		.CLK_PERIOD  (10      ), 
-		.UART_BAUD   (230400  )
+//		.UART_BAUD   (230400  )
+//		.UART_BAUD   (921600  )
+		.UART_BAUD   (3686400 )
 		) u_uart (
 		.i_clk       (clk            ), 
 		.slave       (wbic2uart.slave), 
 		.o_uart_int  (o_uart_int     ), 
 		.u           (u)
 		);
+
+`ifdef UNDEFINED
+	reg [7:0]		data;
+	reg [31:0]		bit_cnt = 'h19;
+	reg [31:0]		bit_cnt2;
+	reg [3:0]		bit_cnt3;
+	reg	[3:0]		bit_state;
+
+	always @(posedge brdclk) begin
+		if (rstn == 0) begin
+//			bit_cnt <= 0;
+			data <= 0;
+			bit_state <= 0;
+		end else begin
+			case (bit_state)
+				0: begin
+//					bit_cnt <= 0;
+					if (u.txd == 0) begin
+						bit_cnt2 <= 0;
+						bit_state <= 1;
+					end 
+				end
+				
+				1: begin
+					if (bit_cnt2 >= bit_cnt) begin
+						bit_cnt2 <= 0;
+						bit_cnt3 <= 0;
+						bit_state <= 2;
+					end else begin
+						bit_cnt2 <= bit_cnt2 + 1;
+					end
+				end
+				
+				2: begin
+					if (bit_cnt2 >= bit_cnt[31:1]) begin
+						data <= {u.txd, data[7:1]};
+						bit_state <= 3;
+					end else begin
+						bit_cnt2 <= bit_cnt2 + 1;
+					end
+				end
+				
+				3: begin
+					if (bit_cnt2 >= bit_cnt) begin
+						if (bit_cnt3 == 7) begin
+							bit_state <= 4;
+						end else begin
+							bit_state <= 2;
+							bit_cnt2 <= 0;
+							bit_cnt3 <= bit_cnt3 + 1;
+						end
+					end else begin
+						bit_cnt2 <= bit_cnt2 + 1;
+					end
+				end
+				
+				4: begin
+					if (u.txd == 1) begin
+						bit_state <= 0;
+					end
+				end
+			endcase
+		end
+	end	
+`endif	
 
 endmodule
 

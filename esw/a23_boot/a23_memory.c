@@ -17,7 +17,7 @@ static const size_t align_to = 16;
 
 static void *heap = 0;
 
-void *sbrk(size_t incr) {
+void *_sbrk(size_t incr) {
   char *prev_heap;
 
   if (heap == 0) {
@@ -29,6 +29,7 @@ void *sbrk(size_t incr) {
   return prev_heap;
 }
 
+#ifdef UNDEFINED
 void* malloc(size_t size) {
     size = (size + sizeof(size_t) + (align_to - 1)) & ~ (align_to - 1);
     free_block* block = free_block_list_head.next;
@@ -53,4 +54,5 @@ void free(void* ptr) {
     block->next = free_block_list_head.next;
     free_block_list_head.next = block;
 }
+#endif /* UNDEFINED */
 

@@ -49,6 +49,7 @@ _cstartup:
  */
 
 	/* Relocate the .data section from ROM to RAM */
+/** TODO:
 	LDR			r0, =__data_load
 	LDR			r1, =__data_start
 	LDR			r2, =_edata
@@ -58,6 +59,7 @@ _cstartup:
 	LDMLTIA		r0!, {r3}
 	STMLTIA		r1!, {r3}
 	BLT			1b
+ */
 
 	/* Clear .bss */
 	LDR			r1, =__bss_start__
