@@ -43,6 +43,6 @@ $(BUILD_DIR)/baremetal_tests/%.elf : \
 	if test ! -d $(BUILD_DIR)/baremetal_tests; then mkdir -p $(BUILD_DIR)/baremetal_tests; fi
 	$(TARGET_LD) $(TARGET_LDFLAGS) -o $@ \
 		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal.lds $^ \
-		$(A23_LIBGCC)
+		$(A23_LIBC) $(A23_LIBGCC)
 
 endif

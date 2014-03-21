@@ -256,7 +256,7 @@ always @( posedge i_clk )
         begin
         
             // Interrupts override instructions that are just starting
-        if ( interrupt_d1 == 3'd0 || interrupt_d1 == 3'd7 )
+        if ( interrupt_d1 == 3'd0 || interrupt_d1 == 3'd7 , op_args)
             begin
             $fwrite(decompile_file,"%09d  ", `U_TB.clk_count);
             

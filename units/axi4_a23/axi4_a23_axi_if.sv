@@ -128,7 +128,7 @@ assign master.ARREGION = 0;
 		case (read_state)
 			0: begin
 				if (cache_read_request) begin
-					$display("CACHE READ: 'h%08h", i_address);
+//					$display("CACHE READ: 'h%08h", i_address);
 					read_state <= 3;
 				end else if (core_read_request) begin
 					read_state <= 1;
@@ -226,7 +226,10 @@ assign master.ARREGION = 0;
 	assign write_ack = (write_state == 3 && master.BREADY && master.BVALID);
 	assign cache_write_ack = (write_state == 6 && master.BREADY && master.BVALID);
 	
-	assign o_stall_cache = (cache_read_request && ~cache_read_ack);
+	assign o_stall_cache = (
+		(cache_read_request && ~cache_read_ack) ||
+		(cache_write_request && ~cache_write_ack)
+		);
 	
 //	assign core_read_request    = i_select && !i_write_enable;
 //	assign core_write_request   = i_select &&  i_write_enable;

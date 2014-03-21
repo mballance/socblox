@@ -81,16 +81,37 @@ wire                        sel_wb;
 wire                        cache_wb_req;
 wire                        address_cachable;
 
+`ifdef UNDEFINED
 always @(posedge i_clk) begin
 	if (i_address_valid && !o_fetch_stall) begin
 		$display("FETCH: 'h%08h 'h%08h", i_address, o_read_data);
 	end
 end
+`endif
 
 // ======================================
 // Memory Decode
 // ======================================
-assign address_cachable  = /*in_cachable_mem( i_address ) &&*/ i_cacheable_area[i_address[25:21]];
+// assign address_cachable  = /*in_cachable_mem( i_address ) &&*/ i_cacheable_area[i_address[25:21]];
+// 10 - 1024
+// 11 - 2048
+// 11 - 4096
+// 12 - 8192
+// 13 - 16384
+// 14 - 32768
+// 16 - 64k
+// 17 - 128k
+// 18 - 256k
+// 19 - 512k
+// 20 - 1m
+// 21 - 2m
+// 22 - 4m
+// 23 - 8m
+// 24 - 16m
+// 25 - 32m
+// 26 - 64m
+// 27 - 128m
+assign address_cachable  = /*in_cachable_mem( i_address ) &&*/ i_cacheable_area[i_address[31:27]];
 
 assign sel_cache         = address_cachable && i_address_valid && i_cache_enable &&  !i_exclusive;
 

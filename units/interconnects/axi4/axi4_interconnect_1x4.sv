@@ -497,7 +497,6 @@ module axi4_interconnect_1x4 #(
 					// Wait receipt of a request for an available target
 						'b00: begin
 							if (AWREADY[m_aw_i] && AWVALID[m_aw_i] && !write_request_busy[m_aw_i]) begin
-								$display("Write request");
 								R_AWADDR_i[m_aw_i] <= AWADDR[m_aw_i];
 								// Save the master ID that this request came from
 								R_AWID[m_aw_i][(N_MASTERID_BITS+AXI4_ID_WIDTH)-1:AXI4_ID_WIDTH] <= m_aw_i;

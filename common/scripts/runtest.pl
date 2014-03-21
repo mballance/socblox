@@ -296,6 +296,9 @@ sub build {
     chdir("$builddir");
 
     # First, build the testbench
+    unless ( -d "${SIM_DIR}/scripts" ) {
+    	die "No 'scripts' directory present\n";
+    }
     open(CP, "make -j ${max_par} -f ${SIM_DIR}/scripts/Makefile SIM=${sim} build |");
     open(LOG,"> ${builddir}/compile.log");
     while (<CP>) {

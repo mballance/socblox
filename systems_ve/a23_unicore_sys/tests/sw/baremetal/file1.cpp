@@ -1,6 +1,8 @@
 
 #include "wb_uart_driver.h"
 #include "a23_unicore_registers.h"
+#include <stdio.h>
+#include <string.h>
 
 class c1 {
 	public: int			i1;
@@ -18,6 +20,7 @@ static c1		c2_inst;
 static c1		c3_inst;
 static c1		c4_inst;
 static int		cnt = 0;
+static char		tmp[1024];
 
 int main(int argc, char **argv) {
 	volatile int *cnt_p = &cnt;
@@ -29,7 +32,24 @@ int main(int argc, char **argv) {
 
 	uart_drv->init((void *)A23_UNICORE_UART_BASE);
 
-	uart_drv->write("Hello\n", 6);
+	while (1) {
+		uart_drv->write("Hello\n", 6);
+
+/*
+		for (int i=0; i<1000000; i++) {
+			(*cnt_p)++;
+		}
+ */
+
+		sprintf(tmp, "Hello World\n");
+		uart_drv->write(tmp, strlen(tmp));
+
+/*
+		for (int i=0; i<1000000; i++) {
+			(*cnt_p)++;
+		}
+ */
+	}
 
 //	(*ptr) = 0xFFAAEE55;
 

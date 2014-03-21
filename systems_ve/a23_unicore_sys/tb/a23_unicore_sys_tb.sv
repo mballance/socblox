@@ -62,7 +62,10 @@ module a23_unicore_sys_tb(input clk);
 
 	uart_bfm #(
 			.CLK_PERIOD(10),
-			.UART_BAUD(230400)
+//			.UART_BAUD(230400)
+//			.UART_BAUD(921600)
+//			.UART_BAUD(3686400)
+			.UART_BAUD(7372800)
 			) u_uart_bfm (
 		.i_clk       (clk      ), 
 		.u           (co2bfm.dte)

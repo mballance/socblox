@@ -80,5 +80,6 @@ module a23_unicore_subsys #(
 		.ARESETn            (rstn           ), 
 		.s                  (ic2s0.slave    ));
 
+
 endmodule
 

@@ -64,8 +64,6 @@ module axi4_rom #(
     		case (write_state) 
     			2'b00: begin // Wait Address state
     				if (s.AWVALID == 1'b1 && s.AWREADY == 1'b1) begin
-    					$display("%m: write_addr='h%08h AWADDR='h%08h", 
-    							s.AWADDR, s.AWADDR[MEM_ADDR_BITS+2:2]);
     					write_addr <= s.AWADDR[MEM_ADDR_BITS+2:2];
     					write_id <= s.AWID;
     					write_count <= 0;
@@ -75,7 +73,7 @@ module axi4_rom #(
     			
     			2'b01: begin // Wait for write data
     				if (s.WVALID == 1'b1 && s.WREADY == 1'b1) begin
-    					$display("%m: write 'h%08h='h%08h", (write_addr+write_count), s.WDATA);
+    					$display("%m: Error: write 'h%08h='h%08h", (write_addr+write_count), s.WDATA);
  //   					ram[write_addr + write_count] <= s.WDATA;
     					if (s.WLAST == 1'b1) begin
     						write_state <= 2;

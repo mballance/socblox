@@ -37,7 +37,7 @@ void a23_unicore_sys_env::connect() {
 	m_m2_mgr->connect(m_m2);
 	 */
 
-	m_mem_mgr->add_region(m_bootrom, 0x00000000, 0x00000FFF);
+	m_mem_mgr->add_region(m_bootrom, 0x00000000, 0x00003FFF);
 	m_mem_mgr->add_region(m_ram, 0x20000000, 0x20003FFF);
 
 	m_uart->ap.connect(m_uart_bfm_monitor->port);
