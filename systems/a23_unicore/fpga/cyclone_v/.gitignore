@@ -1,4 +1,19 @@
+
 db/
+hps/
 hc_output/
+.qsys_edit/
 *.rpt
+*.done
+*.dpf
+*.smsg
+*.summary
+*.jdi
+*.qws
+*.sof
+*.ddb
+*.hex
+*.v
+incremental_db/
+output/
 
