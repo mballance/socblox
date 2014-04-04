@@ -146,7 +146,8 @@ module a23_unicore_sys(
 		.CLK_PERIOD  (10      ), 
 //		.UART_BAUD   (230400  )
 //		.UART_BAUD   (921600  )
-		.UART_BAUD   (3686400 )
+//		.UART_BAUD   (3686400 )
+		.UART_BAUD   (7372800 )
 		) u_uart (
 		.i_clk       (clk            ), 
 		.slave       (wbic2uart.slave), 

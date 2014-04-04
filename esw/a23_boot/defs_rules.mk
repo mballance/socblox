@@ -1,5 +1,5 @@
 
-ifeq (,$(RULES))
+ifneq (1,$(RULES))
 
 else
 

@@ -1,5 +1,5 @@
 
-ifeq (,$(RULES))
+ifneq (1,$(RULES))
 
 SRC_DIRS := $(SRC_DIRS) $($(UNIT_NAME)_DIR)
 # SRC_DIRS += $($(UNIT_NAME)_DIR)

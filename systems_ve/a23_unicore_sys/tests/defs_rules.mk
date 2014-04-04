@@ -1,5 +1,5 @@
 
-ifeq (,$(RULES))
+ifneq (1,$(RULES))
 
 TESTS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 

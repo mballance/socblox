@@ -1,5 +1,5 @@
 
-ifeq (,$(RULES)) 
+ifneq (1,$(RULES)) 
 
 STIM_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 

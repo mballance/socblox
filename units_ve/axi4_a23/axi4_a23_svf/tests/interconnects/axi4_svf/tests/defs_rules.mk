@@ -1,5 +1,5 @@
 
-ifeq (,$(RULES))
+ifneq (1,$(RULES))
 
 AXI4_2X2_TESTS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 

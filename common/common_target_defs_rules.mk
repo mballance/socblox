@@ -1,19 +1,19 @@
 
-ifeq (,$(RULES))
+ifneq (1,$(RULES))
 
 else
 
 $(BUILD_DIR)/target_objs/%.o : %.S
 	if test ! -d $(BUILD_DIR)/target_objs; then mkdir -p $(BUILD_DIR)/target_objs; fi
-	$(TARGET_CC) -c $(TARGET_CFLAGS) $^ -o $@
+	$(CC) -c $(CFLAGS) $^ -o $@
 	
 $(BUILD_DIR)/target_objs/%.o : %.cpp
 	if test ! -d $(BUILD_DIR)/target_objs; then mkdir -p $(BUILD_DIR)/target_objs; fi
-	$(TARGET_CXX) -c $(TARGET_CXXFLAGS) $^ -o $@
+	$(CXX) -c $(CXXFLAGS) $^ -o $@
 	
 $(BUILD_DIR)/target_objs/%.o : %.c
 	if test ! -d $(BUILD_DIR)/target_objs; then mkdir -p $(BUILD_DIR)/target_objs; fi
-	$(TARGET_CC) -c $(TARGET_CFLAGS) $^ -o $@
+	$(CC) -c $(CFLAGS) $^ -o $@
 
 endif
 	

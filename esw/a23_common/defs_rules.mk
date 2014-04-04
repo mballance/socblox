@@ -1,5 +1,5 @@
 
-ifeq (,$(RULES))
+ifneq (1,$(RULES))
 
 A23_CROSSTOOL = arm-none-eabi
 A23_CC  = $(A23_CROSSTOOL)-gcc

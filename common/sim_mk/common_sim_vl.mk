@@ -19,16 +19,17 @@ ifeq ($(SIMX),1)
 include V$(TB).mk
 endif
 
-vlog_build :
-	rm -rf obj_dir
-	verilator $(TRACE) --sc -Wno-fatal \
-		--top-module $(TOP_MODULE) \
-		$(VL_VLOG_ARGS) \
-		$(VLOG_ARGS) 
+-include verilator.d
 
-build : $(LIB_TARGETS) $(TARGET_EXE_TARGETS) $(TESTBENCH_OBJS) vlog_build
-	echo "build: $(TESTBENCH_OBJS)"
-	echo "build: LIBSVF_SC_LINK=$(LIBSVF_SC_LINK)"
+vlog_build : $(VERILATOR_DEPS)
+	rm -rf obj_dir
+	verilator $(TRACE) --sc -Wno-fatal -MMD \
+		--top-module $(TOP_MODULE) \
+		$(VL_VLOG_ARGS) $(VLOG_ARGS) 
+	sed -e 's/^[^:]*: /VERILATOR_DEPS=/' obj_dir/V$(TB)__ver.d > verilator.d
+	touch $@
+
+build : $(LIB_TARGETS) $(EXE_TARGETS) $(TESTBENCH_OBJS) target_build vlog_build
 	$(MAKE) SOCBLOX=$(SOCBLOX) TB=$(TB) SIMX=1 TESTBENCH_OBJS="$(TESTBENCH_OBJS)" \
 	    VERILATOR_TRACE_EN=$(VERILATOR_TRACE_EN) BFM_LIBS="$(BFM_LIBS)" \
 	    LIBSVF_LINK="$(LIBSVF_LINK)" \

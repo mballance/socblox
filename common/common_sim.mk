@@ -5,11 +5,12 @@ TIMEOUT ?= 1ms
 
 COMMON_SIM_MK := $(lastword $(MAKEFILE_LIST))
 COMMON_SIM_MK_DIR := $(dir $(COMMON_SIM_MK))
+export COMMON_SIM_MK_DIR
 
 DLLEXT=.so
 LIBPREF=lib
-SVF_LIBDIR = $(BUILD_DIR)/libs
-SVF_OBJDIR = $(BUILD_DIR)/objs
+SVF_LIBDIR ?= $(BUILD_DIR)/libs
+SVF_OBJDIR ?= $(BUILD_DIR)/objs
 
 SVF_BUILD_HOST_WRAPPERS := 0
 
@@ -29,7 +30,7 @@ vpath %.cpp $(SRC_DIRS)
 vpath %.S $(SRC_DIRS)
 vpath %.c $(SRC_DIRS)
 
-.phony: all build run vlog_build
+.phony: all build run target_build
 
 all :
 	echo "Error: Specify target of build or run
@@ -37,7 +38,11 @@ all :
 
 include $(COMMON_SIM_MK_DIR)/sim_mk/common_sim_$(SIM).mk	
 
-build : $(LIB_TARGETS) $(TARGET_EXE_TARGETS) $(TESTBENCH_OBJS) vlog_build
+target_build :
+	echo "BUILD:" 
+	if test "x$(TARGET_MAKEFILE)" != "x"; then \
+		$(MAKE) -f $(TARGET_MAKEFILE) build; \
+	fi
 
 QS_VLOG_ARGS += $(SOCBLOX)/svf/dpi/svf_pkg.sv
 VL_VLOG_ARGS += $(SOCBLOX)/svf/sc/svf_pkg.sv

@@ -20,6 +20,7 @@ CXXFLAGS += -I$(SOCBLOX)/common/bfm/axi4_svf
 CXXFLAGS += -I$(BUILD_DIR)/obj_dir
 CXXFLAGS += -I$(VERILATOR_ROOT)/include
 CXXFLAGS += -I$(VERILATOR_ROOT)/include/vltstd
+CXXFLAGS += $(foreach i, $(SRC_DIRS), -I$(i))
 
 CXXFLAGS += -I$(AXI4_SVF)/tb -I$(AXI4_SVF)/tests
 
@@ -68,7 +69,7 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) \
           $(VK_GLOBAL_OBJS) \
           -L$(SOCBLOX_LIBDIR) \
           -L$(SOCBLOX_LIBDIR)/sc \
-          	$(BFM_AXI4_SVF_SRAM_LINK) \
+          	$(SVF_AXI4_SRAM_LINK) \
 		$(COMMON_SVF_LINK) \
           	$(LIBSVF_SC_LINK) \
 	  $(SYSTEMC)/lib-linux/libsystemc.a -lpthread

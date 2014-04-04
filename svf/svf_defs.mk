@@ -1,12 +1,16 @@
+#****************************************************************************
+#* 
+#****************************************************************************
 
 SVF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-ifeq (,$(RULES))
 SVF_LIBDIR ?= .
 SVF_OBJDIR ?= .
 SVF_BUILD_CORE_DLL ?= 1
 SVF_BUILD_SIM_WRAPPERS ?= 1
 SVF_BUILD_HOST_WRAPPERS ?= 1
+LIBPREF ?= lib
+DLLEXT ?= .so
 
 SRC_DIRS += $(SVF_DIR) $(SVF_DIR)/dpi $(SVF_DIR)/host $(SVF_DIR)/sc $(SVF_DIR)/utils
 SRC_DIRS += $(SVF_DIR)/
@@ -102,8 +106,6 @@ CXXFLAGS += -I$(SOCBLOX)/svf
 CXXFLAGS += -I$(SOCBLOX)/svf/dpi
 CXXFLAGS += -I$(SOCBLOX)/svf/utils
 
-else
-
 $(LIBSVF_AR) : $(SVF_OBJS)
 
 $(LIBSVF) : $(SVF_OBJS)
@@ -115,7 +117,4 @@ $(LIBSVF_DPI) : $(SVF_DPI_OBJS)
 $(LIBSVF_SC_QS) : $(SVF_SC_QS_OBJS)
 
 $(LIBSVF_DPI_DPI) : $(LIBSVF_DPI_OBJS)
-
-
-endif
 
