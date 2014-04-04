@@ -9,6 +9,7 @@
 #define SVF_CMDLINE_H_
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 using namespace std;
 

@@ -6,14 +6,22 @@ TIMEOUT ?= 1ms
 COMMON_SIM_MK := $(lastword $(MAKEFILE_LIST))
 COMMON_SIM_MK_DIR := $(dir $(COMMON_SIM_MK))
 
-include $(SOCBLOX)/defs.mk
+DLLEXT=.so
+LIBPREF=lib
+SVF_LIBDIR = $(BUILD_DIR)/libs
+SVF_OBJDIR = $(BUILD_DIR)/objs
+
+SVF_BUILD_HOST_WRAPPERS := 0
+
+# include $(SOCBLOX)/defs.mk
+include $(COMMON_SIM_MK_DIR)/common_defs.mk
 include $(MK_INCLUDES)
 
 CXXFLAGS += -I$(SOCBLOX)/svf
 CXXFLAGS += $(foreach dir, $(SRC_DIRS), -I$(dir))
 
 BFM_LIBS += $(foreach bfm, $(BFMS), $($(bfm)_LIB))
-CXXFLAGS += $(foreach bfm, $(BFMS), -I$($(bfm)_DIR))
+# CXXFLAGS += $(foreach bfm, $(BFMS), -I$($(bfm)_DIR))
 
 LIB_TARGETS += $(BFM_LIBS)
 
@@ -43,10 +51,29 @@ LD_LIBRARY_PATH := $(foreach path,$(BFM_LIBS),$(dir $(path)):)$(LD_LIBRARY_PATH)
 export LD_LIBRARY_PATH
 
 RULES := 1
-include $(SOCBLOX)/rules.mk
+# include $(SOCBLOX)/rules.mk
+include $(COMMON_SIM_MK_DIR)/common_rules.mk
 include $(MK_INCLUDES)
 
-$(BUILD_DIR)/objs/%.o : %.cpp
-	if test ! -d $(BUILD_DIR)/objs; then mkdir -p $(BUILD_DIR)/objs; fi
+$(SVF_OBJDIR)/%.o : %.cpp
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(CXX) -c -o $@ $(CXXFLAGS) $^
+	
+$(SVF_LIBDIR)/%.a : 
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	rm -f $@
+	ar vcq $@ $^
+	
+$(SVF_LIBDIR)/sc/%.so : 
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(LINK) -shared -o $@ $^
+	
+$(SVF_LIBDIR)/dpi/%.so : 
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(LINK) -shared -o $@ $^
+	
+$(SVF_LIBDIR)/sc_qs/%.so : 
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(LINK) -shared -o $@ $^
 
+	
