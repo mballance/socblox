@@ -59,6 +59,7 @@
 module axi4_a23_axi_if
 (
 input                       i_clk,
+input						i_rstn,
 
 // Core Accesses to Wishbone bus
 input                       i_select,
@@ -85,8 +86,6 @@ localparam [3:0] WB_IDLE            = 3'd0,
                  WB_BURST2          = 3'd2,
                  WB_BURST3          = 3'd3,
                  WB_WAIT_ACK        = 3'd4;
-
-reg     [2:0]               wishbone_st = WB_IDLE;
 
 wire                        core_read_request;
 wire                        core_write_request;
@@ -125,6 +124,13 @@ assign master.ARREGION = 0;
 
 	// Read logic
 	always @(posedge i_clk) begin
+		if (i_rstn == 0) begin
+			wbuf_addr_r <= 0;
+			wbuf_sel_r <= 0;
+			wbuf_busy_r <= 0;
+			read_state <= 0;
+			data_valid <= 0;
+		end else begin
 		case (read_state)
 			0: begin
 				if (cache_read_request) begin
@@ -161,12 +167,16 @@ assign master.ARREGION = 0;
 				end
 			end
 		endcase
+		end
 	end
 	
 	reg[3:0]				write_state = 0;
 	
 	// Write logic
 	always @(posedge i_clk) begin
+		if (i_rstn == 0) begin
+			write_state <= 0;
+		end else begin
 		case (write_state)
 			0: begin
 				if (cache_write_request) begin
@@ -219,6 +229,7 @@ assign master.ARREGION = 0;
 				end
 			end
 		endcase
+		end
 	end
 	
 	assign read_ack = (read_state == 2 && master.RVALID && master.RREADY);
@@ -287,159 +298,5 @@ assign master.ARREGION = 0;
 	 */
 	
 
-`ifdef UNDEFINED
-assign read_ack             = !o_wb_we && i_wb_ack;
-assign o_stall              = ( core_read_request  && !read_ack )       || 
-                              ( core_read_request  && servicing_cache ) ||
-                              ( core_write_request && servicing_cache ) ||
-                              ( core_write_request && wishbone_st == WB_WAIT_ACK) ||
-                              ( cache_write_request && wishbone_st == WB_WAIT_ACK) ||
-                              wbuf_busy_r;
-
-                              // Don't stall on writes
-                              // Wishbone is doing burst read so make core wait to execute the write
-                              // ( core_write_request && !i_wb_ack )  ;
-                              
-
-assign wb_wait              = o_wb_stb && !i_wb_ack;
-assign start_access         = (core_read_request || core_write_request || i_cache_req) && !wb_wait ;
-
-// For writes the byte enable is always 4'hf
-assign byte_enable          = wbuf_busy_r                                   ? wbuf_sel_r    :
-                              ( core_write_request || cache_write_request ) ? i_byte_enable : 
-                                                                              4'hf          ;
-                                    
-
-
-
-    
-// ======================================
-// Register Accesses
-// ======================================
-always @( posedge i_clk )
-    if ( start_access )
-        o_wb_dat <= i_write_data;
-
-
-assign wait_write_ack = o_wb_stb && o_wb_we && !i_wb_ack;
-
-
-always @( posedge i_clk )
-    case ( wishbone_st )
-        WB_IDLE :
-            begin 
-                
-            if ( start_access )
-                begin
-                o_wb_stb            <= 1'd1; 
-                o_wb_cyc            <= 1'd1; 
-                o_wb_sel            <= byte_enable;
-                end
-            else if ( !wait_write_ack )
-                begin
-                o_wb_stb            <= 1'd0;
-                
-                // Hold cyc high after an exclusive access
-                // to hold ownership of the wishbone bus
-                o_wb_cyc            <= exclusive_access;
-                end
-
-            // cache has priority over the core                     
-            servicing_cache <= cache_read_request && !wait_write_ack;
-
-            if ( wait_write_ack )
-                begin
-                // still waiting for last (write) access to complete
-                wishbone_st      <= WB_WAIT_ACK;
-                end  
-            // do a burst of 4 read to fill a cache line                   
-            else if ( cache_read_request )
-                begin
-                wishbone_st         <= WB_BURST1;
-                exclusive_access    <= 1'd0;
-                end                    
-            else if ( core_read_request )
-                begin
-                wishbone_st         <= WB_WAIT_ACK;
-                exclusive_access    <= i_exclusive;
-                end                    
-           // The core does not currently issue exclusive write requests
-           // but there's no reason why this might not be added some
-           // time in the future so allow for it here
-            else if ( core_write_request )
-                exclusive_access <= i_exclusive;
-
-                            
-            if ( start_access )
-                begin
-                if (wbuf_busy_r)
-                    begin
-                    o_wb_we              <= 1'd1;
-                    o_wb_adr[31:2]       <= wbuf_addr_r[31:2];
-                    end
-                else
-                    begin
-                    o_wb_we              <= core_write_request || cache_write_request;
-                    // only update these on new wb access to make debug easier
-                    o_wb_adr[31:2]       <= i_address[31:2];
-                    end
-                    
-                o_wb_adr[1:0]        <= byte_enable == 4'b0001 ? 2'd0 :
-                                        byte_enable == 4'b0010 ? 2'd1 :
-                                        byte_enable == 4'b0100 ? 2'd2 :
-                                        byte_enable == 4'b1000 ? 2'd3 :
-                                       
-                                        byte_enable == 4'b0011 ? 2'd0 :
-                                        byte_enable == 4'b1100 ? 2'd2 :
-                                       
-                                                                 2'd0 ;
-                end
-            end
-                    
-
-        // Read burst, wait for first ack
-        WB_BURST1:  
-            if ( i_wb_ack )
-                begin
-                // burst of 4 that wraps
-                o_wb_adr[3:2]   <= o_wb_adr[3:2] + 1'd1;
-                wishbone_st     <= WB_BURST2;
-                end
-            
-            
-        // Read burst, wait for second ack
-        WB_BURST2:  
-            if ( i_wb_ack )
-                begin
-                // burst of 4 that wraps
-                o_wb_adr[3:2]   <= o_wb_adr[3:2] + 1'd1;
-                wishbone_st     <= WB_BURST3;
-                end
-            
-            
-        // Read burst, wait for third ack
-        WB_BURST3:  
-            if ( i_wb_ack )
-                begin
-                // burst of 4 that wraps
-                o_wb_adr[3:2]   <= o_wb_adr[3:2] + 1'd1;
-                wishbone_st     <= WB_WAIT_ACK;
-                end
-
-
-        // Wait for the wishbone ack to be asserted
-        WB_WAIT_ACK:   
-            if ( i_wb_ack )
-                begin
-                wishbone_st         <= WB_IDLE;
-                o_wb_stb            <= 1'd0; 
-                o_wb_cyc            <= exclusive_access; 
-                o_wb_we             <= 1'd0;
-                servicing_cache     <= 1'd0;
-                end
-                         
-    endcase
-`endif
-        
 endmodule
 

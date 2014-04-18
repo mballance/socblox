@@ -48,7 +48,6 @@ module a23_unicore_subsys #(
 		.i_rstn          (rstn				), 
 		.i_irq           (i_irq          ), 
 		.i_firq          (i_firq         ), 
-		.i_system_rdy    (i_system_rdy   ), 
 		.master          (a23_0_2ic.master ));
 	
 	always @(posedge clk) begin

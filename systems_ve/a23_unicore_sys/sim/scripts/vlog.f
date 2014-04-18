@@ -22,6 +22,7 @@ ${SOCBLOX}/common/bfm/uart/uart_bfm.sv
 ${SOCBLOX}/units/a23_unicore_subsys/a23_unicore_subsys.sv
 ${SOCBLOX}/systems/a23_unicore/a23_unicore_sys.sv
 
+${SOCBLOX}/units/timer/timer.sv
 ${SOCBLOX}/systems_ve/a23_unicore_sys/tb/a23_unicore_sys_tb.sv
 
 

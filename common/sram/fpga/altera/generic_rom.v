@@ -42,11 +42,21 @@ module generic_rom #(
 			input [ADDRESS_WIDTH-1:0]	i_address,
 			output [DATA_WIDTH-1:0]		o_read_data
 		);
+	
+	wire[DATA_WIDTH-1:0]		read_data;
+
+	/*
+	assign o_read_data[31:24] = read_data[7:0];
+	assign o_read_data[23:16] = read_data[15:8];
+	assign o_read_data[15:8] = read_data[23:16];
+	assign o_read_data[7:0] = read_data[31:24];
+	 */
+	assign o_read_data = read_data;
 
 	altsyncram	altsyncram_component (
 				.address_a (i_address),
 				.clock0 (i_clk),
-				.q_a (o_read_data),
+				.q_a (read_data),
 				.aclr0 (1'b0),
 				.aclr1 (1'b0),
 				.address_b (1'b1),
@@ -78,7 +88,7 @@ module generic_rom #(
 		altsyncram_component.numwords_a = (1 << ADDRESS_WIDTH),
 		altsyncram_component.operation_mode = "ROM",
 		altsyncram_component.outdata_aclr_a = "NONE",
-		altsyncram_component.outdata_reg_a = "UNREGISTERED",
+		altsyncram_component.outdata_reg_a = "CLOCK0",
 		altsyncram_component.widthad_a = ADDRESS_WIDTH,
 		altsyncram_component.width_a = DATA_WIDTH,
 		altsyncram_component.width_byteena_a = 1;

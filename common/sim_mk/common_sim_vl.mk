@@ -21,21 +21,28 @@ endif
 
 -include verilator.d
 
+#VL_DEBUG_FLAGS=
+#VL_DEBUG_FLAGS=--debug
+#VL_DEBUG_FLAGS=--debug --gdbbt
+
 vlog_build : $(VERILATOR_DEPS)
 	rm -rf obj_dir
-	verilator $(TRACE) --sc -Wno-fatal -MMD \
+	verilator $(TRACE) --sc -Wno-fatal -MMD $(VL_DEBUG_FLAGS) \
 		--top-module $(TOP_MODULE) \
 		$(VL_VLOG_ARGS) $(VLOG_ARGS) 
 	sed -e 's/^[^:]*: /VERILATOR_DEPS=/' obj_dir/V$(TB)__ver.d > verilator.d
 	touch $@
 
-build : $(LIB_TARGETS) $(EXE_TARGETS) $(TESTBENCH_OBJS) target_build vlog_build
+build : simx_build $(EXE_TARGETS) target_build
+		
+simx_build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS) 		
 	$(MAKE) SOCBLOX=$(SOCBLOX) TB=$(TB) SIMX=1 TESTBENCH_OBJS="$(TESTBENCH_OBJS)" \
 	    VERILATOR_TRACE_EN=$(VERILATOR_TRACE_EN) BFM_LIBS="$(BFM_LIBS)" \
 	    LIBSVF_LINK="$(LIBSVF_LINK)" \
 	    LIBSVF_SC_LINK="$(LIBSVF_SC_LINK)" \
 	    -C obj_dir -f $(COMMON_SIM_MK) \
 		$(BUILD_DIR)/simx
+	touch $@		
 
 $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(BUILD_DIR)/objs/$(TB).o
 	$(CXX) -o $(BUILD_DIR)/simx \
@@ -55,6 +62,6 @@ $(BUILD_DIR)/objs/$(TB).o : $(SIM_DIR)/../tb/$(TB).cpp
 #********************************************************************
 #* Simulation settings
 #********************************************************************
-run : 
-	$(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) +TIMEOUT=$(TIMEOUT) -f sim.f
+run : $(SIM_DATAFILES)
+	$(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) +TIMEOUT=$(TIMEOUT) -f sim.f -trace
 

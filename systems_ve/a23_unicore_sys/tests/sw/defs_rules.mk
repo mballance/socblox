@@ -25,7 +25,7 @@ SRC_DIRS += $(WB_UART_DRIVER_DIR)
 else
 
 # $(BUILD_DIR)/target_objs/%.o
-$(BUILD_DIR)/core_tests/%.elf : $(BUILD_DIR)/target_objs/%.o
+$(BUILD_DIR)/core_tests/%.elf : $(BUILD_DIR)/target_objs/%.o $(LIB_TARGETS)
 	if test ! -d $(BUILD_DIR)/core_tests; then mkdir -p $(BUILD_DIR)/core_tests; fi
 	$(LD) $(LDFLAGS) -o $@ \
 		-T $(SIM_DIR)/../tests/sw/sections.lds $^
@@ -38,7 +38,8 @@ $(BUILD_DIR)/baremetal_tests/%.elf : \
 		$(BUILD_DIR)/target_objs/a23_unicore_low_level_init.o \
 		$(BUILD_DIR)/target_objs/a23_cpp_support.o \
 		$(BUILD_DIR)/target_objs/a23_memory.o \
-		$(BUILD_DIR)/target_objs/wb_uart_driver.o 
+		$(BUILD_DIR)/target_objs/wb_uart_driver.o \
+		$(LIB_TARGETS)
 	echo "SRC_DIRS=$(SRC_DIRS)"
 	if test ! -d $(BUILD_DIR)/baremetal_tests; then mkdir -p $(BUILD_DIR)/baremetal_tests; fi
 	$(LD) $(LDFLAGS) -o $@ \

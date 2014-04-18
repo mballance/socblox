@@ -75,7 +75,7 @@ module a23_unicore_sys(
 		.SLAVE1_ADDR_BASE    ('h20000000  ),
 		.SLAVE1_ADDR_LIMIT   ('h20003fff  ),
 		.SLAVE2_ADDR_BASE    (PERIPH_BASE_ADDR + (4096*1)    ), 
-		.SLAVE2_ADDR_LIMIT   (PERIPH_BASE_ADDR + (4096*2)-1  ) 
+		.SLAVE2_ADDR_LIMIT   (PERIPH_BASE_ADDR + (4096*3)-1  ) 
 		) axi4_interconnect_1x1 (
 		.clk                 (clk                ), 
 		.rstn                (rstn               ), 
@@ -115,6 +115,11 @@ module a23_unicore_sys(
 		.WB_DATA_WIDTH  (32 )
 		) wbic2uart ();
 	
+	wb_if #(
+		.WB_ADDR_WIDTH  (32 ), 
+		.WB_DATA_WIDTH  (32 )
+		) wbic2timer ();
+	
 	axi4_wb_bridge #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32    ), 
@@ -127,18 +132,22 @@ module a23_unicore_sys(
 		.axi_i               (ic2uart.slave      ), 
 		.wb_o                (br2wbic.master     ));
 
-	wb_interconnect_1x1 #(
+	wb_interconnect_1x2 #(
 		.WB_ADDR_WIDTH      (32     ), 
 		.WB_DATA_WIDTH      (32     ), 
 		.SLAVE0_ADDR_BASE   ('hf0001000  ), 
-		.SLAVE0_ADDR_LIMIT  ('hf0001fff  )
+		.SLAVE0_ADDR_LIMIT  ('hf0001fff  ),
+		.SLAVE1_ADDR_BASE	('hf0002000	 ),
+		.SLAVE1_ADDR_LIMIT  ('hf0002fff  )
 		) wbic (
 		.clk                (clk               ), 
 		.rstn               (rstn              ), 
 		.m0                 (br2wbic.slave     ), 
-		.s0                 (wbic2uart.master  ));
+		.s0                 (wbic2uart.master  ),
+		.s1					(wbic2timer.master ));
 
 	wire o_uart_int;
+	wire o_timer_int;
 	
 	wb_uart #(
 		.WB_DWIDTH   (32      ), 
@@ -154,6 +163,14 @@ module a23_unicore_sys(
 		.o_uart_int  (o_uart_int     ), 
 		.u           (u)
 		);
+	
+	timer_module #(
+		.WB_DWIDTH    (32   )
+		) u_timer (
+		.i_clk        (clk       		), 
+		.slave        (wbic2timer.slave  ), 
+		.o_timer_int  (o_timer_int 		));
+	
 
 `ifdef UNDEFINED
 	reg [7:0]		data;

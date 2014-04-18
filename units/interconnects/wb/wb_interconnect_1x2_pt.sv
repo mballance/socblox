@@ -18,7 +18,6 @@ module wb_interconnect_1x2_pt #(
 		input						clk,
 		input						rstn,
 		wb_if.slave					m0,
-		wb_if.slave					m1,
 		wb_if.master					s0,
 		wb_if.master					s1
 		);

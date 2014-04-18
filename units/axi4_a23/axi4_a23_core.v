@@ -53,11 +53,15 @@ input						i_rstn,
 input                       i_irq,              // Interrupt request, active high
 input                       i_firq,             // Fast Interrupt request, active high
 
-input                       i_system_rdy,       // Amber is stalled when this is low
+// input                       i_system_rdy,       // Amber is stalled when this is low
 
 // Wishbone Master I/F
 axi4_if.master				master
 );
+
+// rst is more useful to us.
+wire					  i_system_rdy;
+assign i_system_rdy = i_rstn;
 
 wire      [31:0]          execute_address;
 wire                      execute_address_valid;
@@ -156,6 +160,7 @@ assign decode_fault         = dabt_trigger | iabt_trigger;
 axi4_a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
 	) u_fetch (
     .i_clk                              ( i_clk                             ),
+    .i_rstn								( i_rstn							),
 
     .i_address                          ( {execute_address[31:2], 2'd0}     ),
     .i_address_valid                    ( execute_address_valid             ), 
@@ -171,7 +176,7 @@ axi4_a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
     .i_cache_flush                      ( cache_flush                       ), 
     .i_cacheable_area                   ( cacheable_area                    ),
 
-    .i_system_rdy                       ( (i_system_rdy & i_rstn)           ),
+    .i_system_rdy                       ( i_rstn				        	),
     .o_fetch_stall                      ( fetch_stall                       ),
     
     .master								( master							)
@@ -180,6 +185,7 @@ axi4_a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
 
 a23_decode u_decode (
     .i_clk                              ( i_clk                             ),
+    .i_rstn								( i_rstn							),
     
     // Instruction fetch or data read signals
     .i_read_data                        ( read_data                         ),                                          
@@ -256,6 +262,7 @@ a23_decode u_decode (
 
 a23_execute u_execute (
     .i_clk                              ( i_clk                             ),
+    .i_rstn								( i_rstn							),
     
     .i_read_data                        ( read_data_s2                      ),
     .i_read_data_alignment              ( read_data_alignment               ), 

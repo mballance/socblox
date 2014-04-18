@@ -1,6 +1,7 @@
 
 #include "wb_uart_driver.h"
 #include "a23_unicore_registers.h"
+#include "timer_drv.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -26,6 +27,7 @@ int main(int argc, char **argv) {
 	volatile int *cnt_p = &cnt;
 	volatile uint32_t *ptr = (uint32_t *)A23_UNICORE_UART_BASE;
 	wb_uart_driver *uart_drv = new wb_uart_driver();
+	timer_drv *tmr_drv = new timer_drv();
 
 //	(*ptr) = 0xFFAAEE55;
 //	(*ptr) = (uint32_t)uart_drv;

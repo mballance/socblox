@@ -20,8 +20,6 @@ module wb_interconnect_1x3_pt #(
 		input						clk,
 		input						rstn,
 		wb_if.slave					m0,
-		wb_if.slave					m1,
-		wb_if.slave					m2,
 		wb_if.master					s0,
 		wb_if.master					s1,
 		wb_if.master					s2

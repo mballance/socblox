@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<template category="net.sf.svf.templates" id="net.sf.svf.templates.svf_tb" name="SVF Testbench Environment">
+<description>SVF testbench environment with scripts</description>
+<parameters/>
+<files>
+<file executable="false" name="sim/.gitignore" template="sim/.gitignore"/>
+<file executable="true" name="sim/scripts/build.sh" template="sim/scripts/build.sh"/>
+<file executable="true" name="sim/scripts/clean.sh" template="sim/scripts/clean.sh"/>
+<file executable="false" name="sim/scripts/Makefile" template="sim/scripts/Makefile"/>
+<file executable="true" name="sim/scripts/runone.sh" template="sim/scripts/runone.sh"/>
+<file executable="true" name="sim/scripts/status.sh" template="sim/scripts/status.sh"/>
+<file executable="false" name="sim/scripts/target.mk" template="sim/scripts/target.mk"/>
+<file executable="false" name="sim/scripts/vlog.f" template="sim/scripts/vlog.f"/>
+<file executable="false" name="sim/testlists/coretests.tl" template="sim/testlists/coretests.tl"/>
+<file executable="false" name="sim/tests/file1.f" template="sim/tests/file1.f"/>
+<file executable="false" name="stim/defs_rules.mk" template="stim/defs_rules.mk"/>
+<file executable="false" name="tb/defs_rules.mk" template="tb/defs_rules.mk"/>
+<file executable="false" name="tb/${name}_env.cpp" template="tb/env.cpp"/>
+<file executable="false" name="tb/${name}_env.h" template="tb/env.h"/>
+<file executable="false" name="tb/${name}_tb.cpp" template="tb/tb.cpp"/>
+<file executable="false" name="tb/${name}_tb.sv" template="tb/tb.sv"/>
+<file executable="false" name="tests/defs_rules.mk" template="tests/defs_rules.mk"/>
+<file executable="false" name="tests/sw/defs_rules.mk" template="tests/sw/defs_rules.mk"/>
+<file executable="false" name="tests/${name}_test_base.cpp" template="tests/test_base.cpp"/>
+<file executable="false" name="tests/${name}_test_base.h" template="tests/test_base.h"/>
+</files>
+</template>
+</sv_template>

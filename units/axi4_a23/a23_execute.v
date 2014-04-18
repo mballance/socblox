@@ -46,6 +46,7 @@
 module a23_execute (
 
 input                       i_clk,
+input						i_rstn,
 input       [31:0]          i_read_data,
 input       [4:0]           i_read_data_alignment,  // 2 LSBs of address in [4:3], appended 
                                                     // with 3 zeros
@@ -106,7 +107,7 @@ input      [2:0]            i_reg_write_sel,
 input                       i_user_mode_regs_load,
 input                       i_user_mode_regs_store_nxt,
 input                       i_firq_not_user_mode,
-input                       i_firq_not_user_mode_nxt,
+// input                       i_firq_not_user_mode_nxt,
 
 input                       i_write_data_wen,
 input                       i_base_address_wen,     // save LDM base address register, 
@@ -440,26 +441,46 @@ assign status_bits_mode_nr             =  status_bits_mode_update        ? statu
                                                                            status_bits_mode         ;
 
 always @( posedge i_clk )
-    begin                                                                                                             
-    o_priviledged           <= priviledged_update             ? priviledged_nxt              : o_priviledged;
-    o_exclusive             <= exclusive_update               ? i_exclusive_exec             : o_exclusive;
-    o_data_access           <= data_access_update             ? i_data_access_exec           : o_data_access;
-    o_write_enable          <= write_enable_update            ? write_enable_nxt             : o_write_enable;
-    o_write_data            <= write_data_update              ? write_data_nxt               : o_write_data; 
-    o_address               <= address_update                 ? o_address_nxt                : o_address;    
-    o_adex                  <= address_update                 ? adex_nxt                     : o_adex;    
-    o_address_valid         <= address_update                 ? 1'd1                         : o_address_valid;
-    o_byte_enable           <= byte_enable_update             ? byte_enable_nxt              : o_byte_enable;
-    o_copro_write_data      <= copro_write_data_update        ? write_data_nxt               : o_copro_write_data; 
+    begin
+    // Add synchronous reset
+    	if (i_rstn == 0) begin
+    		o_copro_write_data <= 0;
+    		o_write_data <= 0;
+    		o_address <= 32'hdead_dead;
+    		o_adex <= 0;
+    		o_address_valid <= 0;
+    		o_priviledged <= 0;
+    		o_exclusive <= 0;
+    		o_write_enable <= 0;
+    		o_byte_enable <= 0;
+    		o_data_access <= 0;
+    		status_bits_flags <= 0;
+    		status_bits_mode <= SVC;
+    		status_bits_mode_rds_oh <= 1'd1 << OH_SVC;
+    		status_bits_irq_mask <= 1'd1;
+    		status_bits_firq_mask <= 1'd1;
+    		base_address <= 'd0;
+    	end else begin
+    		o_priviledged           <= priviledged_update             ? priviledged_nxt              : o_priviledged;
+    		o_exclusive             <= exclusive_update               ? i_exclusive_exec             : o_exclusive;
+    		o_data_access           <= data_access_update             ? i_data_access_exec           : o_data_access;
+    		o_write_enable          <= write_enable_update            ? write_enable_nxt             : o_write_enable;
+    		o_write_data            <= write_data_update              ? write_data_nxt               : o_write_data; 
+    		o_address               <= address_update                 ? o_address_nxt                : o_address;    
+    		o_adex                  <= address_update                 ? adex_nxt                     : o_adex;    
+    		o_address_valid         <= address_update                 ? 1'd1                         : o_address_valid;
+    		o_byte_enable           <= byte_enable_update             ? byte_enable_nxt              : o_byte_enable;
+    		o_copro_write_data      <= copro_write_data_update        ? write_data_nxt               : o_copro_write_data; 
 
-    base_address            <= base_address_update            ? rn                           : base_address;    
+    		base_address            <= base_address_update            ? rn                           : base_address;    
 
-    status_bits_flags       <= status_bits_flags_update       ? status_bits_flags_nxt        : status_bits_flags;
-    status_bits_mode        <=  status_bits_mode_nr;
-    status_bits_mode_rds_oh <= status_bits_mode_rds_oh_update ? status_bits_mode_rds_oh_nxt  : status_bits_mode_rds_oh;
-    status_bits_mode_rds    <= status_bits_mode_rds_nr;
-    status_bits_irq_mask    <= status_bits_irq_mask_update    ? status_bits_irq_mask_nxt     : status_bits_irq_mask;
-    status_bits_firq_mask   <= status_bits_firq_mask_update   ? status_bits_firq_mask_nxt    : status_bits_firq_mask;
+    		status_bits_flags       <= status_bits_flags_update       ? status_bits_flags_nxt        : status_bits_flags;
+    		status_bits_mode        <=  status_bits_mode_nr;
+    		status_bits_mode_rds_oh <= status_bits_mode_rds_oh_update ? status_bits_mode_rds_oh_nxt  : status_bits_mode_rds_oh;
+    		status_bits_mode_rds    <= status_bits_mode_rds_nr;
+    		status_bits_irq_mask    <= status_bits_irq_mask_update    ? status_bits_irq_mask_nxt     : status_bits_irq_mask;
+    		status_bits_firq_mask   <= status_bits_firq_mask_update   ? status_bits_firq_mask_nxt    : status_bits_firq_mask;
+	    end
     end
 
 

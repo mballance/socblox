@@ -7,7 +7,7 @@
 #include "svf_component_ctor.h"
 
 svf_component_ctor_base::svf_component_ctor_base(svf_factory *factory, const char *type_name) :
-	m_factory(factory), m_typename(type_name) {
+	m_typename(type_name), m_factory(factory) {
 	m_factory->register_component_ctor(m_typename, this);
 }
 

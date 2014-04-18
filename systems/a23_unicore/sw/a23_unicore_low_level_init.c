@@ -15,5 +15,6 @@ void low_level_init()
 			"mov	r0, #1\n"
 			"mcr	15, 0, r0, cr2, cr0, 0\n"); // Enable cache
 
+	// TODO: setup timer interrupt
 
 }

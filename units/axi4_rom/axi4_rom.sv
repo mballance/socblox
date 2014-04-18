@@ -28,13 +28,11 @@ module axi4_rom #(
 		if ($bits(s.ARID) != AXI_ID_WIDTH) begin
 			$display("Error: %m - id width %0d ; expecting %0d",
 					$bits(s.ARID), AXI_ID_WIDTH);
-			finish(1);
+			$finish(1);
 		end
 	end
 	// synopsys translate_on
 
-//    bit [(AXI_DATA_WIDTH-1):0] ram[1<<MEM_ADDR_BITS];
-   
     assign s.RRESP = {2{1'b0}};
     assign s.BRESP = {2{1'b0}};
     
@@ -44,6 +42,7 @@ module axi4_rom #(
     reg[AXI_ID_WIDTH-1:0]			write_id;
     reg[1:0] 						read_state;
     reg[MEM_ADDR_BITS-1:0]			read_addr;
+    wire[MEM_ADDR_BITS-1:0]			read_addr_w;
     reg[3:0]						read_count;
     reg[3:0]						read_length;
     reg[AXI_ID_WIDTH-1:0]			read_id;
@@ -104,7 +103,11 @@ module axi4_rom #(
     				end
     			end
     			
-    			2'b01: begin 
+    			1: begin
+    				read_state <= 2;
+    			end
+    			
+    			2: begin 
     				if (s.RVALID && s.RREADY) begin
     					if (read_count == read_length) begin
     						read_state <= 1'b0;
@@ -117,14 +120,18 @@ module axi4_rom #(
     	end
     end
     
+    assign read_addr_w = (read_state == 0)?s.ARADDR[MEM_ADDR_BITS+2:2]:read_addr;
+
     generic_rom #(
     	.DATA_WIDTH     (AXI_DATA_WIDTH    ), 
     	.ADDRESS_WIDTH  (MEM_ADDR_BITS ), 
     	.INIT_FILE      (INIT_FILE     )
-    	) generic_rom (
-    	.i_clk          (ACLK       ), 
-    	.i_address      (read_addr  ), 
-    	.o_read_data    (s.RDATA   	));
+    	) u_rom (
+    	.i_clk          (ACLK        ), 
+    	.i_address      (read_addr_w ), 
+    	.o_read_data    (s.RDATA   	 ));
+    	
+//    assign s.RDATA = 'h0;
     
     assign s.AWREADY = (write_state == 0);
     assign s.WREADY = (write_state == 1);
@@ -133,11 +140,11 @@ module axi4_rom #(
     assign s.BID = (write_state == 2)?write_id:0;
     
     assign s.ARREADY = (read_state == 1'b0);
-    assign s.RVALID = (read_state == 1'b1);
+    assign s.RVALID = (read_state == 2);
 
 //    assign s.RDATA = ram[read_addr + read_count];
-    assign s.RLAST = (read_state == 1'b01 && read_count == read_length)?1'b1:1'b0;
-    assign s.RID = (read_state == 1)?read_id:0;
+    assign s.RLAST = (read_state == 2 && read_count == read_length)?1'b1:1'b0;
+    assign s.RID = (read_state == 2)?read_id:0;
 
 endmodule
 

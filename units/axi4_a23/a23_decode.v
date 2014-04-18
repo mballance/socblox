@@ -44,6 +44,7 @@
 module a23_decode
 (
 input                       i_clk,
+input						i_rstn,
 input       [31:0]          i_read_data,
 input                       i_fetch_stall,                  // stall all stages of the cpu at the same time
 input                       i_irq,                          // interrupt request

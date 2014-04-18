@@ -16,6 +16,8 @@ else
 	TOP=$(TOP_MODULE)_opt
 endif
 
+build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS)
+
 .phony: vopt vopt_opt vopt_dbg vopt_compile
 vlog_build : vopt
 

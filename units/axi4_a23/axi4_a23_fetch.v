@@ -46,6 +46,7 @@ module axi4_a23_fetch #(
 		parameter int A23_CACHE_WAYS = 4
 		) (
 input                       i_clk,
+input						i_rstn,
 
 input       [31:0]          i_address,
 input                       i_address_valid,
@@ -132,6 +133,14 @@ assign o_fetch_stall     = !i_system_rdy || wb_stall || cache_stall;
 wire[31:0]						o_wb_adr;
 wire[31:0]						i_wb_dat;
 
+wire[31:0]						ARADDR;
+wire[31:0]						RDATA;
+wire							RVALID;
+
+assign ARADDR = master.ARADDR;
+assign RDATA = master.RDATA;
+assign RVALID = master.RVALID;
+
 
 // ======================================
 // L1 Cache (Unified Instruction and Data)
@@ -158,11 +167,9 @@ axi4_a23_cache #(
     .i_core_stall               ( o_fetch_stall         ),
     
     .o_wb_req                   ( cache_wb_req          ),
-//    .i_wb_address               ( o_wb_adr              ),
-    .i_wb_address               ( master.ARADDR         ),
-    .i_wb_read_data             ( master.RDATA			),
-    .i_read_data_valid			( master.RVALID			),
-//    .i_wb_stall                 ( o_wb_stb & ~i_wb_ack  )
+    .i_wb_address               ( ARADDR         		),
+    .i_wb_read_data             ( RDATA					),
+    .i_read_data_valid			( RVALID				),
     .i_wb_stall                 ( stall_cache			)
 );
 
@@ -174,6 +181,7 @@ axi4_a23_cache #(
 axi4_a23_axi_if u_axi4 (
     // CPU Side
     .i_clk                      ( i_clk                 ),
+    .i_rstn						( i_rstn				),
     
     // Core Accesses to Wishbone bus
     .i_select                   ( sel_wb                ),

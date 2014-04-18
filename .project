@@ -43,6 +43,10 @@
 	</linkedResources>
 	<variableList>
 		<variable>
+			<name>A23_MINI_SYS</name>
+			<value>$%7BPROJECT_LOC%7D/systems/a23_mini_sys</value>
+		</variable>
+		<variable>
 			<name>SOCBLOX</name>
 			<value>$%7BPROJECT_LOC%7D</value>
 		</variable>

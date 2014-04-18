@@ -12,8 +12,7 @@ interface axi4_if #(
 		parameter int AXI4_DATA_WIDTH=128,
 		parameter int AXI4_ID_WIDTH=4)(
 		input ACLK,
-		input ARESETn
-		);
+		input ARESETn);
 
 	// ** 
 	// * Write Address channel

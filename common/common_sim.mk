@@ -39,14 +39,13 @@ all :
 include $(COMMON_SIM_MK_DIR)/sim_mk/common_sim_$(SIM).mk	
 
 target_build :
-	echo "BUILD:" 
 	if test "x$(TARGET_MAKEFILE)" != "x"; then \
 		$(MAKE) -f $(TARGET_MAKEFILE) build; \
 	fi
 
 QS_VLOG_ARGS += $(SOCBLOX)/svf/dpi/svf_pkg.sv
 VL_VLOG_ARGS += $(SOCBLOX)/svf/sc/svf_pkg.sv
-VLOG_ARGS += -f $(SIM_DIR)/scripts/vlog.f
+VLOG_ARGS += -F $(SIM_DIR)/scripts/vlog.F
 
 
 LD_LIBRARY_PATH := $(BUILD_DIR)/libs:$(LD_LIBRARY_PATH)

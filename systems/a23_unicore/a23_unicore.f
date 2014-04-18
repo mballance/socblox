@@ -14,4 +14,5 @@ ${SOCBLOX}/units/interconnects/axi4/axi4_wb_bridge.sv
 ${SOCBLOX}/units/interconnects/wb/wb_interconnect_1x1.sv
 ${SOCBLOX}/units/wb_uart/wb_uart.sv
 ${SOCBLOX}/units/a23_unicore_subsys/a23_unicore_subsys.sv
+${SOCBLOX}/units/timer/timer.sv
 ${SOCBLOX}/systems/a23_unicore/a23_unicore_sys.sv
