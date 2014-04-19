@@ -115,9 +115,9 @@ assign master.ARPROT = 0;
 assign master.ARREGION = 0;
 
 	// Write buffer
-	reg     [31:0]              wbuf_addr_r = 'd0;
-	reg     [3:0]               wbuf_sel_r  = 'd0;
-	reg                         wbuf_busy_r = 'd0;
+	reg     [31:0]          wbuf_addr_r = 'd0;
+	reg     [3:0]           wbuf_sel_r  = 'd0;
+	reg                     wbuf_busy_r = 'd0;
 
 	reg[2:0]				read_state = 0;
 	reg						data_valid = 0;
@@ -271,7 +271,8 @@ assign master.ARREGION = 0;
 	assign master.WVALID = (write_state == 2 || write_state == 5)?1:0;
 	assign master.WDATA = (write_state == 2 || write_state == 5)?i_write_data:{32{1'b0}};
 	assign master.WLAST = (write_state == 2 || write_state == 5)?1:0;
-	assign master.WSTRB = (write_state == 2 || write_state == 5)?{4{1'b1}}:0;
+//	assign master.WSTRB = (write_state == 2 || write_state == 5)?{4{1'b1}}:0;
+	assign master.WSTRB = (write_state == 2 || write_state == 5)?i_byte_enable:0;
 
 	assign master.BREADY = (write_state == 3 || write_state == 6);
 	

@@ -40,6 +40,8 @@ module axi4_sram #(
     reg[3:0]						read_count;
     reg[3:0]						read_length;
     reg[AXI_ID_WIDTH-1:0]			read_id;
+    reg[1:0]						sram_owner;
+    wire[MEM_ADDR_BITS-1:0]			sram_addr;
 
     always @(posedge ACLK)
     begin
@@ -61,11 +63,13 @@ module axi4_sram #(
     					write_id <= s.AWID;
     					write_count <= 0;
     					write_state <= 1;
+    					sram_owner <= 1;
     				end
     			end
     			
     			2'b01: begin // Wait for write data
     				if (s.WVALID == 1'b1 && s.WREADY == 1'b1) begin
+    					$display("%t WRITE: 'h%08h 'h%08h", $time, write_addr, s.WDATA);
  //   					ram[write_addr + write_count] <= s.WDATA;
     					if (s.WLAST == 1'b1) begin
     						write_state <= 2;
@@ -78,6 +82,7 @@ module axi4_sram #(
     			2'b10: begin  // Send write response
     				if (s.BVALID == 1'b1 && s.BREADY == 1'b1) begin
     					write_state <= 2'b00;
+    					sram_owner <= 0;
     				end
     			end
     			
@@ -93,13 +98,21 @@ module axi4_sram #(
     					read_count <= 0;
     					read_state <= 1;
     					read_id <= s.ARID;
+    					sram_owner <= 2;
     				end
     			end
+    		
+    			// First read state
+    			2'b01: begin
+    				read_state <= 2'b10;
+    			end
     			
-    			2'b01: begin 
+    			2'b10: begin 
     				if (s.RVALID && s.RREADY) begin
+    					$display("%t READ: 'h%08h 'h%08h", $time, read_addr, s.RDATA);
     					if (read_count == read_length) begin
     						read_state <= 1'b0;
+    						sram_owner <= 0;
     					end else begin
     						read_count <= read_count + 1;
     					end
@@ -120,22 +133,24 @@ module axi4_sram #(
     	.i_clk           (ACLK          ), 
     	.i_write_data    (s.WDATA   	), 
     	.i_write_enable  (s.WVALID & s.WREADY),
-    	.i_address       (read_addr     ), 
+    	.i_address       (sram_addr     ), 
     	.i_byte_enable   (s.WSTRB		), 
     	.o_read_data     (s.RDATA    ));
+    
+    assign sram_addr = (sram_owner == 1)?write_addr:(sram_owner == 2)?read_addr:0;
    
-    assign s.AWREADY = (write_state == 0);
+    assign s.AWREADY = (write_state == 0 && sram_owner == 0);
     assign s.WREADY = (write_state == 1);
     
     assign s.BVALID = (write_state == 2);
     assign s.BID = (write_state == 2)?write_id:0;
     
-    assign s.ARREADY = (read_state == 1'b0);
-    assign s.RVALID = (read_state == 1'b1);
+    assign s.ARREADY = (read_state == 1'b0 && sram_owner == 0);
 
 //    assign s.RDATA = ram[read_addr + read_count];
-    assign s.RLAST = (read_state == 1'b01 && read_count == read_length)?1'b1:1'b0;
-    assign s.RID = (read_state == 1)?read_id:0;
+    assign s.RVALID = (read_state == 2'b10);
+    assign s.RLAST = (read_state == 2'b10 && read_count == read_length)?1'b1:1'b0;
+    assign s.RID = (read_state == 2'b10)?read_id:0;
 
 endmodule
 

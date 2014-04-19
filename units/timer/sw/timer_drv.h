@@ -32,7 +32,7 @@ class timer_drv {
 
 	private:
 		void				*m_base;
-		timer				*m_timers[3];
+		volatile timer		*m_timers;
 };
 
 #endif /* TIMER_DRV_H_ */

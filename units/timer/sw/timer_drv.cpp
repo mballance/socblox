@@ -14,6 +14,7 @@ timer_drv::timer_drv() {
 
 void timer_drv::init(void *base)
 {
+	m_timers = (timer *)base;
 	m_base = base;
 }
 
@@ -26,7 +27,7 @@ void timer_drv::set_load(uint32_t t, uint16_t load)
 	if (t > 2) {
 		return;
 	}
-	m_timers[t]->load = load;
+	(&m_timers[t])->load = load;
 }
 
 void timer_drv::set_enable(uint32_t t, bool en)
@@ -35,9 +36,9 @@ void timer_drv::set_enable(uint32_t t, bool en)
 		return;
 	}
 	if (en) {
-		m_timers[t]->ctrl |= 0x80;
+		(&m_timers[t])->ctrl |= 0x80;
 	} else {
-		m_timers[t]->ctrl &= ~0x80;
+		(&m_timers[t])->ctrl &= ~0x80;
 	}
 }
 
@@ -47,18 +48,21 @@ void timer_drv::set_periodic(uint32_t t, bool en)
 		return;
 	}
 	if (en) {
-		m_timers[t]->ctrl |= 0x40;
+		(&m_timers[t])->ctrl |= 0x40;
 	} else {
-		m_timers[t]->ctrl &= ~0x40;
+		(&m_timers[t])->ctrl &= ~0x40;
 	}
 }
 
 void timer_drv::set_scaling(uint32_t t, uint8_t scale)
 {
+	volatile timer *tt;
 	if (t > 2) {
 		return;
 	}
 
-	m_timers[t]->ctrl = (m_timers[t]->ctrl & ~0x0c) | ((scale & 3) << 2);
+	tt = &m_timers[t];
+
+	tt->ctrl = (tt->ctrl & ~0x0c) | ((scale & 3) << 2);
 }
 

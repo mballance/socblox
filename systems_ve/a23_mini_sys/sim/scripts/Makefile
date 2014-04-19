@@ -9,7 +9,7 @@ SCRIPTS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 #* TODO: Uncomment to enable target build
 TARGET_MAKEFILE := $(SCRIPTS_DIR)/target.mk
 
-TIMEOUT = 10ms
+TIMEOUT = 2ms
 
 BFMS += UART_BFM COMMON_SVF GENERIC_ROM GENERIC_SRAM_BYTE_EN
 BFMS += A23_TRACER

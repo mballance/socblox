@@ -28,7 +28,7 @@ LDFLAGS +=-Bstatic --fix-v4bx -nostartfiles
 
 CFLAGS += -g
 
-CXXFLAGS += $(TARGET_CFLAGS) -fno-rtti -fno-exceptions -Wall
+CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions -Wall
 
 include $(COMMON_SIM_MK_DIR)/common_sim_target.mk
 
