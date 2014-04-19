@@ -69,7 +69,6 @@ module axi4_sram #(
     			
     			2'b01: begin // Wait for write data
     				if (s.WVALID == 1'b1 && s.WREADY == 1'b1) begin
-    					$display("%t WRITE: 'h%08h 'h%08h", $time, write_addr, s.WDATA);
  //   					ram[write_addr + write_count] <= s.WDATA;
     					if (s.WLAST == 1'b1) begin
     						write_state <= 2;
@@ -109,7 +108,6 @@ module axi4_sram #(
     			
     			2'b10: begin 
     				if (s.RVALID && s.RREADY) begin
-    					$display("%t READ: 'h%08h 'h%08h", $time, read_addr, s.RDATA);
     					if (read_count == read_length) begin
     						read_state <= 1'b0;
     						sram_owner <= 0;

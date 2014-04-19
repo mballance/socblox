@@ -56,7 +56,8 @@ baremetal/%.elf : baremetal/%.o \
 	$(SVF_OBJDIR)/a23_minisys_low_level_init.o \
 	$(SVF_OBJDIR)/a23_cpp_support.o \
 	$(SVF_OBJDIR)/a23_memory.o \
-	$(SVF_LIBDIR)/libtimer.a
+	$(SVF_LIBDIR)/libtimer.a   \
+	$(SVF_LIBDIR)/libintc.a   
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(LD) $(LDFLAGS) -o $@ \
 		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal.lds $^ \

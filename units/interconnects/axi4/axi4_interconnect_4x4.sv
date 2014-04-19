@@ -704,7 +704,7 @@ module axi4_interconnect_4x4 #(
 										aw_master_gnt[write_selected_slave[m_w_i]] && 
 										aw_master_gnt_id[write_selected_slave[m_w_i]] == m_w_i)?
 										SWREADY[write_selected_slave[m_w_i]]:0;
-			assign AWREADY[m_w_i] = (write_req_state[m_w_i] == 0);
+			assign AWREADY[m_w_i] = (write_req_state[m_w_i] == 0 && write_request_busy[m_w_i] == 0);
 		end
 	endgenerate
 	

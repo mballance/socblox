@@ -4,6 +4,7 @@
 -f ${SOCBLOX}/units/ethmac/ethmac.f
 ${SOCBLOX}/units/a23_dualcore_subsys/a23_dualcore_subsys.sv
 ${SOCBLOX}/units/timer/timer.sv
+${SOCBLOX}/units/interrupt_controller/interrupt_controller.sv
 ${SOCBLOX}/units/axi4_rom/axi4_rom.sv
 ${SOCBLOX}/units/rtc/rtc.sv
 ${SOCBLOX}/units/axi4_sram/axi4_sram.sv

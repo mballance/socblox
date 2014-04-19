@@ -16,12 +16,13 @@
 ../../../../units/interconnects/axi4/axi4_interconnect_1x4.sv
 ../../../../units/interconnects/axi4/axi4_wb_bridge.sv
 
-../../../../units/interconnects/wb/wb_interconnect_1x1.sv
+../../../../units/interconnects/wb/wb_interconnect_1x2.sv
 
 ../../../../units/axi4_rom/axi4_rom.sv
 ../../../../units/axi4_sram/axi4_sram.sv
 
 ../../../../units/timer/timer.sv
+../../../../units/interrupt_controller/interrupt_controller.sv
 
 // ../../../../systems/a23_mini_sys/generic_rom.v
 
