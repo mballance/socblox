@@ -1,13 +1,13 @@
 /****************************************************************************
- * axi4_a23_svf_tracer.sv
+ * a23_tracer_bfm.sv
  ****************************************************************************/
 
 /**
- * Module: axi4_a23_svf_tracer
+ * Module: a23_tracer_bfm
  * 
  * TODO: Add module documentation
  */
-module axi4_a23_svf_tracer(
+module a23_tracer_bfm(
 		input                       i_clk,
 		input                       i_fetch_stall,
 		input       [31:0]          i_instruction,
@@ -62,30 +62,30 @@ module axi4_a23_svf_tracer(
 	
 	reg	[31:0]				r0_r15_user[15:0];
 	
-	import "DPI-C" context task axi4_a23_svf_tracer_register();
-	import "DPI-C" context task axi4_a23_svf_tracer_mem_access(
+	import "DPI-C" context task a23_tracer_bfm_register();
+	import "DPI-C" context task a23_tracer_bfm_mem_access(
 			int unsigned			addr,
 			int unsigned			is_write,
 			int unsigned			data
 			);
-	import "DPI-C" context task axi4_a23_svf_tracer_execute(
+	import "DPI-C" context task a23_tracer_bfm_execute(
 			int unsigned			addr,
 			int unsigned			op
 			);
 	
-	import "DPI-C" context task axi4_a23_svf_tracer_regchange(
+	import "DPI-C" context task a23_tracer_bfm_regchange(
 			int unsigned			regno,
 			int unsigned			val
 			);
 	
 	initial begin
-		axi4_a23_svf_tracer_register();
+		a23_tracer_bfm_register();
 	end
 	
 	always @(posedge i_clk) begin
 		for (int i=0; i<15; i++) begin
 			if (i_r0_r15_user[i] != r0_r15_user[i]) begin
-				axi4_a23_svf_tracer_regchange(i, i_r0_r15_user[i]);
+				a23_tracer_bfm_regchange(i, i_r0_r15_user[i]);
 				r0_r15_user[i] <= i_r0_r15_user[i];
 			end
 		end
@@ -250,7 +250,7 @@ module axi4_a23_svf_tracer(
         
 			// Interrupts override instructions that are just starting
 			if ( interrupt_d1 == 3'd0 || interrupt_d1 == 3'd7 ) begin
-				axi4_a23_svf_tracer_execute(execute_address, execute_instruction);
+				a23_tracer_bfm_execute(execute_address, execute_instruction);
 			end
 		end
 	end
@@ -264,10 +264,10 @@ module axi4_a23_svf_tracer(
 	always @(posedge i_clk) begin
 		// Data Write    
 		if ( i_write_enable && !fetch_stall ) begin
-			axi4_a23_svf_tracer_mem_access(i_address, 1, i_write_data);
+			a23_tracer_bfm_mem_access(i_address, 1, i_write_data);
 		end else if (i_data_access && !i_write_enable && !fetch_stall) begin
 			// Data Read    
-			axi4_a23_svf_tracer_mem_access(i_address, 0, i_read_data);
+			a23_tracer_bfm_mem_access(i_address, 0, i_read_data);
 		end
 	end
 			

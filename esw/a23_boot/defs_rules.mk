@@ -1,9 +1,11 @@
 
+ESW_A23_BOOT_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
 ifneq (1,$(RULES))
+
+SRC_DIRS += $(ESW_A23_BOOT_DIR)
 
 else
 
-define A23_BAREMETAL_LINK
-	$(A23_LD) $(LDFLAGS
 
 endif

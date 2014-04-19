@@ -9,6 +9,7 @@
 #define a23_mini_sys_TEST_BASE_H_
 #include "svf.h"
 #include "a23_mini_sys_env.h"
+#include "a23_disasm_tracer.h"
 
 class a23_mini_sys_test_base : public svf_test {
 	svf_test_ctor_decl(a23_mini_sys_test_base)
@@ -32,6 +33,8 @@ class a23_mini_sys_test_base : public svf_test {
 
 		a23_mini_sys_env				*m_env;
 		svf_thread						m_runthread;
+		FILE							*m_trace_fp;
+		a23_disasm_tracer				*m_disasm_tracer;
 };
 
 #endif /* a23_mini_sys_TEST_BASE_H_ */

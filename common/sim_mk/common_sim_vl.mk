@@ -3,7 +3,7 @@
 #* Compile rules
 #********************************************************************
 
-LD_LIBRARY_PATH := $(SOCBLOX)/libs/$(PLATFORM)/sc:$(LD_LIBRARY_PATH)
+LD_LIBRARY_PATH := $(SVF_LIBDIR)/sc:$(LD_LIBRARY_PATH)
 
 CXXFLAGS += -I$(SYSTEMC)/include -I$(SOCBLOX)/svf/sc
 CXXFLAGS += -I$(BUILD_DIR)/obj_dir

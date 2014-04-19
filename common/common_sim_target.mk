@@ -9,6 +9,9 @@ AS=$(CC)
 OBJDUMP=$(TARGET)-objdump
 OBJCOPY=$(TARGET)-objcopy
 
+LIBGCC:=$(shell $(CC) -mno-thumb-interwork -print-libgcc-file-name)
+LIBC:=$(dir $(LIBGCC))/../../../../$(TARGET)/lib/libc.a
+
 
 # include $(COMMON_SIM_MK_DIR)/common_defs.mk
 include $(MK_INCLUDES)

@@ -24,7 +24,12 @@ using namespace std;
 		prefix ## _dpi_closure *c = prefix ## _dpi_mgr::get_closure(name); \
 		\
 		if (c) { \
-			c->host_if()-> method args ; \
+			if (c->host_if()) { \
+				c->host_if()-> method args ; \
+			} else { \
+				fprintf(stdout, "Error: %s: No BFM connected for %s\n",  \
+						#prefix "::" #method, name); \
+			} \
 		} \
 		\
 		return 0; \
@@ -69,7 +74,11 @@ template <class host_if_t, class target_if_t> class svf_dpi_closure : public vir
 		}
 
 		host_if_t *host_if() {
-			return m_port->provides();
+			if (m_port) {
+				return m_port->provides();
+			} else {
+				return 0;
+			}
 		}
 
 	protected:

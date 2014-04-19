@@ -6,8 +6,8 @@ $(SOCBLOX)/objs/$(PLATFORM) :
 $(SOCBLOX)/libs/$(PLATFORM) : 
 	mkdir -p $@
 	
-$(SOCBLOX_OBJDIR)/%.o : %.cpp
-	if test ! -d $(SOCBLOX_OBJDIR); then mkdir -p $(SOCBLOX_OBJDIR); fi
+$(SVF_OBJDIR)/%.o : %.cpp
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(CXX) -c $(CXXFLAGS) -o $@ $^	
 
 #$(SOCBLOX_A23_OBJDIR)/%.o : %.cpp

@@ -19,11 +19,11 @@ module axi4_rom #(
 			axi4_if.slave		s
 		);
 	
+	// synopsys translate_off
 	initial begin
 		$display("ROM path %m");
 	end
 
-	// synopsys translate_off
 	initial begin
 		if ($bits(s.ARID) != AXI_ID_WIDTH) begin
 			$display("Error: %m - id width %0d ; expecting %0d",
@@ -72,7 +72,7 @@ module axi4_rom #(
     			
     			2'b01: begin // Wait for write data
     				if (s.WVALID == 1'b1 && s.WREADY == 1'b1) begin
-    					$display("%m: Error: write 'h%08h='h%08h", (write_addr+write_count), s.WDATA);
+//    					$display("%m: Error: write 'h%08h='h%08h", (write_addr+write_count), s.WDATA);
  //   					ram[write_addr + write_count] <= s.WDATA;
     					if (s.WLAST == 1'b1) begin
     						write_state <= 2;

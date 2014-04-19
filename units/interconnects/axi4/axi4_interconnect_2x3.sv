@@ -49,8 +49,7 @@ module axi4_interconnect_2x3 #(
 			) sdflt(.ACLK(clk), .ARESETn(rstn));
 			
 			 */
-	axi4_if	
-			sdflt(.ACLK(clk), .ARESETn(rstn));
+	axi4_if	sdflt();
 `endif /* DEFAULT_SLAVE_ERROR_axi4_interconnect_2x3 */
 	
 	function reg[N_SLAVEID_BITS-1:0] addr2slave(

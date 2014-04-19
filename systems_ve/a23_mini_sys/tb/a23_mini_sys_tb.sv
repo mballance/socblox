@@ -51,9 +51,7 @@ module a23_mini_sys_tb(input clk);
 	reg sw1=0, sw2=0, sw3=0, sw4=0;
 	wire led0, led1, led2, led3;
 	
-	a23_mini_sys #(
-			.INIT_FILE("smoke.mem")
-			) u_mini_sys (
+	a23_mini_sys u_mini_sys (
 		.clk_i  (clk   ),
 		.sw1    (sw1   ), 
 		.sw2    (sw2   ), 
@@ -63,6 +61,29 @@ module a23_mini_sys_tb(input clk);
 		.led1   (led1  ), 
 		.led2   (led2  ), 
 		.led3   (led3  ));
+	
+	bind a23_tracer a23_tracer_bfm u_tracer_bfm (
+			.i_clk                    (i_clk                   ), 
+			.i_fetch_stall            (i_fetch_stall           ), 
+			.i_instruction            (i_instruction           ), 
+			.i_instruction_valid      (i_instruction_valid     ), 
+			.i_instruction_undefined  (i_instruction_undefined ), 
+			.i_instruction_execute    (i_instruction_execute   ), 
+			.i_interrupt              (i_interrupt             ), 
+			.i_interrupt_state        (i_interrupt_state       ), 
+			.i_instruction_address    (i_instruction_address   ), 
+			.i_pc_sel                 (i_pc_sel                ), 
+			.i_pc_wen                 (i_pc_wen                ), 
+			.i_write_enable           (i_write_enable          ), 
+			.fetch_stall              (fetch_stall             ), 
+			.i_data_access            (i_data_access           ), 
+			.pc_nxt                   (pc_nxt                  ), 
+			.i_address                (i_address               ), 
+			.i_write_data             (i_write_data            ), 
+			.i_byte_enable            (i_byte_enable           ), 
+			.i_read_data              (i_read_data             ),
+			.i_r0_r15_user            (i_r0_r15_user           )
+			);	
 	
 	
 endmodule

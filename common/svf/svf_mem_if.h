@@ -29,6 +29,13 @@ class svf_mem_if {
 
 };
 
+class svf_mem_host_if {
+
+	public:
+		virtual ~svf_mem_host_if() {}
+
+};
+
 
 
 #endif /* SVF_MEM_IF_H_ */
