@@ -4,7 +4,7 @@
 ${SOCBLOX}/common/bfm/axi4_rom/axi4_svf_rom.sv
 +define+AXI4_SVF_SRAM_NAME=axi4_sram
 ${SOCBLOX}/common/bfm/axi4_svf_sram/axi4_svf_sram.sv
-${SOCBLOX}/common/bfm/a23_tracer/axi4_a23_svf_tracer.sv
+${SOCBLOX}/common/bfm/a23_tracer/a23_tracer_bfm.sv
 
 ${SOCBLOX}/common/sram/generic_sram_byte_en.v
 ${SOCBLOX}/common/sram/generic_sram_line_en.v

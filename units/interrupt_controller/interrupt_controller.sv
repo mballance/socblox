@@ -47,8 +47,8 @@ input                       i_clk,
 wb_if.slave					slave,
 
 
-output                      o_irq,
-output                      o_firq,
+output reg                  o_irq,
+output reg                  o_firq,
 
 input		[15:0]			i_interrupts
 
@@ -105,10 +105,10 @@ reg  [31:0]     firq1_enable_reg = 'd0;
 reg  [15:0]		softint_reg = 0;
 
 wire [31:0]     raw_interrupts;
-wire [31:0]     irq0_interrupts;
-wire [31:0]     firq0_interrupts;
-wire [31:0]     irq1_interrupts;
-wire [31:0]     firq1_interrupts;
+reg [31:0]     irq0_interrupts;
+reg [31:0]     firq0_interrupts;
+reg [31:0]     irq1_interrupts;
+reg [31:0]     firq1_interrupts;
 
 wire            irq_0;
 wire            firq_0;
@@ -148,21 +148,15 @@ assign o_wb_dat    = wb_rdata32;
 // ======================================
 assign raw_interrupts = {i_interrupts, softint_reg};
 
-assign irq0_interrupts  = raw_interrupts & irq0_enable_reg;
-assign firq0_interrupts = raw_interrupts & firq0_enable_reg;
-assign irq1_interrupts  = raw_interrupts & irq1_enable_reg;
-assign firq1_interrupts = raw_interrupts & firq1_enable_reg;
-
-// The interrupts from the test registers module are not masked,
-// just to keep their usage really simple
-assign irq_0  = |irq0_interrupts;
-assign firq_0 = |firq0_interrupts;
-assign irq_1  = |irq1_interrupts;
-assign firq_1 = |firq1_interrupts;
-
-assign o_irq  = irq_0  | irq_1;
-assign o_firq = firq_0 | firq_1;
-
+always @(posedge i_clk) begin
+	irq0_interrupts  <= raw_interrupts & irq0_enable_reg;
+	firq0_interrupts <= raw_interrupts & firq0_enable_reg;
+	irq1_interrupts  <= raw_interrupts & irq1_enable_reg;
+	firq1_interrupts <= raw_interrupts & firq1_enable_reg;
+	
+	o_irq <= (|irq0_interrupts) | (|irq1_interrupts);
+	o_firq <= (|firq0_interrupts) | (|firq1_interrupts);
+end
 
 // ========================================================
 // Register Writes

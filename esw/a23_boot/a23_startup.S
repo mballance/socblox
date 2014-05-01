@@ -18,7 +18,7 @@
  	B			.		// PREF
  	B			.		// DABT
  	B			.		// Reserved
- 	B			.		// IRQ
+ 	B			_service_irq	// IRQ
  	B			.		// FIQ
 
 
@@ -26,14 +26,33 @@
  	.align 4
 
 _reset:
+/*
+	MOV			r1, #0
+	MOV			r3, #0x80000000
+sub1:
+	ADD			r1, r1, #1
+	STR			r1, [r3]
+	B			sub1
+	 */
+
 	LDR			r0, =_reset
 	LDR			r1, =_cstartup
 	MOV			lr, r1
-	LDR			sp, =__stack_end__
+	LDR			sp, =__svc_stack_top__
 	B			low_level_init
 
 
 _cstartup:
+
+	// Switch to IRQ mode
+	mov			r0, #00000002
+	teqp		pc, r0
+	LDR			sp, =__irq_stack_top__
+
+	// Switch to user mode
+	mov			r0, #00000000
+	teqp		pc, r0
+	LDR			sp, =__c_stack_top__
 
 	/* Relocate the .fastcode section from ROM to RAM */
 /*
@@ -100,6 +119,19 @@ _cstartup:
 
 	/* Cause an exception if main() returns */
 	SWI			0xFFFFFF
+
+_service_irq:
+//	stmfd		sp!, {lr}
+	push {r0-r4, r12, lr}
+
+	// TODO: call C handler
+	ldr			r12, =irq_handler
+	mov			lr, pc
+	mov			pc, r12
+
+	pop {r0-r4, r12, lr}
+//	ldmfd		sp!, {lr}
+	subs		pc, lr, #4
 
 	.size		_start, . - _start
 

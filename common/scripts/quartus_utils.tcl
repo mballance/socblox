@@ -72,6 +72,15 @@ proc main {argv} {
 			set io_std [expand_vars [lindex $argv $i]]
 			
 			set_instance_assignment -name IO_STANDARD "$io_std" -to $port
+		} elseif {$arg == "-global-assignment"} {
+			incr i
+			set value [expand_vars [lindex $argv $i]]
+			
+			set eq_idx [string first "=" $value]
+			set key [string range $value 0 [expr $eq_idx - 1]]
+			set val [string range $value [expr $eq_idx + 1] \
+			 	[expr [string length $value] - 1]]
+			set_global_assignment -name "$key" "$val"
 		} else {
 			lappend argv_p $arg
 		}
@@ -94,7 +103,8 @@ proc add_compile_options {argv} {
 			puts "Note: add include path $dir"
 			set_global_assignment -name SEARCH_PATH "$dir"
 		} elseif {[string range $arg 0 7] == "+define+"} {
-			puts "define"
+			set m [string range $argv 8 [expr [string length $arg] - 1]]
+			set_global_assignment -name VERILOG_MACRO "$m"
 		} else {
 			puts "Note: add file path $arg"
 			set ext [file extension $arg]

@@ -3,20 +3,30 @@
  *
  * TODO: Filelist for testbench
  ****************************************************************************/
++define+ROM_FILE
 ../../../../common/rtl/axi4/axi4_if.sv
 ../../../../common/rtl/wb/wb_if.sv
-// ../../../../common/sram/generic_sram_byte_en.v
+
 ../../../../common/sram/generic_sram_line_en.v
-// ../../../../common/sram/generic_rom.v
 ../../../../common/bfm/generic_rom/generic_rom.sv
 ../../../../common/bfm/generic_sram_byte_en/generic_sram_byte_en.sv
+../../../../common/bfm/axi4_monitor/axi4_monitor.sv
+../../../../common/bfm/axi4_monitor/axi4_monitor_bfm.sv
+
+// ../../../../common/sram/fpga/altera/generic_rom.v
+// ../../../../common/sram/fpga/altera/altera_mf.v
+// ../../../../common/sram/fpga/altera/generic_sram_byte_en.v
+
 ../../../../common/bfm/a23_tracer/a23_tracer_bfm.sv
 -F ../../../../units/axi4_a23/axi4_a23_f.F
 
 ../../../../units/interconnects/axi4/axi4_interconnect_1x4.sv
+../../../../units/interconnects/axi4/axi4_interconnect_1x3.sv
+../../../../units/interconnects/axi4/axi4_interconnect_1x2.sv
 ../../../../units/interconnects/axi4/axi4_wb_bridge.sv
 
 ../../../../units/interconnects/wb/wb_interconnect_1x2.sv
+../../../../units/interconnects/wb/wb_interconnect_1x1.sv
 
 ../../../../units/axi4_rom/axi4_rom.sv
 ../../../../units/axi4_sram/axi4_sram.sv

@@ -56,7 +56,7 @@ while (<FH>) {
 			for ($j=$bytesperword-1; $j>=0; $j--) {
 				$out .= sprintf("%02x", $bytes[$j]);
 			}
-			$out .= sprintf("%02x\n", (0x100 - ($checksum & 0xFF)));
+			$out .= sprintf("%02x\n", ((0x100 - ($checksum & 0xFF)) & 0xFF));
 			$wordaddr++;
 		}
     } else {

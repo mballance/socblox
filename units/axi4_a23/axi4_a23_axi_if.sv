@@ -237,8 +237,11 @@ assign master.ARREGION = 0;
 	assign write_ack = (write_state == 3 && master.BREADY && master.BVALID);
 	assign cache_write_ack = (write_state == 6 && master.BREADY && master.BVALID);
 	
+	wire cache_read_stall = ((read_state == 3 || read_state == 4) && ~cache_read_ack);
+	
 	assign o_stall_cache = (
-		(cache_read_request && ~cache_read_ack) ||
+//		(cache_read_request && ~cache_read_ack) ||
+		cache_read_stall ||
 		(cache_write_request && ~cache_write_ack)
 		);
 	

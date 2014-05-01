@@ -8,8 +8,8 @@
 #ifndef A23_DUALCORE_SYS_ENV_H_
 #define A23_DUALCORE_SYS_ENV_H_
 #include "svf.h"
-#include "axi4_svf_sram_bfm.h"
-#include "axi4_svf_rom_bfm.h"
+#include "generic_rom_bfm.h"
+#include "generic_sram_byte_en_bfm.h"
 #include "uart_bfm.h"
 #include "a23_tracer.h"
 //#include "wb_master_bfm.h"
@@ -29,7 +29,7 @@ class a23_dualcore_sys_env : public svf_component {
 
 	public:
 
-		axi4_svf_rom_bfm			*m_bootrom;
+		generic_rom_bfm				*m_bootrom;
 		uart_bfm					*m_uart;
 		a23_tracer					*m_core1_tracer;
 		a23_tracer					*m_core2_tracer;

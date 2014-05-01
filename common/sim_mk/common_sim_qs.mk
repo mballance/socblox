@@ -2,9 +2,11 @@
 #********************************************************************
 #* Compile rules
 #********************************************************************
+SVF_BUILD_SIM_WRAPPERS := 0
 LIB_TARGETS += $(BUILD_DIR)/libs/tb_dpi.so
 
 LD_LIBRARY_PATH := $(SOCBLOX)/libs/$(PLATFORM)/dpi:$(LD_LIBRARY_PATH)
+CXXFLAGS += -I$(QUESTA_HOME)/include -I$(QUESTA_HOME)/include/systemc
 
 DPI_LIBS += $(SOCBLOX)/libs/$(PLATFORM)/dpi/libsvf_dpi
 DPI_LIBS += $(BUILD_DIR)/libs/tb_dpi

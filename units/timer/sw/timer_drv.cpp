@@ -66,3 +66,12 @@ void timer_drv::set_scaling(uint32_t t, uint8_t scale)
 	tt->ctrl = (tt->ctrl & ~0x0c) | ((scale & 3) << 2);
 }
 
+void timer_drv::clr(uint32_t t)
+{
+	if (t > 2) {
+		return;
+	}
+
+	m_timers[t].clr = 1;
+}
+

@@ -18,9 +18,9 @@ module a23_mini_sys_tb(input clk);
 	
 	initial begin
 		forever begin
-			#5;
+			#10;
 			clk_r <= 1;
-			#5;
+			#10;
 			clk_r <= 0;
 		end
 	end
@@ -61,6 +61,18 @@ module a23_mini_sys_tb(input clk);
 		.led1   (led1  ), 
 		.led2   (led2  ), 
 		.led3   (led3  ));
+
+/**	
+	bind axi4_monitor axi4_monitor_bfm #(
+		.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),
+		.AXI4_DATA_WIDTH(AXI4_DATA_WIDTH),
+		.AXI4_ID_WIDTH(AXI4_ID_WIDTH)) 
+		u_axi4_monitor_bfm (
+		.clk(clk),
+		.rst_n(rst_n),
+		.monitor(monitor)
+		);
+ */
 	
 	bind a23_tracer a23_tracer_bfm u_tracer_bfm (
 			.i_clk                    (i_clk                   ), 
