@@ -18,7 +18,7 @@ class a23_disasm_tracer : public virtual a23_tracer_if {
 
 	public:
 
-		a23_disasm_tracer(FILE *fp);
+		a23_disasm_tracer(FILE *fp, const char *prefix="");
 
 		virtual ~a23_disasm_tracer();
 
@@ -42,6 +42,7 @@ class a23_disasm_tracer : public virtual a23_tracer_if {
 
 	private:
 		uint32_t					m_regs[32];
+		string						m_prefix;
 		FILE						*m_fp;
 };
 

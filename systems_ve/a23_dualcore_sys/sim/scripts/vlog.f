@@ -1,26 +1,23 @@
 
--f ${SOCBLOX}/common/rtl/common_rtl.f
-+define+AXI4_SVF_ROM_NAME=axi4_rom
-${SOCBLOX}/common/bfm/axi4_rom/axi4_svf_rom.sv
-+define+AXI4_SVF_SRAM_NAME=axi4_sram
-${SOCBLOX}/common/bfm/axi4_svf_sram/axi4_svf_sram.sv
-${SOCBLOX}/common/bfm/a23_tracer/a23_tracer_bfm.sv
+// -f ${SOCBLOX}/common/rtl/common_rtl.f
+// +define+AXI4_SVF_ROM_NAME=axi4_rom
+// ${SOCBLOX}/common/bfm/axi4_rom/axi4_svf_rom.sv
+// +define+AXI4_SVF_SRAM_NAME=axi4_sram
+// ${SOCBLOX}/common/bfm/axi4_svf_sram/axi4_svf_sram.sv
 
-${SOCBLOX}/common/sram/generic_sram_byte_en.v
-${SOCBLOX}/common/sram/generic_sram_line_en.v
+${COMMON_BFM}/a23_tracer/a23_tracer_bfm.sv
 
--f ${SOCBLOX}/units/axi4_a23/axi4_a23.f
+${COMMON_BFM}/generic_sram_byte_en/generic_sram_byte_en.sv
+${COMMON_BFM}/generic_rom/generic_rom.sv
+${COMMON_BFM}/../sram/generic_sram_line_en.v
 
--f ${SOCBLOX}/units/interconnects/axi4/axi4_interconnects.f
--f ${SOCBLOX}/units/interconnects/wb/wb_interconnects.f
 
-${SOCBLOX}/units/interconnects/axi4/axi4_wb_bridge.sv
-${SOCBLOX}/units/wb_uart/wb_uart.sv
+// ${SOCBLOX}/units/interconnects/axi4/axi4_wb_bridge.sv
+// ${SOCBLOX}/units/wb_uart/wb_uart.sv
 
-${SOCBLOX}/common/bfm/uart/uart_bfm.sv
+// ${SOCBLOX}/common/bfm/uart/uart_bfm.sv
 
-${SOCBLOX}/units/a23_dualcore_subsys/a23_dualcore_subsys.sv
-${SOCBLOX}/systems/a23_dualcore/a23_dualcore_sys.sv
+-F ${SYSTEMS}/a23_dualcore/a23_dualcore.F
 
 ${SOCBLOX}/systems_ve/a23_dualcore_sys/tb/a23_dualcore_sys_tb.sv
 

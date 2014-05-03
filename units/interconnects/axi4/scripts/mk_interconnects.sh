@@ -2,8 +2,8 @@
 
 n_masters=1
 n_slaves=1
-n_masters_max=4
-n_slaves_max=4
+n_masters_max=8
+n_slaves_max=8
 
 echo "" > axi4_interconnects.f
 

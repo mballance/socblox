@@ -35,6 +35,15 @@ sub1:
 	B			sub1
 	 */
 
+	LDR			r0, =0xF1000004
+//	ADD			r0, r0, #0x3004
+	LDR			r1, [r0]
+	MOV			r0, #0
+	CMP			r1, r0
+not_core0:
+	BNE			not_core0
+
+
 	LDR			r0, =_reset
 	LDR			r1, =_cstartup
 	MOV			lr, r1

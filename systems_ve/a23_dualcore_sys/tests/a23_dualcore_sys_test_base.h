@@ -9,6 +9,7 @@
 #define A23_DUALCORE_TEST_BASE_H_
 #include "svf.h"
 #include "a23_dualcore_sys_env.h"
+#include "a23_disasm_tracer.h"
 
 class a23_dualcore_sys_test_base : public svf_test {
 	svf_test_ctor_decl(a23_dualcore_sys_test_base)
@@ -26,7 +27,9 @@ class a23_dualcore_sys_test_base : public svf_test {
 
 	protected:
 
-		a23_dualcore_sys_env				*m_env;
+		a23_dualcore_sys_env		*m_env;
+		a23_disasm_tracer			*m_core1_disasm_tracer;
+		a23_disasm_tracer			*m_core2_disasm_tracer;
 };
 
 #endif /* A23_DUALCORE_TEST_BASE_H_ */

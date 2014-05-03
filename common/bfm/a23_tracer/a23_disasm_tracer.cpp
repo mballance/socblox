@@ -41,8 +41,16 @@ typedef enum {
 	MVN
 } opcode_t;
 
-a23_disasm_tracer::a23_disasm_tracer(FILE *fp) : port(this) {
+a23_disasm_tracer::a23_disasm_tracer(FILE *fp, const char *prefix) :
+		port(this) {
 	m_fp = fp;
+
+	if (prefix && prefix[0]) {
+		m_prefix = prefix;
+		m_prefix += " : ";
+	} else {
+		m_prefix = "";
+	}
 
 	for (int i=0; i<sizeof(m_regs)/sizeof(uint32_t); i++) {
 		m_regs[i] = 0;
@@ -58,7 +66,8 @@ void a23_disasm_tracer::mem_access(
 		bool				is_write,
 		uint32_t			data)
 {
-	fprintf(m_fp, "MEM_ACCESS: %s 0x%08x 0x%08x\n",
+	fprintf(m_fp, "%sMEM_ACCESS: %s 0x%08x 0x%08x\n",
+			m_prefix.c_str(),
 			(is_write)?"WRITE":"READ", addr, data);
 }
 
@@ -253,15 +262,18 @@ void a23_disasm_tracer::execute(
 					// wshift
 				}
 			}
-			fprintf(m_fp, "EXECUTE: 0x%08x: 0x%08x %s %s\n", addr, op, op_s, op_args);
+			fprintf(m_fp, "%sEXECUTE: 0x%08x: 0x%08x %s %s\n",
+					m_prefix.c_str(), addr, op, op_s, op_args);
 			break;
 
 		case TRANS:
-			fprintf(m_fp, "EXECUTE: 0x%08x: 0x%08x %s\n", addr, op, op_s);
+			fprintf(m_fp, "%sEXECUTE: 0x%08x: 0x%08x %s\n",
+					m_prefix.c_str(), addr, op, op_s);
 			break;
 
 		default:
-			fprintf(m_fp, "EXECUTE: 0x%08x: 0x%08x %s\n", addr, op, op_s);
+			fprintf(m_fp, "%sEXECUTE: 0x%08x: 0x%08x %s\n",
+					m_prefix.c_str(), addr, op, op_s);
 			break;
 	}
 
@@ -301,5 +313,5 @@ void a23_disasm_tracer::regchange(
 		)
 {
 	m_regs[reg] = val;
-	fprintf(m_fp, "REG_CHANGE: %d 0x%08x\n", reg, val);
+	fprintf(m_fp, "%sREG_CHANGE: %d 0x%08x\n", m_prefix.c_str(), reg, val);
 }

@@ -8,18 +8,19 @@
  * TODO: Add module documentation
  * 
  * Address Map:
- * 0x0000:		CORE_ID
+ * 0x0000:		N_CORES
+ * 0x0004:		CORE_ID
  */
 module coreinfo_2 #(
 		parameter int AXI_ID_WIDTH=4,
 		parameter bit[31:0] CORE0_AXI_ID=0,
 		parameter bit[31:0] CORE0_ID=0,
 		parameter bit[31:0] CORE1_AXI_ID=0,
-		parameter bit[31:0] CORE1_ID=0,
+		parameter bit[31:0] CORE1_ID=0
 		) (
 		input			clk_i,
 		input			rst_n,
-		axi4_if.slave	slave
+		axi4_if.slave	s
 		);
 
 	localparam N_CORES=2;
@@ -85,7 +86,7 @@ module coreinfo_2 #(
     assign s.ARREADY = (read_state == 1'b0);
     assign s.RVALID = (read_state == 2);
 
-    assign s.RDATA = (read_addr == 0)?core_id:{32{1'b1}};
+    assign s.RDATA = (read_addr == 0)?N_CORES:(read_addr == 1)?core_id:{32{1'b1}};
     assign s.RLAST = (read_state == 2 && read_count == read_length)?1'b1:1'b0;
     assign s.RID   = (read_state == 2)?read_id:0;
 	

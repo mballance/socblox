@@ -47,8 +47,24 @@
 			<value>$%7BPROJECT_LOC%7D/systems/a23_mini_sys</value>
 		</variable>
 		<variable>
+			<name>COMMON_BFM</name>
+			<value>$%7BPROJECT_LOC%7D/common/bfm</value>
+		</variable>
+		<variable>
+			<name>COMMON_RTL</name>
+			<value>$%7BPROJECT_LOC%7D/common/rtl</value>
+		</variable>
+		<variable>
 			<name>SOCBLOX</name>
 			<value>$%7BPROJECT_LOC%7D</value>
+		</variable>
+		<variable>
+			<name>SYSTEMS</name>
+			<value>$%7BPROJECT_LOC%7D/systems</value>
+		</variable>
+		<variable>
+			<name>UNITS</name>
+			<value>$%7BPROJECT_LOC%7D/units</value>
 		</variable>
 	</variableList>
 </projectDescription>

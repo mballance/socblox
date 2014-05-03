@@ -30,14 +30,16 @@ void a23_dualcore_sys_test_base::connect()
 	}
 
 	string TB_ROOT(TB_ROOT_c);
+	string D_ROOT(TB_ROOT + ".u_a23_sys");
 
-	axi4_svf_rom_dpi_mgr::connect(TB_ROOT + ".u_a23_sys.boot_rom", m_env->m_bootrom->port);
-	uart_bfm_dpi_mgr::connect(TB_ROOT + ".u_uart_bfm", m_env->m_uart->bfm_port);
+	generic_rom_dpi_mgr::connect(D_ROOT + ".u_rom.u_rom", m_env->m_bootrom->bfm_port);
+	generic_sram_byte_en_dpi_mgr::connect(D_ROOT + ".u_ram.ram", m_env->m_sram->bfm_port);
+//	uart_bfm_dpi_mgr::connect(TB_ROOT + ".u_uart_bfm", m_env->m_uart->bfm_port);
 
-	a23_tracer_dpi_mgr::connect(TB_ROOT + ".u_a23_sys.a23_subsys_0.u_a23_0.u_tracer.u_svf_tracer",
-			m_env->m_core1_tracer->port);
-	a23_tracer_dpi_mgr::connect(TB_ROOT + ".u_a23_sys.a23_subsys_0.u_a23_1.u_tracer.u_svf_tracer",
-			m_env->m_core2_tracer->port);
+	a23_tracer_bfm_dpi_mgr::connect(D_ROOT + ".u_a23_0.u_tracer.u_tracer_bfm",
+			m_env->m_core1_tracer->bfm_port);
+	a23_tracer_bfm_dpi_mgr::connect(D_ROOT + ".u_a23_1.u_tracer.u_tracer_bfm",
+			m_env->m_core2_tracer->bfm_port);
 }
 
 void a23_dualcore_sys_test_base::shutdown()

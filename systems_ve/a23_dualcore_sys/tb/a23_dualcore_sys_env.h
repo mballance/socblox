@@ -10,8 +10,10 @@
 #include "svf.h"
 #include "generic_rom_bfm.h"
 #include "generic_sram_byte_en_bfm.h"
-#include "uart_bfm.h"
-#include "a23_tracer.h"
+#include "svf_mem_mgr.h"
+// #include "uart_bfm.h"
+#include "a23_tracer_bfm.h"
+#include "a23_disasm_tracer.h"
 //#include "wb_master_bfm.h"
 //#include "axi4_master_bfm.h"
 
@@ -30,9 +32,15 @@ class a23_dualcore_sys_env : public svf_component {
 	public:
 
 		generic_rom_bfm				*m_bootrom;
-		uart_bfm					*m_uart;
-		a23_tracer					*m_core1_tracer;
-		a23_tracer					*m_core2_tracer;
+		generic_sram_byte_en_bfm	*m_sram;
+		svf_mem_mgr					*m_mem_mgr;
+//		uart_bfm					*m_uart;
+		a23_tracer_bfm				*m_core1_tracer;
+		a23_tracer_bfm				*m_core2_tracer;
+
+		FILE						*m_trace_file;
+		a23_disasm_tracer			*m_core1_disasm;
+		a23_disasm_tracer			*m_core2_disasm;
 
 
 		/*
@@ -44,8 +52,6 @@ class a23_dualcore_sys_env : public svf_component {
 		svf_task_mgr<svf_mem_if>	*m_m1_mgr;
 		svf_task_mgr<svf_mem_if>	*m_m2_mgr;
 		 */
-
-		axi4_svf_sram_bfm			*bfm;
 
 };
 

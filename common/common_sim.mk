@@ -12,6 +12,16 @@ LIBPREF=lib
 SVF_LIBDIR ?= $(BUILD_DIR)/libs
 SVF_OBJDIR ?= $(BUILD_DIR)/objs
 
+COMMON_BFM ?= $(SOCBLOX)/common/bfm
+COMMON_RTL ?= $(SOCBLOX)/common/rtl
+UNITS ?= $(SOCBLOX)/units
+SYSTEMS ?= $(SOCBLOX)/systems
+
+export COMMON_BFM
+export COMMON_RTL
+export UNITS
+export SYSTEMS
+
 SVF_BUILD_HOST_WRAPPERS := 0
 
 # include $(SOCBLOX)/defs.mk

@@ -46,15 +46,28 @@ module a23_dualcore_sys_tb(input clk);
 	end
 	/* verilator tracing_on */
 
+	/*
 	uart_if uart2co ();
 	uart_if co2bfm ();
+	
+	 */
+	
+	wire led0, led1, led2, led3;
+	reg sw1, sw2, sw3, sw4;
 
 	a23_dualcore_sys u_a23_sys (
-		.brdclk		(clk  ), 
-		.brdrstn	(rstn ), 
-		.u			(uart2co.dte)
-		);
-	
+			.clk_i(clk),
+			.sw1(sw1),
+			.sw2(sw2),
+			.sw3(sw3),
+			.sw4(sw4),
+			.led0(led0),
+			.led1(led1),
+			.led2(led2),
+			.led3(led3)
+			);
+
+	/*
 	uart_dte_crossover uartco (
 		.u1  (uart2co.dce ), 
 		.u2  (co2bfm.dce )
@@ -64,8 +77,10 @@ module a23_dualcore_sys_tb(input clk);
 		.i_clk       (clk      ), 
 		.u           (co2bfm.dte)
 		);
+		
+		 */
 	
-	bind a23_tracer axi4_a23_svf_tracer u_svf_tracer (
+	bind a23_tracer a23_tracer_bfm u_tracer_bfm (
 			.i_clk                    (i_clk                   ), 
 			.i_fetch_stall            (i_fetch_stall           ), 
 			.i_instruction            (i_instruction           ), 
@@ -87,7 +102,6 @@ module a23_dualcore_sys_tb(input clk);
 			.i_read_data              (i_read_data             ),
 			.i_r0_r15_user            (i_r0_r15_user           )
 			);	
-	
 	
 endmodule
 

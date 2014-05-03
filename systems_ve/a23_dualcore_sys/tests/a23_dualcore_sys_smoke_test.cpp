@@ -33,7 +33,7 @@ void a23_dualcore_sys_smoke_test::start()
 
 	}
 
-	svf_elf_loader loader(m_env->m_bootrom);
+	svf_elf_loader loader(m_env->m_mem_mgr);
 
 	int ret = loader.load(target_exe.c_str());
 
@@ -62,7 +62,7 @@ void a23_dualcore_sys_smoke_test::execute(
 		uint32_t			op
 		)
 {
-	fprintf(stdout, "EXECUTE: 0x%08x\n", addr);
+//	fprintf(stdout, "EXECUTE: 0x%08x\n", addr);
 }
 
 void a23_dualcore_sys_smoke_test::regchange(
