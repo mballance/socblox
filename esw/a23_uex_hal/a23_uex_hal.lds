@@ -21,7 +21,6 @@ SECTIONS {
 	.reset : {
 		*a23_startup.o (.text)
 		. = ALIGN(0x4);
-/*	. */
 	} > ROM
 	
 	.ramvect : {
@@ -29,7 +28,11 @@ SECTIONS {
 		. = 0x40;
 	} > RAM
 	
-/*	.  */
+	.init_ds : {
+		__non_primary_core_release
+		. += 4;
+		. = ALIGN(4);
+	} > GBL
 	
 	.text : {
 		CREATE_OBJECT_SYMBOLS
@@ -52,10 +55,8 @@ SECTIONS {
 	
 		*(.rodata .rodata.* .gnu.linkonce.r.*)
 		
-/*		. . .  */
 		*(.init)
 		*(.fini)
-/*		. . .	 */
 	} >ROM
 
 	.init_array : {

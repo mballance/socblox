@@ -11,7 +11,7 @@ ${UNITS}/timer/timer.sv
 ${UNITS}/interrupt_controller/interrupt_controller.sv
 ${UNITS}/coreinfo/coreinfo_2.sv
 
-${UNITS}/interconnects/axi4/axi4_interconnect_2x5.sv
+${UNITS}/interconnects/axi4/axi4_interconnect_2x6.sv
 ${UNITS}/interconnects/wb/wb_interconnect_1x2.sv
 
 ${UNITS}/interconnects/axi4/axi4_wb_bridge.sv

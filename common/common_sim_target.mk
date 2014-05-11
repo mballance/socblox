@@ -58,4 +58,11 @@ $(SVF_LIBDIR)/sc_qs/%.so :
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(LINK) -shared -o $@ $^
 
+%.o : %.cpp
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(CXX) -c -o $@ $(CXXFLAGS) $^	
+	
+%.o : %.C
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(AS) -c -o $@ $(ASFLAGS) $^	
 	

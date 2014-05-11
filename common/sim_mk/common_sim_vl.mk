@@ -35,16 +35,16 @@ vlog_build : $(VERILATOR_DEPS)
 
 build : simx_build $(EXE_TARGETS) target_build
 		
-simx_build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS) 		
+simx_build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS) 	
 	$(MAKE) SOCBLOX=$(SOCBLOX) TB=$(TB) SIMX=1 TESTBENCH_OBJS="$(TESTBENCH_OBJS)" \
 	    VERILATOR_TRACE_EN=$(VERILATOR_TRACE_EN) BFM_LIBS="$(BFM_LIBS)" \
 	    LIBSVF_LINK="$(LIBSVF_LINK)" \
 	    LIBSVF_SC_LINK="$(LIBSVF_SC_LINK)" \
 	    -C obj_dir -f $(COMMON_SIM_MK) \
 		$(BUILD_DIR)/simx
-	touch $@		
+	touch $@
 
-$(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(BUILD_DIR)/objs/$(TB).o
+$(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DIR)/objs/$(TB).o
 	$(CXX) -o $(BUILD_DIR)/simx \
 	    	$(BUILD_DIR)/objs/$(TB).o \
 			$(TESTBENCH_OBJS) \

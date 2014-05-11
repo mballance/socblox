@@ -173,6 +173,12 @@ module a23_dualcore_sys(
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
 		) ic2ram ();
+	
+	axi4_if #(
+		.AXI4_ADDRESS_WIDTH  (32 ), 
+		.AXI4_DATA_WIDTH     (32 ), 
+		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
+		) ic2gbl ();
 
 	/*
 	axi4_monitor #(
@@ -218,12 +224,12 @@ module a23_dualcore_sys(
 		.A23_CACHE_WAYS  (4)
 		) u_a23_1 (
 		.i_clk           (core_clk       ),
-		.i_rstn          (rst_n          ),
+		.i_rstn          (1'b0          ),
 		.i_irq           (irq            ),
 		.i_firq          (firq           ),
 		.master          (core12ic.master));
 
-	axi4_interconnect_2x5 #(
+	axi4_interconnect_2x6 #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32    ), 
 		.AXI4_ID_WIDTH       (4      ), 
@@ -236,17 +242,20 @@ module a23_dualcore_sys(
 		.SLAVE3_ADDR_BASE    (WB_PERIPH_ADDR_BASE ),
 		.SLAVE3_ADDR_LIMIT   (WB_PERIPH_ADDR_LIMIT),
 		.SLAVE4_ADDR_BASE    (AXI_COREINFO_ADDR_BASE),
-		.SLAVE4_ADDR_LIMIT   (AXI_COREINFO_ADDR_LIMIT)
+		.SLAVE4_ADDR_LIMIT   (AXI_COREINFO_ADDR_LIMIT),
+		.SLAVE5_ADDR_BASE    ('h3000_0000  ),
+		.SLAVE5_ADDR_LIMIT   ('h3000_FFFF  )
 		) u_ic1 (
 		.clk                 (core_clk           ), 
 		.rstn                (rst_n              ), 
-		.m0                  (core02ic.slave      ), 
-		.m1                  (core12ic.slave      ), 
+		.m0                  (core02ic.slave     ), 
+		.m1                  (core12ic.slave     ), 
 		.s0                  (ic2rom.master      ),
 		.s1                  (ic2ram.master      ),
 		.s2                  (ic2sys.master      ),
 		.s3                  (ic2wb.master       ),
-		.s4                  (ic2coreinfo.master ));
+		.s4                  (ic2coreinfo.master ),
+		.s5                  (ic2gbl.master      ));
 	
 	axi4_rom #(
 		.MEM_ADDR_BITS      (12     ), 
@@ -268,6 +277,16 @@ module a23_dualcore_sys(
 		.ACLK               (core_clk        ), 
 		.ARESETn            (rst_n           ), 
 		.s                  (ic2ram.slave    ));
+	
+	axi4_sram #(
+		.MEM_ADDR_BITS      (12     ),
+		.AXI_ADDRESS_WIDTH  (32     ),
+		.AXI_DATA_WIDTH     (32     ),
+		.AXI_ID_WIDTH       (5      )
+		) u_gbl (
+		.ACLK               (core_clk        ), 
+		.ARESETn            (rst_n           ), 
+		.s                  (ic2gbl.slave    ));
 	
 	coreinfo_2 #(
 			.AXI_ID_WIDTH(IC_SLAVE_ID_WIDTH),

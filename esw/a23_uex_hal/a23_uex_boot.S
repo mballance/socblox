@@ -26,24 +26,22 @@
  	.align 4
 
 _reset:
-/*
-	MOV			r1, #0
-	MOV			r3, #0x80000000
-sub1:
-	ADD			r1, r1, #1
-	STR			r1, [r3]
-	B			sub1
-	 */
-
-	LDR			r0, =0xAA55EEFF
-	LDR			r1, =0x30000000
-	SWP			r0, r0, [r1]
-
+	// First, see which core we are
 	LDR			r0, =0xF1000004
-//	ADD			r0, r0, #0x3004
 	LDR			r0, [r0]
 
+	mov			r1, #0
+	cmp			r1, r0
+	BNE			not_core0
+	B			_core0_init
+not_core0:
+	B			_coreN_init
+
+	// End
+
+//	BNE			not_core0
 	// First, setup the SVC stack for this core
+	/*
 	ldr			r1, =__svc_stack0_top__
 	ldr			r2, =__svc_stack0_start__
 	sub			r3, r1, r2
@@ -68,6 +66,7 @@ sub1:
 	mov			r1, #00000002
 	teqp		pc, r1
 	mov			sp, r3
+	 */
 
 // Change mode to SVC
 	mov			r1, #00000003
@@ -76,7 +75,7 @@ sub1:
 // Spin for non-0 core
 	mov			r1, #0
 	cmp			r1, r0
-not_core0:
+//not_core0:
 	BNE			not_core0
 
 
@@ -124,15 +123,6 @@ _cstartup:
 	BLT			1b
  */
 
-	/* Clear .bss */
-	LDR			r1, =__bss_start__
-	LDR			r2, =__bss_end__
-	MOV			r3, #0
-
-1:
-	CMP			r1, r2
-	STMLTIA		r1!, {r3}
-	BLT			1b
 
 
 	/* Fill stack section */
@@ -147,19 +137,50 @@ _cstartup:
 
 	/* TODO: Initialize stack pointers */
 
+//	B			r12
+
+
+_core0_init:
+	/* Clear .bss */
+	LDR			r1, =__bss_start__
+	LDR			r2, =__bss_end__
+	MOV			r3, #0
+
+1:
+	CMP			r1, r2
+	STMLTIA		r1!, {r3}
+	BLT			1b
+
 	/* Invoke static constructors */
 	/*
 	LDR			r12, =__libc_init_array
 	MOV			lr, pc
 	MOV			pc, r12
 	 */
-//	B			r12
 
 	/* Finally, call C/C++ code */
 	LDR			r12, =main
 	MOV			lr, pc
 	MOV			pc, r12
-//	BL			r12
+
+	/* Cause an exception if main() returns */
+	SWI			0xFFFFFF
+
+_coreN_init:
+	ldr			r0, =__non_primary_core_release
+	ldr			r1, [r0]
+	ldr			r2, =0xFFFFFFFF
+	eor			r1, r1, r2 // Compute release value
+
+_coreN_wait_release:
+	ldr			r2, [r0]
+	cmp			r1, r2
+	bne			_coreN_wait_release
+
+	// Proceed with coreN initialization
+	// - Wait until we can lock the startup mutex
+	// - Use the setup stack to perform initialization
+	// - Invoke
 
 	/* Cause an exception if main() returns */
 	SWI			0xFFFFFF
