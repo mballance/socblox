@@ -86,13 +86,32 @@ uex_thread_init:
 	pop			{fp, pc}
 
 /**
- * uex_thread_self
+ * uex_thread_int_mutex_init
  *
  *
  */
-.globl uex_thread_self
-uex_thread_self:
+.globl uex_thread_int_mutex_init
+uex_thread_int_mutex_init:
+	mov			r1, #0
+	str			r1, [r0]
 
+.globl uex_thread_int_mutex_trylock
+uex_thread_int_mutex_trylock:
+	mov			r1, #1
+	swp			r1, r1, [r0]
+	// locked if r1==0
+	cmp			r1, #0
+	beq			_trylock_locked
+	mov			r0, #1
+	mov			pc, lr
+_trylock_locked:
+	mov			r0, #0
+	mov			pc, lr
+
+.globl uex_thread_int_mutex_unlock
+uex_thread_int_mutex_unlock:
+	mov			r1, #0
+	str			r1, [r0]
 
 
 /**

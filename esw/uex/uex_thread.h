@@ -23,12 +23,13 @@ typedef struct uex_thread_s {
 	uex_thread_main_f			thread_main;
 	void						*main_data;
 
+	uint32_t					core_id;
+
 	struct uex_thread_s			*next;
 } uex_thread_t;
 
 typedef struct uex_thread_mutex_s {
-
-
+	uex_thread_mutex_impl_t		mutex;
 } uex_thread_mutex_t;
 
 typedef struct uex_thread_cond_s {

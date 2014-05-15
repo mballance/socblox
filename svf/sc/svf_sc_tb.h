@@ -45,7 +45,7 @@ template <class TB> class svf_sc_tb : public sc_module {
 		static int sc_main(int argc, char **argv) {
 			sc_time timeout = sc_time(1, SC_MS);
 			bool trace = false;
-			const char *tracefile = "vlt_dump.vcd";
+			const char *tracefile = "vlt_dump.lxt2";
 
 			for (int i=0; i<argc; i++) {
 				fprintf(stdout, "ARGV[%d]=%s\n", i, argv[i]);
@@ -74,6 +74,9 @@ template <class TB> class svf_sc_tb : public sc_module {
 					}
 				} else if (!strcmp(argv[i], "-trace")) {
 					trace = true;
+				} else if (!strcmp(argv[i], "-tracefile")) {
+					i++;
+					tracefile = argv[i];
 				}
 			}
 
@@ -93,9 +96,33 @@ template <class TB> class svf_sc_tb : public sc_module {
 			VerilatedVcdSc *tfp = 0;
 
 			if (trace) {
+				const char *ext = strrchr(tracefile, '.');
+				char *pipecmd = 0;
+
 				tfp = new VerilatedVcdSc();
 				tb->tb->trace(tfp, 99);
-				tfp->open(tracefile);
+
+				// Determine how to handle output
+				if (ext) {
+					if (!strcmp(ext, ".lxt2")) {
+						pipecmd = (char *)malloc(strlen(tracefile) + 32);
+						sprintf(pipecmd, "|vcd2lxt - %s", tracefile);
+					} else if (!strcmp(ext, ".vzt")) {
+						pipecmd = (char *)malloc(strlen(tracefile) + 32);
+						sprintf(pipecmd, "|vcd2vzt - %s", tracefile);
+					} else if (!strcmp(ext, ".fst")) {
+						pipecmd = (char *)malloc(strlen(tracefile) + 32);
+						sprintf(pipecmd, "|vcd2fst - %s", tracefile);
+					}
+				}
+
+				if (pipecmd) {
+					fprintf(stdout, "Starting trace with filter command: %s", pipecmd);
+					tfp->open(pipecmd);
+				} else {
+					fprintf(stdout, "Starting trace to file: %s", tracefile);
+					tfp->open(tracefile);
+				}
 			}
 #endif
 

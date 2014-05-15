@@ -26,15 +26,10 @@
  	.align 4
 
 _reset:
-/*
-	MOV			r1, #0
-	MOV			r3, #0x80000000
-sub1:
-	ADD			r1, r1, #1
-	STR			r1, [r3]
-	B			sub1
-	 */
+	ldr			r0, =0x20000364
+	ldr			r1, [r0]
 
+/*
 	LDR			r0, =0xAA55EEFF
 	LDR			r1, =0x30000000
 	SWP			r0, r0, [r1]
@@ -42,8 +37,10 @@ sub1:
 	LDR			r0, =0xF1000004
 //	ADD			r0, r0, #0x3004
 	LDR			r0, [r0]
+ */
 
 	// First, setup the SVC stack for this core
+	/*
 	ldr			r1, =__svc_stack0_top__
 	ldr			r2, =__svc_stack0_start__
 	sub			r3, r1, r2
@@ -54,8 +51,14 @@ sub1:
 	// r3 holds svc stack address
 	// r0 holds the core id
 	mov			sp, r3
+	 */
+	ldr			r0, =__svc_stack0_top__
+	sub			r0, r0, #4
+	mov			sp, r0
+
 
 	// Next, setup the IRQ stack for this core
+	/*
 	ldr			r1, =__irq_stack0_top__
 	ldr			r2, =__irq_stack0_start__
 	sub			r3, r1, r2
@@ -63,6 +66,8 @@ sub1:
 	mul			r3, r3, r2
 	sub			r3, r3, #4
 	add			r3, r3, r2
+	 */
+	ldr			r3, =__irq_stack_top__
 	// r3 holds irq stack address
 	// r0 holds the core id
 	mov			r1, #00000002
@@ -74,10 +79,10 @@ sub1:
 	teqp		pc, r1
 
 // Spin for non-0 core
-	mov			r1, #0
-	cmp			r1, r0
-not_core0:
-	BNE			not_core0
+//	mov			r1, #0
+//	cmp			r1, r0
+//not_core0:
+//	BNE			not_core0
 
 
 	LDR			r0, =_reset
@@ -96,7 +101,9 @@ _cstartup:
 	// Switch to user mode
 	mov			r0, #00000000
 	teqp		pc, r0
-	LDR			sp, =__c_stack_top__
+	ldr			r0, =__c_stack_top__
+	sub			r0, r0, #4
+	mov			sp, r0
 
 	/* Relocate the .fastcode section from ROM to RAM */
 /*

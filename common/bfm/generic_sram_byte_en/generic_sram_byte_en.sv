@@ -55,8 +55,9 @@ input      [DATA_WIDTH/8-1:0]   i_byte_enable,
 output reg [DATA_WIDTH-1:0]     o_read_data
     );                                                     
 
-reg [DATA_WIDTH-1:0]   mem  [0:2**ADDRESS_WIDTH-1];
+reg [DATA_WIDTH-1:0]   mem  [(2**ADDRESS_WIDTH)-1:0];
 integer i;
+localparam OFFSET_HIGH_BIT = (ADDRESS_WIDTH + $clog2(DATA_WIDTH) - 1);
 
 always @(posedge i_clk)
     begin
@@ -98,14 +99,18 @@ always @(posedge i_clk)
     task generic_sram_byte_en_write32(
     	longint unsigned	offset,
     	int unsigned 		data);
-    	mem[offset[(ADDRESS_WIDTH-1):2]] = data;
+    	if (offset[OFFSET_HIGH_BIT:2] < (2**ADDRESS_WIDTH)-1) begin
+	    	mem[offset[OFFSET_HIGH_BIT:2]] = data;
+    	end else begin
+    		$display("Error: ram(32)[%0d] = 'h%08h", offset[OFFSET_HIGH_BIT:2], data);
+    	end
     endtask
     export "DPI-C" task generic_sram_byte_en_write32;
 	
     task generic_sram_byte_en_read32(
     	longint unsigned	offset,
     	output int unsigned data);
-    	data = mem[offset[(ADDRESS_WIDTH-1):2]];
+    	data = mem[offset[OFFSET_HIGH_BIT:2]];
     endtask
     export "DPI-C" task generic_sram_byte_en_read32;
     

@@ -63,5 +63,5 @@ $(BUILD_DIR)/objs/$(TB).o : $(SIM_DIR)/../tb/$(TB).cpp
 #* Simulation settings
 #********************************************************************
 run : $(SIM_DATAFILES)
-	$(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) +TIMEOUT=$(TIMEOUT) -f sim.f -trace
+	$(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) +TIMEOUT=$(TIMEOUT) -f sim.f -trace -tracefile vlt_dump.fst
 
