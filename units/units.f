@@ -10,5 +10,11 @@ ${SOCBLOX}/units/rtc/rtc.sv
 ${SOCBLOX}/units/axi4_sram/axi4_sram.sv
 ${SOCBLOX}/units/wb_uart/wb_uart.sv
 
+${SOCBLOX}/units/axi4_sram_bridges/axi4_generic_byte_en_sram_bridge.sv
+${SOCBLOX}/units/axi4_sram_bridges/axi4_generic_line_en_sram_bridge.sv
+
+${SOCBLOX}/units/bidi_message_queue/bidi_message_queue.sv
+${SOCBLOX}/units/bidi_message_queue/bidi_message_queue_if.sv
+
 
 

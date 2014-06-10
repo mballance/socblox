@@ -2,23 +2,24 @@
 #********************************************************************
 #* Compile rules
 #********************************************************************
-SVF_BUILD_SIM_WRAPPERS := 0
+#SVF_BUILD_SIM_WRAPPERS := 0
 LIB_TARGETS += $(BUILD_DIR)/libs/tb_dpi.so
 
-LD_LIBRARY_PATH := $(SOCBLOX)/libs/$(PLATFORM)/dpi:$(LD_LIBRARY_PATH)
+LD_LIBRARY_PATH := $(SVF_LIBDIR)/dpi:$(LD_LIBRARY_PATH)
+export LD_LIBRARY_PATH
 CXXFLAGS += -I$(QUESTA_HOME)/include -I$(QUESTA_HOME)/include/systemc
 
-DPI_LIBS += $(SOCBLOX)/libs/$(PLATFORM)/dpi/libsvf_dpi
+DPI_LIBS += $(SVF_LIBDIR)/dpi/libsvf_dpi
 DPI_LIBS += $(BUILD_DIR)/libs/tb_dpi
 
-ifeq ($(DEBUG),true)
-	TOP=$(TOP_MODULE)_dbg
-	DOFILE_COMMANDS += "log -r /\*;"
-else
+#ifeq ($(DEBUG),true)
+#	TOP=$(TOP_MODULE)_dbg
+#	DOFILE_COMMANDS += "log -r /\*;"
+#else
 	TOP=$(TOP_MODULE)_opt
-endif
+#endif
 
-build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS)
+build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS) target_build
 
 .phony: vopt vopt_opt vopt_dbg vopt_compile
 vlog_build : vopt

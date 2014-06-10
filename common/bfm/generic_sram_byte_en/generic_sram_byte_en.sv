@@ -100,6 +100,7 @@ always @(posedge i_clk)
     	longint unsigned	offset,
     	int unsigned 		data);
     	if (offset[OFFSET_HIGH_BIT:2] < (2**ADDRESS_WIDTH)-1) begin
+//    		$display("ram %m[%0d] = 'h%08h", offset[OFFSET_HIGH_BIT:2], data);
 	    	mem[offset[OFFSET_HIGH_BIT:2]] = data;
     	end else begin
     		$display("Error: ram(32)[%0d] = 'h%08h", offset[OFFSET_HIGH_BIT:2], data);

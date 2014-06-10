@@ -59,9 +59,17 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DI
 $(BUILD_DIR)/objs/$(TB).o : $(SIM_DIR)/../tb/$(TB).cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $^
 
+ifeq ($(DEBUG),true)
+RT_TRACE_FLAGS = -trace -tracefile vlt_dump.fst
+endif
+
+#VALGRIND=valgrind --tool=memcheck
+#GDB=gdb --args
+
 #********************************************************************
 #* Simulation settings
 #********************************************************************
 run : $(SIM_DATAFILES)
-	$(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) +TIMEOUT=$(TIMEOUT) -f sim.f -trace -tracefile vlt_dump.fst
+	$(GDB) $(VALGRIND) $(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) +TIMEOUT=$(TIMEOUT) \
+          -f sim.f $(RT_TRACE_FLAGS) 
 

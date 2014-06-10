@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<template category="net.sf.svf.templates" id="net.sf.svf.templates.svf_bfm" name="SVF BFM">
+<description>SVF BFM</description>
+<parameters/>
+<files>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<file executable="false" name="${name}.cpp" template="bfm.cpp"/>
+<file executable="false" name="${name}.h" template="bfm.h"/>
+<file executable="false" name="${name}.sv" template="bfm.sv"/>
+<file executable="false" name="${name}_if.h" template="bfm_if.h"/>
+<file executable="false" name="defs_rules.mk" template="defs_rules.mk"/>
+<file executable="false" name="${name}_dpi_mgr.cpp" template="dpi_mgr.cpp"/>
+<file executable="false" name="${name}_dpi_mgr.h" template="dpi_mgr.h"/>
+</files>
+</template>
+</sv_template>

@@ -24,6 +24,11 @@ export SYSTEMS
 
 SVF_BUILD_HOST_WRAPPERS := 0
 
+ifeq (qs,$(SIM))
+SVF_BUILD_SIM_SC_WRAPPER := 0
+endif
+
+
 # include $(SOCBLOX)/defs.mk
 include $(COMMON_SIM_MK_DIR)/common_defs.mk
 include $(MK_INCLUDES)

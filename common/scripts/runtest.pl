@@ -43,7 +43,7 @@ $build=1;
 $cmd="";
 $quiet="";
 $interactive=0;
-$debug=0;
+$debug="false";
 $builddir="";
 $enable_qvip=0;
 $sim="vl";
@@ -98,7 +98,7 @@ for ($i=0; $i <= $#ARGV; $i++) {
     } elsif ($arg eq "-i") {
        $interactive=1;
     } elsif ($arg eq "-d") {
-    	$debug=1;
+    	$debug="true";
     } elsif ($arg eq "-quiet") {
        $quiet=1;
     } elsif ($arg eq "-sim") {

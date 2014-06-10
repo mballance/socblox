@@ -52,7 +52,11 @@ module generic_rom #(
     task generic_rom_read32(
     	longint unsigned	offset,
     	output int unsigned data);
-    	data = rom[offset[(ADDRESS_WIDTH-1):2]];
+    	if (offset[OFFSET_HIGH_BIT:2] < (2**ADDRESS_WIDTH)-1) begin
+	    	data = rom[offset[OFFSET_HIGH_BIT:2]];
+    	end else begin
+	    	$display("Error: rom(32)[%0d]", offset[(ADDRESS_WIDTH-1):2]);
+    	end
     endtask
     export "DPI-C" task generic_rom_read32;
     
@@ -73,6 +77,7 @@ module generic_rom #(
     import "DPI-C" context task generic_rom_register();
     
     initial begin
+    	$display("%m: OFFSET_HIGH_BIT=%0d", OFFSET_HIGH_BIT);
     	generic_rom_register();
     end
 

@@ -14,3 +14,6 @@ ${SOCBLOX}/common/bfm/wb_svf/wb_sram_bfm.sv
 
 +incdir+${SOCBLOX}/common/bfm/uart
 ${SOCBLOX}/common/bfm/uart/uart_bfm.sv
+
++incdir+${SOCBLOX}/common/bfm/bidi_message_queue_bfm
+${SOCBLOX}/common/bfm/bidi_message_queue_bfm/bidi_message_queue_bfm.sv

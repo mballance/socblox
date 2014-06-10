@@ -10,6 +10,7 @@ ${COMMON_BFM}/a23_tracer/a23_tracer_bfm.sv
 ${COMMON_BFM}/generic_sram_byte_en/generic_sram_byte_en.sv
 ${COMMON_BFM}/generic_rom/generic_rom.sv
 ${COMMON_BFM}/../sram/generic_sram_line_en.v
+${COMMON_BFM}/timebase/timebase.sv
 
 
 // ${SOCBLOX}/units/interconnects/axi4/axi4_wb_bridge.sv

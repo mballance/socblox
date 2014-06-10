@@ -52,6 +52,8 @@ module a23_dualcore_sys_tb(input clk);
 	
 	 */
 	
+	timebase u_time();
+	
 	wire led0, led1, led2, led3;
 	reg sw1, sw2, sw3, sw4;
 

@@ -19,6 +19,7 @@ a23_dualcore_sys_env::~a23_dualcore_sys_env() {
 void a23_dualcore_sys_env::build() {
 	m_bootrom = generic_rom_bfm::type_id.create("m_bootrom", this);
 	m_sram = generic_sram_byte_en_bfm::type_id.create("m_sram", this);
+	m_gbl = generic_sram_byte_en_bfm::type_id.create("m_gbl", this);
 
 //	m_uart = uart_bfm::type_id.create("m_uart", this);
 
@@ -29,9 +30,12 @@ void a23_dualcore_sys_env::build() {
 	m_core1_disasm = new a23_disasm_tracer(m_trace_file, "core0");
 	m_core2_disasm = new a23_disasm_tracer(m_trace_file, "core1");
 
+	m_timebase = new timebase("m_timebase", this);
+
 	m_mem_mgr = new svf_mem_mgr();
 	m_mem_mgr->add_region(m_bootrom, 0x00000000, 0x0000FFFF);
 	m_mem_mgr->add_region(m_sram, 0x20000000, 0x2000FFFF);
+	m_mem_mgr->add_region(m_gbl, 0x30000000, 0x3000FFFF);
 }
 
 void a23_dualcore_sys_env::connect() {

@@ -63,7 +63,13 @@ void svf_mem_mgr::write32(uint64_t addr, uint32_t data)
 	svf_mem_mgr_region *r = find(addr, addr+4);
 
 	if (r) {
+		uint32_t read_data;
 		r->mem_if->write32(addr-(r->base), data);
+		read_data = r->mem_if->read32(addr-(r->base));
+//		fprintf(stdout, "Write32: 0x%08llx 0x%08x\n", addr, data);
+		if (read_data != data) {
+			fprintf(stdout, "  Error: read-back 0x%08x\n", read_data);
+		}
 	} else {
 		fprintf(stdout, "Error: write32 - no region for 0x%08llx\n", addr);
 	}
