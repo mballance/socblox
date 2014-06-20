@@ -74,5 +74,6 @@ if test $quiet -eq 1; then
 else
 	make SIM=${SIM} TESTNAME=${testname} ARGFILE="${argfile}" \
 		DEBUG=${debug} \
-		-f ${SIM_DIR}/scripts/Makefile run 2>&1 | tee simx.log
+		-f ${SIM_DIR}/scripts/Makefile run
+		#		-f ${SIM_DIR}/scripts/Makefile run 2>&1 | tee simx.log
 fi

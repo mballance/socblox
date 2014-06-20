@@ -10,7 +10,7 @@
 #include "svf.h"
 #include "${name}_dpi_mgr.h"
 
-class ${name} : public svf_component {
+class ${name} : public svf_component, public virtual ${name}_host_if {
 
 	svf_component_ctor_decl(${name})
 

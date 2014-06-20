@@ -50,7 +50,7 @@ module bidi_message_queue_tb(input clk);
 	
 	bidi_message_queue_if u_queue_if ();
 	
-	localparam MEM_ADDR_BITS = 12;
+	localparam MEM_ADDR_BITS = 16;
 	localparam AXI_ADDRESS_BITS = 32;
 	localparam AXI_DATA_BITS = 32;
 	localparam AXI_ID_WIDTH = 4;
@@ -109,14 +109,14 @@ module bidi_message_queue_tb(input clk);
 		.sram_if            (u_mem_if.sram_client	));
 	
 	bidi_message_queue_bfm u_queue_bfm (
-		.clk       (clk      ), 
+		.clk       (clk      	), 
 		.rst_n     (rstn    	), 
 		.queue_if  (u_queue_if.msg_q_client));
 
 	wire irq;
 	
 	bidi_message_queue #(
-		.QUEUE_ADDR_BITS  (20 )
+		.QUEUE_ADDR_BITS  (8)
 		) u_queue (
 		.clk              (clk             ), 
 		.rst_n            (rstn            ), 

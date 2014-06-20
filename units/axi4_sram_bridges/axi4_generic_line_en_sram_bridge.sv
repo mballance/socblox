@@ -26,10 +26,11 @@ module axi4_generic_line_en_sram_bridge #(
 		);
 	
 	assign sram_if.addr = u_sram_byte_if.sram.addr;
-	assign sram_if.read_data = u_sram_byte_if.sram.read_data;
+	assign u_sram_byte_if.sram.read_data = sram_if.read_data;
 	assign sram_if.read_en = u_sram_byte_if.sram.read_en;
 	assign sram_if.write_en = u_sram_byte_if.sram.write_en;
-	assign u_sram_byte_if.sram.write_data = sram_if.write_data;
+//	assign u_sram_byte_if.sram.write_data = sram_if.write_data;
+	assign sram_if.write_data = u_sram_byte_if.sram.write_data;
 	
 	axi4_generic_byte_en_sram_bridge #(
 		.MEM_ADDR_BITS      (MEM_ADDR_BITS     ), 
@@ -40,7 +41,7 @@ module axi4_generic_line_en_sram_bridge #(
 		.clk                (clk               ), 
 		.rst_n              (rst_n             ), 
 		.axi_if             (axi_if            	), 
-		.sram_if            (u_sram_byte_if.sram));
+		.sram_if            (u_sram_byte_if.sram_client));
 	
 endmodule
 

@@ -12,10 +12,13 @@ LIBPREF=lib
 SVF_LIBDIR ?= $(BUILD_DIR)/libs
 SVF_OBJDIR ?= $(BUILD_DIR)/objs
 
+SOCBLOX ?= $(dir $(COMMON_SIM_MK_DIR))
 COMMON_BFM ?= $(SOCBLOX)/common/bfm
 COMMON_RTL ?= $(SOCBLOX)/common/rtl
 UNITS ?= $(SOCBLOX)/units
 SYSTEMS ?= $(SOCBLOX)/systems
+
+SIM ?= vl
 
 export COMMON_BFM
 export COMMON_RTL

@@ -8,7 +8,7 @@
 #include "${name}.h"
 
 ${name}::${name}(const char *name, svf_component *parent) :
-	svf_component(name, parent), bfm_port(0) {
+	svf_component(name, parent), bfm_port(this) {
 	// TODO Auto-generated constructor stub
 
 }

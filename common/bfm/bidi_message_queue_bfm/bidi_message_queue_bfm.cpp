@@ -8,7 +8,7 @@
 #include "bidi_message_queue_bfm.h"
 
 bidi_message_queue_bfm::bidi_message_queue_bfm(const char *name, svf_component *parent) :
-	svf_component(name, parent), bfm_port(0) {
+	svf_component(name, parent), bfm_port(this) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -22,7 +22,9 @@ void bidi_message_queue_bfm::write32(uint32_t data)
 	m_outbound_mutex.lock();
 	bfm_port->write_req(data);
 
+	fprintf(stdout, "--> m_outbound_cond.wait\n");
 	m_outbound_cond.wait(m_outbound_mutex);
+	fprintf(stdout, "<-- m_outbound_cond.wait\n");
 
 	m_outbound_mutex.unlock();
 }

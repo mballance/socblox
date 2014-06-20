@@ -10,7 +10,7 @@
 #include "svf.h"
 #include "bidi_message_queue_bfm_dpi_mgr.h"
 
-class bidi_message_queue_bfm : public svf_component {
+class bidi_message_queue_bfm : public svf_component, public virtual bidi_message_queue_bfm_host_if {
 
 	svf_component_ctor_decl(bidi_message_queue_bfm)
 

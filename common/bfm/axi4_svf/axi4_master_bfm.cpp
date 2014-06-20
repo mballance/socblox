@@ -23,6 +23,9 @@ axi4_master_bfm::~axi4_master_bfm() {
 
 void axi4_master_bfm::start()
 {
+	if (!bfm_port.consumes()) {
+		fprintf(stdout, "Error: axi4_master_bfm %s is not connected\n", m_name.c_str());
+	}
 	// Retrieve the parameters
 	bfm_port.consumes()->get_parameters(&ADDRESS_WIDTH, &DATA_WIDTH, &ID_WIDTH);
 	fprintf(stdout, "ADDRESS_WIDTH=%d\n", ADDRESS_WIDTH);
@@ -30,8 +33,13 @@ void axi4_master_bfm::start()
 
 void axi4_master_bfm::wait_for_reset()
 {
-	fprintf(stdout, "wait_for_reset %p\n", this);
-	m_reset_sem.get();
+	fprintf(stdout, "--> wait_for_reset %p\n", this);
+	while (!m_init_reset) {
+		m_reset_cond_mutex.lock();
+		m_reset_cond.wait(m_reset_cond_mutex);
+		m_reset_cond_mutex.unlock();
+	}
+	fprintf(stdout, "<-- wait_for_reset %p\n", this);
 }
 
 void axi4_master_bfm::write(
@@ -187,8 +195,10 @@ void axi4_master_bfm::rresp(uint32_t resp)
 void axi4_master_bfm::reset()
 {
 	fprintf(stdout, "reset %p\n", this);
-	m_reset_sem.put();
+	m_reset_cond_mutex.lock();
 	m_init_reset = true;
+	m_reset_cond.notify_all();
+	m_reset_cond_mutex.unlock();
 }
 
 svf_component_ctor_def(axi4_master_bfm)

@@ -38,9 +38,9 @@ module bidi_message_queue_bfm(
 	endtask
 	export "DPI-C" task bidi_message_queue_bfm_read_req;
 	
-	import "DPI-C" task bidi_message_queue_bfm_write_ack();
+	import "DPI-C" context task bidi_message_queue_bfm_write_ack();
 	
-	import "DPI-C" task bidi_message_queue_bfm_read_ack(
+	import "DPI-C" context task bidi_message_queue_bfm_read_ack(
 			int unsigned data);
 	
 	always @(posedge clk) begin
@@ -57,6 +57,7 @@ module bidi_message_queue_bfm(
 					bidi_message_queue_bfm_read_ack(queue_if.outbound_data);
 					outbound_ready <= 0;
 					outbound_req = 0;
+					outbound_state <= 0;
 				end
 			end
 		endcase
@@ -71,9 +72,12 @@ module bidi_message_queue_bfm(
 			
 			1: begin
 				if (queue_if.inbound_valid && queue_if.inbound_ready) begin
-					bidi_message_queue_bfm_write_ack();
-					inbound_valid <= 0;
 					inbound_req = 0;
+					$display("--> write_ack");
+					bidi_message_queue_bfm_write_ack();
+					$display("<-- write_ack");
+					inbound_valid <= 0;
+					inbound_state <= 0;
 				end
 			end
 		endcase

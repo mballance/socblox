@@ -18,6 +18,7 @@ MK_INCLUDES += $(foreach dir,$(BFM_UNIT_DIRS), $(COMMON_BFM_DIR)/$(dir)/defs_rul
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/../svf/svf_defs.mk
 MK_INCLUDES += $(COMMON_SVF_DIR)/defs_rules.mk
 MK_INCLUDES += $(SIM_DIR)/../tb/defs_rules.mk 
+MK_INCLUDES += $(SIM_DIR)/../stim/defs_rules.mk
 MK_INCLUDES += $(SIM_DIR)/../tests/defs_rules.mk
 
 UNIT_VE=${name}

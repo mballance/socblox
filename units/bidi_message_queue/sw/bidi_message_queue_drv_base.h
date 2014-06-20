@@ -7,6 +7,7 @@
 
 #ifndef BIDI_MESSAGE_QUEUE_DRV_BASE_H_
 #define BIDI_MESSAGE_QUEUE_DRV_BASE_H_
+#include <stdint.h>
 
 class bidi_message_queue_drv_base {
 
@@ -48,8 +49,8 @@ class bidi_message_queue_drv_base {
 		virtual void write32(uint32_t *addr, uint32_t data) = 0;
 
 	protected:
-		const uint32_t				INBOUND_RD_PTR = 0;
-		const uint32_t				INBOUND_WR_PTR = 1;
+		const uint32_t				INBOUND_RD_PTR  = 0;
+		const uint32_t				INBOUND_WR_PTR  = 1;
 		const uint32_t				OUTBOUND_RD_PTR = 2;
 		const uint32_t				OUTBOUND_WR_PTR = 3;
 

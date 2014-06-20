@@ -27,10 +27,6 @@ void svf_thread_cond_sc::wait(svf_thread_mutex_sc *m)
 	// Wait
 	sc_core::wait(waiter->m_ev, sc_get_curr_simcontext());
 
-	// Move the waiter to the freelist
-	waiter->m_next = m_freelist;
-	m_freelist = waiter;
-
 	// Lock the mutex on the way out
 	m->lock();
 }
@@ -43,7 +39,11 @@ void svf_thread_cond_sc::notify()
 		wait_ev *waiter = m_waiters;
 
 		m_waiters = m_waiters->m_next;
-		waiter->m_ev.notify();
+		waiter->m_ev.notify(sc_time(0, SC_NS));
+
+		// Move the waiter to the freelist
+		waiter->m_next = m_freelist;
+		m_freelist = waiter;
 	}
 }
 
@@ -55,7 +55,11 @@ void svf_thread_cond_sc::notify_all()
 		wait_ev *waiter = m_waiters;
 
 		m_waiters = m_waiters->m_next;
-		waiter->m_ev.notify();
+		waiter->m_ev.notify(sc_time(0, SC_NS));
+
+		// Move the waiter to the freelist
+		waiter->m_next = m_freelist;
+		m_freelist = waiter;
 	}
 }
 

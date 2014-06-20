@@ -8,6 +8,7 @@
 #ifndef BIDI_MESSAGE_QUEUE_INBOUND_SMOKE_TEST_H_
 #define BIDI_MESSAGE_QUEUE_INBOUND_SMOKE_TEST_H_
 #include "bidi_message_queue_test_base.h"
+#include "bidi_message_queue_memif_drv.h"
 
 class bidi_message_queue_inbound_smoke_test : public bidi_message_queue_test_base {
 
@@ -19,13 +20,24 @@ class bidi_message_queue_inbound_smoke_test : public bidi_message_queue_test_bas
 
 		virtual ~bidi_message_queue_inbound_smoke_test();
 
+		virtual void build();
+
+		virtual void connect();
+
 		virtual void start();
 
 		void run();
 
+		void sw_main();
+
 	private:
 
-		svf_thread					m_run_thread;
+		bidi_message_queue_memif_drv	*m_bidi_drv;
+
+		svf_thread						m_run_thread;
+		svf_thread						m_sw_thread;
+		svf_thread_mutex				m_cond_mutex;
+		svf_thread_cond					m_cond;
 };
 
 #endif /* BIDI_MESSAGE_QUEUE_INBOUND_SMOKE_TEST_H_ */

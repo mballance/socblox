@@ -94,7 +94,8 @@ class axi4_master_bfm: public svf_component,
 
 		svf_thread_mutex			m_b_mutex;
 
-		svf_semaphore				m_reset_sem;
+		svf_thread_mutex			m_reset_cond_mutex;
+		svf_thread_cond				m_reset_cond;
 		bool						m_init_reset;
 };
 

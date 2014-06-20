@@ -30,6 +30,9 @@ using namespace std;
 				fprintf(stdout, "Error: %s: No BFM connected for %s\n",  \
 						#prefix "::" #method, name); \
 			} \
+		} else { \
+			fprintf(stdout, "Error: %s: No BFM instance for for %s\n",  \
+						#prefix "::" #method, name); \
 		} \
 		\
 		return 0; \

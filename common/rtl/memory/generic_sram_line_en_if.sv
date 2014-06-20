@@ -18,18 +18,18 @@ interface generic_sram_line_en_if #(
 	bit								read_en;
 
 	modport sram(
-			output addr,
-			input  read_data,
-			output write_data,
-			output write_en,
-			output read_en);
+			input addr,
+			output  read_data,
+			input write_data,
+			input write_en,
+			input read_en);
 	
 	modport sram_client(
-			input  addr,
-			output read_data,
-			input  write_data,
-			input  write_en,
-			input  read_en);
+			output  addr,
+			input read_data,
+			output  write_data,
+			output  write_en,
+			output  read_en);
 
 
 endinterface

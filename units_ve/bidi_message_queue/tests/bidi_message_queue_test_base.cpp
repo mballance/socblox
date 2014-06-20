@@ -19,7 +19,10 @@ bidi_message_queue_test_base::~bidi_message_queue_test_base() {
 
 void bidi_message_queue_test_base::build()
 {
+	fprintf(stdout, "--> new env\n");
 	m_env = bidi_message_queue_env::type_id.create("m_env", this);
+	fprintf(stdout, "%p\n", m_env->m_master_bfm);
+	fprintf(stdout, "--> new env %p\n", m_env);
 }
 
 void bidi_message_queue_test_base::connect()
