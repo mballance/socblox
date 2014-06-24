@@ -93,7 +93,7 @@ int32_t bidi_message_queue_drv_base::read_next_message(uint32_t *data)
 int32_t bidi_message_queue_drv_base::write_message(uint32_t sz, uint32_t *data)
 {
 	int32_t ret = 0;
-	uint32_t rp, wp;
+	uint32_t rp, wp, next_wp;
 	uint32_t i=0;
 
 	outbound_lock();
@@ -101,7 +101,8 @@ int32_t bidi_message_queue_drv_base::write_message(uint32_t sz, uint32_t *data)
 	wp = read32(&m_base[OUTBOUND_WR_PTR]);
 	rp = read32(&m_base[OUTBOUND_RD_PTR]);
 	while (i <= sz) {
-		if (rp != wp) {
+		next_wp = ((wp+1) % m_queue_sz);
+		if (next_wp != rp) {
 			if (i == 0) {
 				write32(&m_outbound[wp], sz);
 			} else {

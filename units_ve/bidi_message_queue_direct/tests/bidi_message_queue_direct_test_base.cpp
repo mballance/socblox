@@ -51,7 +51,7 @@ void bidi_message_queue_direct_test_base::run()
 	string target_exe;
 	string testname = "unknown";
 	fprintf(stdout, "run thread\n");
-	raise_objection();
+//	raise_objection();
 
 	if (!cmdline().valueplusarg("TARGET_EXE=", target_exe)) {
 		// TODO: fatal

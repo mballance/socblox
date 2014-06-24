@@ -3,9 +3,25 @@
  ****************************************************************************/
 
 /**
- * Module: bidi_message_queue_direct_bfm
+ * Module: bidi_message_queue
  * 
- * TODO: Add module documentation
+ * The BIDI message queue manages communication between a memory-oriented
+ * device, such as a processor, and a stream-oriented device.
+ * 
+ * The processor views this device as two blocks of memory:
+ * Control registers: 0x0000-0x03FF (word addresses)
+ *   inbound_rd_ptr		-- RW for processor
+ *   inbound_wr_ptr		-- RO for processor
+ *   outbound_rd_ptr	-- RO for processor
+ *   outbound_wr_ptr	-- RW for processor
+ *   control			-- RW for processor
+ *   status
+ *   	[1]				-- outbound_irq
+ *   	[0]				-- inbound_irq
+ * 
+ * Memory: 0x0400--0xXXXX
+ *   Inbound  FIFO: [2**(QUEUE_ADDR_BITS/2)]
+ *   Outbound FIFO: [2**(QUEUE_ADDR_BITS/2)]
  */
 module bidi_message_queue #(
 		// Total number of 32-bit words in the two queues
@@ -43,7 +59,7 @@ module bidi_message_queue #(
 		addr_r <= mem_if.addr;
 		addr_sram_r <= (mem_if.addr - 'h400);
 	
-		if (mem_if.write_en) begin
+		if (mem_if.write_en && reg_space) begin
 			if (mem_if.addr[3:0] == 0) begin
 				inbound_rd_ptr <= mem_if.write_data;
 			end
@@ -78,7 +94,7 @@ module bidi_message_queue #(
 		 o_read_data <= (mem_if.write_en)?32'd0:mem[sram_addr];
 		end
 		 
-		 if (mem_if.write_en) begin
+		 if (mem_if.write_en && !reg_space) begin
 		 	mem[sram_addr] = mem_if.write_data;
 		 end
 	end
@@ -90,14 +106,14 @@ module bidi_message_queue #(
 	
 	always @(posedge clk) begin
 		if (wait_inbound_avail_req) begin
-			if (inbound_wr_ptr_next != inbound_rd_ptr) begin
+			if (((inbound_wr_ptr+1) % QUEUE_SZ) != inbound_rd_ptr) begin
 				bidi_message_queue_direct_bfm_inbound_avail_ack();
 				wait_inbound_avail_req = 0;
 			end
 		end
 		
 		if (wait_outbound_avail_req) begin
-			if (outbound_rd_ptr != inbound_wr_ptr) begin
+			if (outbound_rd_ptr != outbound_wr_ptr) begin
 				bidi_message_queue_direct_bfm_outbound_avail_ack();
 				wait_outbound_avail_req = 0;
 			end
@@ -141,7 +157,6 @@ module bidi_message_queue #(
 	task bidi_message_queue_direct_bfm_set_data(
 		int unsigned		offset,
 		int unsigned		data);
-		$display("mem[%0d] = 'h%08h", offset, data);
 		mem[offset] = data;
 	endtask
 	export "DPI-C" task bidi_message_queue_direct_bfm_set_data;

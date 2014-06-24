@@ -71,5 +71,5 @@ endif
 #********************************************************************
 run : $(SIM_DATAFILES)
 	$(GDB) $(VALGRIND) $(BUILD_DIR)/simx +TESTNAME=$(TESTNAME) +TIMEOUT=$(TIMEOUT) \
-          -f sim.f $(RT_TRACE_FLAGS) 
+          -f sim.f $(RT_TRACE_FLAGS) 2>&1 | tee simx.log
 

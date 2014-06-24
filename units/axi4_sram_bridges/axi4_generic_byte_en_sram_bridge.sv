@@ -39,7 +39,7 @@ module axi4_generic_byte_en_sram_bridge #(
 	reg[AXI_ID_WIDTH-1:0]			read_id;
 	reg[1:0]						read_burst;
 	reg[3:0]						read_wrap_mask;
-	reg[1:0]						sram_owner;
+	reg[1:0]						sram_owner = 0;
 	wire[MEM_ADDR_BITS-1:0]			sram_addr;
 
 	always @(posedge clk)
@@ -74,7 +74,7 @@ module axi4_generic_byte_en_sram_bridge #(
 						write_id <= axi_if.AWID;
 						write_count <= 0;
 						write_state <= 1;
-						sram_owner <= 1;
+						sram_owner <= 0;
     				
 						case (axi_if.AWBURST)
 							2: begin
@@ -118,7 +118,6 @@ module axi4_generic_byte_en_sram_bridge #(
 				2'b10: begin  // Send write response
 					if (axi_if.BVALID == 1'b1 && axi_if.BREADY == 1'b1) begin
 						write_state <= 2'b00;
-						sram_owner <= 0;
 					end
 				end
     			
@@ -144,7 +143,7 @@ module axi4_generic_byte_en_sram_bridge #(
 						read_count <= 0;
 						read_state <= 1;
 						read_id <= axi_if.ARID;
-						sram_owner <= 2;
+						sram_owner <= 1;
     					
 						case (axi_if.ARBURST) 
 							2: begin
@@ -174,7 +173,6 @@ module axi4_generic_byte_en_sram_bridge #(
 					if (axi_if.RVALID && axi_if.RREADY) begin
 						if (read_count == read_length) begin
 							read_state <= 1'b0;
-							sram_owner <= 0;
 						end else begin
 							read_count <= read_count + 1;
 							read_state <= 4;
@@ -216,15 +214,17 @@ module axi4_generic_byte_en_sram_bridge #(
 	
 	assign sram_if.read_en = 1;
     
-	assign sram_addr = (sram_owner == 1)?write_addr_w:(sram_owner == 2)?read_addr_w:0;
+	assign sram_addr = (sram_owner == 0)?write_addr_w:read_addr_w;
    
-	assign axi_if.AWREADY = (write_state == 0 && sram_owner == 0);
+	assign axi_if.AWREADY = (write_state == 0 && 
+			((sram_owner == 1 && axi_if.AWVALID) || !axi_if.ARVALID));
 	assign axi_if.WREADY = (write_state == 1);
     
 	assign axi_if.BVALID = (write_state == 2);
 	assign axi_if.BID = (write_state == 2)?write_id:0;
     
-	assign axi_if.ARREADY = (read_state == 1'b0 && sram_owner == 0);
+	assign axi_if.ARREADY = (read_state == 1'b0 && 
+			((sram_owner == 0 && axi_if.ARVALID) || !axi_if.AWVALID));
 
 	assign axi_if.RVALID = (read_state == 3);
 	assign axi_if.RLAST = (read_state == 3 && read_count == read_length)?1'b1:1'b0;

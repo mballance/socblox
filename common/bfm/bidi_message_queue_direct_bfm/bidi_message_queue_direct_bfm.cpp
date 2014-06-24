@@ -40,7 +40,7 @@ int32_t bidi_message_queue_direct_bfm::get_next_message_sz(bool block)
 
 		if (wp != rp) {
 			uint32_t tmp;
-			bfm_port->get_data(rp, &tmp);
+			bfm_port->get_data(rp+m_queue_sz, &tmp);
 			m_inbound_sz = tmp;
 
 			rp = ((rp+1) % m_queue_sz);
@@ -53,6 +53,7 @@ int32_t bidi_message_queue_direct_bfm::get_next_message_sz(bool block)
 			bfm_port->wait_outbound_avail();
 			m_outbound_avail_mutex.lock();
 			m_outbound_avail_cond.wait(m_outbound_avail_mutex);
+			m_outbound_avail_mutex.unlock();
 		}
 	}
 
@@ -71,7 +72,7 @@ int32_t bidi_message_queue_direct_bfm::read_next_message(uint32_t *data)
 	while (i < m_inbound_sz) {
 
 		if (rp != wp) {
-			bfm_port->get_data(rp, &data[i]);
+			bfm_port->get_data(rp+m_queue_sz, &data[i]);
 			rp = ((rp+1) % m_queue_sz);
 			i++;
 		} else {
@@ -79,6 +80,7 @@ int32_t bidi_message_queue_direct_bfm::read_next_message(uint32_t *data)
 			bfm_port->wait_outbound_avail();
 			m_outbound_avail_mutex.lock();
 			m_outbound_avail_cond.wait(m_outbound_avail_mutex);
+			m_outbound_avail_mutex.unlock();
 			bfm_port->get_outbound_ptrs(&rp, &wp);
 		}
 	}
@@ -120,6 +122,7 @@ int32_t bidi_message_queue_direct_bfm::write_message(uint32_t sz, uint32_t *data
 			bfm_port->wait_inbound_avail();
 			m_inbound_avail_mutex.lock();
 			m_inbound_avail_cond.wait(m_inbound_avail_mutex);
+			m_inbound_avail_mutex.unlock();
 			bfm_port->get_inbound_ptrs(&rp, &wp);
 		}
 	}

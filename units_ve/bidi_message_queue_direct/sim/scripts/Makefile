@@ -4,6 +4,7 @@
 #* TODO: 
 #****************************************************************************
 
+TIMEOUT := 25ms
 SCRIPTS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 #* TODO: Uncomment to enable target build

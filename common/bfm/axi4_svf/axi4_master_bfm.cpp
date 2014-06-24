@@ -130,7 +130,7 @@ void axi4_master_bfm::read(
 		bfm_port()->get_data(i, &data[i]);
 	}
 
-	m_read_mutex.lock();
+	m_read_mutex.unlock();
 }
 
 uint8_t axi4_master_bfm::read8(uint64_t addr)
