@@ -392,7 +392,7 @@ sub run_jobs {
                     	"DEBUG=${debug}",
                     	"run"
                     	);
-                    
+                   
                     open(my $fh, "$SIM_DIR/scripts/status.sh $test |") or die "Failed to launch check program";
                     
                     $result = <$fh>;

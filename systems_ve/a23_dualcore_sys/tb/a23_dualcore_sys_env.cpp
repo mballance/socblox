@@ -21,7 +21,7 @@ void a23_dualcore_sys_env::build() {
 	m_sram = generic_sram_byte_en_bfm::type_id.create("m_sram", this);
 	m_gbl = generic_sram_byte_en_bfm::type_id.create("m_gbl", this);
 
-//	m_uart = uart_bfm::type_id.create("m_uart", this);
+	m_uart = uart_bfm::type_id.create("m_uart", this);
 
 	m_core1_tracer = a23_tracer_bfm::type_id.create("m_core1_tracer", this);
 	m_core2_tracer = a23_tracer_bfm::type_id.create("m_core2_tracer", this);
@@ -30,12 +30,17 @@ void a23_dualcore_sys_env::build() {
 	m_core1_disasm = new a23_disasm_tracer(m_trace_file, "core0");
 	m_core2_disasm = new a23_disasm_tracer(m_trace_file, "core1");
 
+	m_uart_monitor = new uart_bfm_monitor("# ");
+
 	m_timebase = new timebase("m_timebase", this);
 
 	m_mem_mgr = new svf_mem_mgr();
 	m_mem_mgr->add_region(m_bootrom, 0x00000000, 0x0000FFFF);
 	m_mem_mgr->add_region(m_sram, 0x20000000, 0x2000FFFF);
 	m_mem_mgr->add_region(m_gbl, 0x30000000, 0x3000FFFF);
+
+	m_msg_queue_0 = bidi_message_queue_direct_bfm::type_id.create("m_msg_queue_0", this);
+	m_msg_queue_1 = bidi_message_queue_direct_bfm::type_id.create("m_msg_queue_1", this);
 }
 
 void a23_dualcore_sys_env::connect() {
@@ -47,6 +52,8 @@ void a23_dualcore_sys_env::connect() {
 
 	m_core1_tracer->port.connect(m_core1_disasm->port);
 	m_core2_tracer->port.connect(m_core2_disasm->port);
+
+	m_uart->ap.connect(m_uart_monitor->port);
 
 
 }

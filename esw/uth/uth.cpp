@@ -14,15 +14,17 @@ static void uth_thread_main_trampoline(void *ud)
 {
 	uth_thread_t *thread = (uth_thread_t *)ud;
 
+	/*
 	fprintf(stdout, "thread=%p\n", ud);
 	fflush(stdout);
 	fprintf(stdout, "thread->main_f=%p\n", thread->main_f);
+	 */
 
 	// Call the real main
 	thread->main_f(thread->main_ud);
 
 	// Free the stack
-	free(thread->stack);
+//	free(thread->stack);
 
 	// Post-thread cleanup. Never returns
 	thread->thread_mgr->thread_end(thread);
@@ -34,7 +36,7 @@ int uth_thread_create(
 		void				*ud
 		)
 {
-	uint32_t stk_sz = 4096;
+	uint32_t stk_sz = 8192;
 	uint8_t *stack_top;
 	uth_thread_mgr *mgr = uth_get_thread_mgr();
 
@@ -71,6 +73,8 @@ int uth_mutex_init(
 int uth_mutex_lock(
 		uth_mutex_t		*mutex)
 {
+	/*
+	 */
 	uth_thread_mgr *mgr = uth_get_thread_mgr();
 
 	while (!uth_thread_int_mutex_trylock(mutex)) {
@@ -83,6 +87,8 @@ int uth_mutex_lock(
 int uth_mutex_unlock(
 		uth_mutex_t		*mutex)
 {
+	/*
+	 */
 	uth_thread_int_mutex_unlock(mutex);
 
 	return 0;

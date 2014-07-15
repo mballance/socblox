@@ -64,18 +64,15 @@ module uart_bfm  #(
 		parameter int UART_BAUD = 230400
 	) (
 		input                       i_clk,
-		uart_if.dte					u
+		uart_if.dce					u
 	);
 	
 	wire                       o_uart_int;
 	wire                       i_uart_cts_n;   // Clear To Send
-	assign i_uart_cts_n = u.cts;
-	wire                       o_uart_txd;     // Transmit data
-	assign u.txd = o_uart_txd;
+//	assign i_uart_cts_n = u.cts;
 	wire                       o_uart_rts_n;   // Request to Send
-	assign u.rts = o_uart_rts_n;
-	wire                       i_uart_rxd;     // Receive data
-	assign i_uart_rxd = u.rxd;
+//	assign u.rts = o_uart_rts_n;
+	assign u.cts = 0;
 
 localparam int WB_SWIDTH  = 4;
 localparam int WB_DWIDTH  = 32;
@@ -190,7 +187,7 @@ import "DPI-C" context task uart_bfm_rx_done(byte unsigned ch);
 // UART Transmit
 // ========================================================
 
-assign   o_uart_txd                 = txd;
+assign	u.rxd = txd;
 
 // ========================================================
 // Register Clear to Send Input
@@ -346,7 +343,7 @@ always @( posedge i_clk )
 // Detect 1->0 transition. Filter out glitches and jaggedy transitions
 // ========================================================
 always @( posedge i_clk )
-    rxd_d[4:0] <= {rxd_d[3:0], i_uart_rxd};
+    rxd_d[4:0] <= {rxd_d[3:0], u.txd};
 
 assign rx_start = rxd_d[4:3] == 2'b11 && rxd_d[1:0] == 2'b00;
 
@@ -395,7 +392,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_DATA1;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[0]              <= i_uart_rxd;
+                rx_byte[0]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -405,7 +402,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_DATA2;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[1]              <= i_uart_rxd;
+                rx_byte[1]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -415,7 +412,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_DATA3;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[2]              <= i_uart_rxd;
+                rx_byte[2]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -425,7 +422,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_DATA4;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[3]              <= i_uart_rxd;
+                rx_byte[3]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -435,7 +432,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_DATA5;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[4]              <= i_uart_rxd;
+                rx_byte[4]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -445,7 +442,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_DATA6;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[5]              <= i_uart_rxd;
+                rx_byte[5]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -455,7 +452,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_DATA7;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[6]              <= i_uart_rxd;
+                rx_byte[6]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -465,7 +462,7 @@ always @( posedge i_clk )
                 begin
                 rxd_state               <= RXD_STOP;
                 restart_rx_bit_count    <= 1'd1;
-                rx_byte[7]              <= i_uart_rxd;
+                rx_byte[7]              <= u.txd;
                 end
             else    
                 restart_rx_bit_count    <= 1'd0;
@@ -487,5 +484,9 @@ always @( posedge i_clk )
             
     endcase
 
+    import "DPI-C" context task uart_bfm_register();
+    initial begin
+    	uart_bfm_register();
+    end
 endmodule
 

@@ -34,6 +34,10 @@ while (<FH>) {
     if ($record eq "01") {
     	$out .= ":00000001FF\n";
     	last;
+    } elsif ($record eq "02") {
+    	# ignore
+    } elsif ($record eq "03") {
+    	# ignore
     } elsif ($record eq "00") {
 		$wordaddr = $address / $bytesperword;
 		

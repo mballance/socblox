@@ -12,6 +12,10 @@ module a23_dualcore_sys_tb(input clk);
 	reg[15:0]			rst_cnt = 0;
 	reg					rstn = 0;
 	
+	localparam UART_BAUD = 7372800;
+//	localparam UART_BAUD = 14745600;
+	localparam CLK_PERIOD = 10;
+	
 `ifndef VERILATOR
 	reg clk_r = 0;
 	assign clk = clk_r;
@@ -56,8 +60,13 @@ module a23_dualcore_sys_tb(input clk);
 	
 	wire led0, led1, led2, led3;
 	reg sw1, sw2, sw3, sw4;
+	
+	uart_if u_uart_if ();
 
-	a23_dualcore_sys u_a23_sys (
+	a23_dualcore_sys #(
+			.CLK_PERIOD(CLK_PERIOD),
+			.UART_BAUD(UART_BAUD)
+			) u_a23_sys (
 			.clk_i(clk),
 			.sw1(sw1),
 			.sw2(sw2),
@@ -66,7 +75,8 @@ module a23_dualcore_sys_tb(input clk);
 			.led0(led0),
 			.led1(led1),
 			.led2(led2),
-			.led3(led3)
+			.led3(led3),
+			.uart_dte(u_uart_if.dte)
 			);
 
 	/*
@@ -74,13 +84,16 @@ module a23_dualcore_sys_tb(input clk);
 		.u1  (uart2co.dce ), 
 		.u2  (co2bfm.dce )
 		);
+		 */
 
-	uart_bfm u_uart_bfm (
+	uart_bfm #(
+			.CLK_PERIOD(CLK_PERIOD),
+			.UART_BAUD(UART_BAUD)
+			) u_uart_bfm (
 		.i_clk       (clk      ), 
-		.u           (co2bfm.dte)
+		.u           (u_uart_if.dce)
 		);
 		
-		 */
 	
 	bind a23_tracer a23_tracer_bfm u_tracer_bfm (
 			.i_clk                    (i_clk                   ), 

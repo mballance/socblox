@@ -28,6 +28,14 @@ void *_sbrk(size_t incr) {
 
   return prev_heap;
 }
+/*
+
+int _system(const char *s) { return -1; }
+int _rename(const char *s1, const char *s2) { return -1; }
+int _isatty(int t) { return -1; }
+int _raise(void) { return -1; }
+void _exit(int c) { ; }
+ */
 
 #ifdef UNDEFINED
 void* malloc(size_t size) {

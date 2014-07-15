@@ -51,6 +51,7 @@ class uth_coop_thread_mgr: public virtual uth_thread_mgr {
 
 		uth_thread_t					*m_active_thread_list;
 		uth_thread_t					*m_blocked_thread_list;
+		uth_thread_t					*m_terminated_thread_list;
 
 };
 

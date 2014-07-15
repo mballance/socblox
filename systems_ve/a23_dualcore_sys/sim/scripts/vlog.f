@@ -6,6 +6,10 @@
 // ${SOCBLOX}/common/bfm/axi4_svf_sram/axi4_svf_sram.sv
 
 ${COMMON_BFM}/a23_tracer/a23_tracer_bfm.sv
+${COMMON_BFM}/uart/uart_bfm.sv
+
+
+${COMMON_BFM}/bidi_message_queue_direct_bfm/bidi_message_queue.sv
 
 ${COMMON_BFM}/generic_sram_byte_en/generic_sram_byte_en.sv
 ${COMMON_BFM}/generic_rom/generic_rom.sv

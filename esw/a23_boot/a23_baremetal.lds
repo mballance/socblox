@@ -3,9 +3,14 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 
 MEMORY {
-	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 16k
-	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 16k
+	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 64k
+	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 1M
 	GBL(rwx)	: ORIGIN = 0x30000000, LENGTH = 16k
+/*
+	ROM(rx)		: ORIGIN = 0x00010000, LENGTH = 64k
+	RAM(rwx)	: ORIGIN = 0x00020000, LENGTH = 16k
+	GBL(rwx)	: ORIGIN = 0x00030000, LENGTH = 16k
+ */
 }
 
 C_STACK_SIZE = 4096;
@@ -92,6 +97,11 @@ SECTIONS {
 	} >RAM
 	
 	.start : {
+	/*
+		_end = . ;
+		__end = _end;
+		PROVIDE(end = .);
+	 */
 		__heap_start = .;
 		. += 4k;
 		__heap_end = .;
@@ -139,9 +149,6 @@ SECTIONS {
 		__mailbox_end = .;
 	} > GBL
 	
-	_end = . ;
-	__end = _end;
-	PROVIDE(end = .);
 	
 	.stab 0 (NOLOAD) : {
 		*(.stab)

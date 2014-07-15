@@ -7,6 +7,7 @@
 
 #ifndef UTH_MD_H_
 #define UTH_MD_H_
+#include <stdint.h>
 
 typedef struct uth_thread_ctxt_md_s {
 	uint32_t				regs[16];

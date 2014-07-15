@@ -9,4 +9,4 @@ $(UNIT_NAME)_SRC := \
 	uth_thread_mgr.cpp
 
 # Brings in rules to build the unit .a
-include $(SOCBLOX)/common/common_so_unit_rules_defs.mk
+include $(SOCBLOX)/common/common_unit_rules_defs.mk

@@ -19,6 +19,10 @@ bidi_message_queue_direct_bfm::~bidi_message_queue_direct_bfm() {
 
 void bidi_message_queue_direct_bfm::start()
 {
+	if (!bfm_port.consumes()) {
+		fprintf(stdout, "Note: bidi_message_queue_direct_bfm not connected\n");
+		return;
+	}
 	bfm_port->get_queue_sz(&m_queue_sz);
 }
 

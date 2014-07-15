@@ -19,9 +19,14 @@ MK_INCLUDES += $(SIM_DIR)/../tests/sw/defs_rules.mk
 # MK_INCLUDES += $(SOCBLOX)/esw/a23_common/defs_rules.mk
 MK_INCLUDES += $(SOCBLOX)/esw/a23_uex_hal/defs_rules.mk
 MK_INCLUDES += $(SOCBLOX)/esw/uex/defs_rules.mk
+MK_INCLUDES += $(SOCBLOX)/esw/uth/defs_rules.mk
+MK_INCLUDES += $(SOCBLOX)/esw/uth_a23/defs_rules.mk
+MK_INCLUDES += $(SOCBLOX)/esw/uth_coop_thread_mgr/defs_rules.mk
 MK_INCLUDES += $(SOCBLOX)/esw/a23_boot/defs_rules.mk
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/common_target_defs_rules.mk
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/../svf/svf_defs.mk
+MK_INCLUDES += $(UNITS)/bidi_message_queue/sw/defs_rules.mk
+MK_INCLUDES += $(UNITS)/bidi_message_queue/sw/uth/defs_rules.mk
 
 SRC_DIRS += $(SOCBLOX)/systems/a23_dualcore/sw
 

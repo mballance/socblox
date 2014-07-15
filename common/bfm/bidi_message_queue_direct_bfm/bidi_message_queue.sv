@@ -30,10 +30,14 @@ module bidi_message_queue #(
 		input							clk,
 		input							rst_n,
 		generic_sram_line_en_if.sram	mem_if,
-//		bidi_message_queue_if.msg_q	queue_if,
+		bidi_message_queue_if.msg_q		queue_if,
 		output							irq
 		);
-
+	
+	assign queue_if.inbound_ready = 0;
+	assign queue_if.outbound_data = 0;
+	assign queue_if.outbound_valid = 0;
+	
 	localparam QUEUE_SZ = (1 << (QUEUE_ADDR_BITS-1));
 
 	reg[31:0]			inbound_rd_ptr;

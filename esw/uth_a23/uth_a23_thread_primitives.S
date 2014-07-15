@@ -97,8 +97,11 @@ uth_thread_int_mutex_init:
 
 .globl uth_thread_int_mutex_trylock
 uth_thread_int_mutex_trylock:
-	mov			r1, #1
-	swp			r1, r1, [r0]
+//	mov			r1, #1
+//	swp			r1, r1, [r0]
+	mov			r2, #1
+	ldr			r1, [r0]
+	str			r2, [r0]
 	// locked if r1==0
 	cmp			r1, #0
 	beq			_trylock_locked
@@ -113,6 +116,9 @@ uth_thread_int_mutex_unlock:
 	mov			r1, #0
 	str			r1, [r0]
 
+.globl uth_main_thread_init
+uth_main_thread_init:
+	mov			pc, lr
 
 /**
  * uth_init_main_thread
