@@ -7,11 +7,10 @@
 
 #ifndef SVF_COMPONENT_H_
 #define SVF_COMPONENT_H_
-#include <string>
-#include <vector>
 #include <stdint.h>
-using namespace std;
+#include "svf_string.h"
 #include "svf_component_ctor.h"
+#include "svf_ptr_vector.h"
 
 class svf_root;
 class svf_task_base;
@@ -24,7 +23,7 @@ class svf_component {
 
 		virtual ~svf_component();
 
-		const string &get_name() const;
+		const svf_string &get_name() const;
 
 	protected:
 
@@ -48,8 +47,8 @@ class svf_component {
 
 	protected:
 		svf_component					*m_parent;
-		string							m_name;
-		vector<svf_component *>			m_children;
+		svf_string						m_name;
+		svf_ptr_vector<svf_component>	m_children;
 };
 
 #endif /* SVF_COMPONENT_H_ */

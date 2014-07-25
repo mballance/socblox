@@ -7,7 +7,7 @@
 
 #ifndef SVF_CONFIG_DB_H_
 #define SVF_CONFIG_DB_H_
-#include <vector>
+#include "svf_ptr_vector.h"
 #include <stdint.h>
 
 using namespace std;
@@ -33,7 +33,7 @@ class svf_config_db {
 
 	private:
 		static svf_config_db				*m_default;
-		vector<svf_config_db_entry *>		m_entries;
+		svf_ptr_vector<svf_config_db_entry>	m_entries;
 
 };
 

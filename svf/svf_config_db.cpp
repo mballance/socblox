@@ -6,7 +6,7 @@
  */
 
 #include "svf_config_db.h"
-#include <string>
+#include "svf_string.h"
 #include <stdio.h>
 
 typedef enum {
@@ -25,36 +25,36 @@ class svf_config_db_entry {
 
 		svf_config_db_entry(
 				svf_config_db_entry_t	type,
-				const string 			&path,
-				const string 			&key,
+				const svf_string		&path,
+				const svf_string 		&key,
 				bool  					exp);
 
 		virtual ~svf_config_db_entry() {}
 
-		bool matches(svf_config_db_entry_t type, const string &path, const string &key);
+		bool matches(svf_config_db_entry_t type, const svf_string &path, const svf_string &key);
 
 		virtual svf_config_db_entry *clone() = 0;
 
 	protected:
 		svf_config_db_entry_t		m_type;
-		string						m_path;
+		svf_string					m_path;
 //		svf_config_db_match_t		m_match_type;
-		string						m_key;
+		svf_string					m_key;
 		bool						m_export;
 
 };
 
 svf_config_db_entry::svf_config_db_entry(
 		svf_config_db_entry_t	type,
-		const string			&path,
-		const string			&key,
+		const svf_string		&path,
+		const svf_string		&key,
 		bool					exp) : m_type(type), m_path(path), m_key(key), m_export(exp) {
 }
 
 bool svf_config_db_entry::matches(
 		svf_config_db_entry_t		type,
-		const string 				&path,
-		const string 				&key)
+		const svf_string 			&path,
+		const svf_string 			&key)
 {
 	bool match = false;
 	fprintf(stdout, "m_type=%d type=%d m_key=%s key=%s\n", m_type, type, m_key.c_str(), key.c_str());
@@ -95,30 +95,30 @@ class svf_string_config_db_entry : public svf_config_db_entry {
 	public:
 
 		svf_string_config_db_entry(
-				const string 	&path,
-				const string 	&key,
-				const string 	&val,
+				const svf_string 	&path,
+				const svf_string 	&key,
+				const svf_string 	&val,
 				bool			exp);
 
-		const string &get_value() const;
+		const svf_string &get_value() const;
 
 		virtual svf_config_db_entry *clone();
 
 	private:
-		string				m_val;
+		svf_string				m_val;
 
 };
 
 svf_string_config_db_entry::svf_string_config_db_entry(
-		const string				&path,
-		const string				&key,
-		const string				&val,
+		const svf_string			&path,
+		const svf_string			&key,
+		const svf_string			&val,
 		bool						exp) :
 	svf_config_db_entry(ConfigTypeString, path, key, exp), m_val(val)
 {
 }
 
-const string &svf_string_config_db_entry::get_value() const
+const svf_string &svf_string_config_db_entry::get_value() const
 {
 	return m_val;
 }
@@ -171,8 +171,8 @@ bool svf_config_db::get_string(const char *path, const char *key, const char **v
 svf_config_db_entry *svf_config_db::find(uint32_t type, const char *path, const char *key)
 {
 	svf_config_db_entry_t type_t = (svf_config_db_entry_t)type;
-	string path_s = path;
-	string key_s = key;
+	svf_string path_s = path;
+	svf_string key_s = key;
 
 	for (uint32_t i=0; i<m_entries.size(); i++) {
 		fprintf(stdout, "Entry: %p\n", m_entries.at(i));

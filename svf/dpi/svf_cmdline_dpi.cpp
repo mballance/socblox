@@ -7,8 +7,10 @@
 
 #include "svf_cmdline.h"
 #include "svf_argfile_parser.h"
-#include <vector>
+#include "svf_string.h"
+#include "svf_ptr_vector.h"
 #include <string>
+#include <vector>
 #ifndef _WIN32
 #ifndef __USE_GNU
 #define __USE_GNU
@@ -21,7 +23,7 @@ using namespace std;
 typedef uint32_t (*acc_fetch_argc_f)();
 typedef char **(*acc_fetch_argv_f)();
 
-vector<string> svf_cmdline::args()
+svf_ptr_vector<svf_string> svf_cmdline::args()
 {
 	acc_fetch_argc_f acc_fetch_argc_p = 0;
 	acc_fetch_argv_f acc_fetch_argv_p = 0;
@@ -39,7 +41,15 @@ vector<string> svf_cmdline::args()
 	}
 
 
-	return parser.cmdline();
+	vector<string> tmp = parser.cmdline();
+
+	svf_ptr_vector<svf_string> ret;
+
+	for (uint32_t i=0; i<tmp.size(); i++) {
+		ret.push_back(new svf_string(tmp.at(i).c_str()));
+	}
+
+	return ret;
 }
 
 

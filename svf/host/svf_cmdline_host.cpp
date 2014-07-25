@@ -7,14 +7,14 @@
 
 #include "svf_cmdline.h"
 #include "svf_argfile_parser.h"
-#include <vector>
-#include <string>
+#include "svf_ptr_vector.h"
+#include "svf_string.h"
 
 using namespace std;
 
-vector<string> svf_cmdline::args()
+svf_ptr_vector<svf_string> svf_cmdline::args()
 {
-	vector<string> args;
+	svf_ptr_vector<svf_string> args;
 	// TODO: provide a way to initialize arguments
 
 	return args;

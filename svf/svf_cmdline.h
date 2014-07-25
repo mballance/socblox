@@ -7,8 +7,8 @@
 
 #ifndef SVF_CMDLINE_H_
 #define SVF_CMDLINE_H_
-#include <string>
-#include <vector>
+#include "svf_string.h"
+#include "svf_ptr_vector.h"
 #include <stdint.h>
 
 using namespace std;
@@ -23,7 +23,7 @@ class svf_cmdline {
 
 		static svf_cmdline &get_default();
 
-		bool valueplusarg(const char *pattern, string &value);
+		bool valueplusarg(const char *pattern, svf_string &value);
 
 	protected:
 
@@ -31,10 +31,10 @@ class svf_cmdline {
 
 	private:
 
-		static vector<string> args();
+		static svf_ptr_vector<svf_string> args();
 
 	private:
-		vector<string>				m_args;
+		svf_ptr_vector<svf_string>	 m_args;
 		static svf_cmdline			*m_default;
 };
 

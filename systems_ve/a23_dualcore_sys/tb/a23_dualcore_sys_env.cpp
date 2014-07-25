@@ -35,8 +35,8 @@ void a23_dualcore_sys_env::build() {
 	m_timebase = new timebase("m_timebase", this);
 
 	m_mem_mgr = new svf_mem_mgr();
-	m_mem_mgr->add_region(m_bootrom, 0x00000000, 0x0000FFFF);
-	m_mem_mgr->add_region(m_sram, 0x20000000, 0x2000FFFF);
+	m_mem_mgr->add_region(m_bootrom, 0x00000000, 0x000FFFFF);
+	m_mem_mgr->add_region(m_sram, 0x20000000, 0x200FFFFF);
 	m_mem_mgr->add_region(m_gbl, 0x30000000, 0x3000FFFF);
 
 	m_msg_queue_0 = bidi_message_queue_direct_bfm::type_id.create("m_msg_queue_0", this);

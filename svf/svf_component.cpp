@@ -21,7 +21,7 @@ svf_component::~svf_component() {
 	// TODO Auto-generated destructor stub
 }
 
-const string &svf_component::get_name() const
+const svf_string &svf_component::get_name() const
 {
 	return m_name;
 }

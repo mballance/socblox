@@ -11,7 +11,8 @@ module axi4_generic_line_en_sram_bridge #(
 			parameter int MEM_ADDR_BITS=10,
 			parameter AXI_ADDRESS_WIDTH=32,
 			parameter AXI_DATA_WIDTH=1024,
-			parameter AXI_ID_WIDTH=4
+			parameter AXI_ID_WIDTH=4,
+			parameter bit[MEM_ADDR_BITS-1:0] MEM_ADDR_OFFSET=0
 		) (
 			input									clk,
 			input									rst_n,
@@ -36,7 +37,8 @@ module axi4_generic_line_en_sram_bridge #(
 		.MEM_ADDR_BITS      (MEM_ADDR_BITS     ), 
 		.AXI_ADDRESS_WIDTH  (AXI_ADDRESS_WIDTH ), 
 		.AXI_DATA_WIDTH     (AXI_DATA_WIDTH    ), 
-		.AXI_ID_WIDTH       (AXI_ID_WIDTH      )
+		.AXI_ID_WIDTH       (AXI_ID_WIDTH      ),
+		.MEM_ADDR_OFFSET    (MEM_ADDR_OFFSET   )
 		) axi4_generic_byte_en_sram_bridge (
 		.clk                (clk               ), 
 		.rst_n              (rst_n             ), 

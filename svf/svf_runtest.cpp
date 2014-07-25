@@ -13,7 +13,7 @@
 void svf_runtest(const char *testname)
 {
 	svf_factory *f = svf_factory::get_default();
-	string testname_opt;
+	svf_string testname_opt;
 
 	if (!testname || !testname[0]) {
 		// Look up default

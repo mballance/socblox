@@ -16,7 +16,7 @@ class uart_bfm_if {
 
 		virtual int getc() = 0;
 
-		virtual void putc(char ch) = 0;
+		virtual void writec(char ch) = 0;
 };
 
 class uart_bfm_listener_if {

@@ -10,6 +10,14 @@ void operator delete(void *p) throw() {
 	free(p);
 }
 
+void *operator new[](size_t size) throw() {
+	return malloc(size);
+}
+
+void operator delete[](void *p) throw() {
+	free(p);
+}
+
 extern "C" int __aeabi_atexit(
 		void		*object,
 		void (*destructor)(void *),

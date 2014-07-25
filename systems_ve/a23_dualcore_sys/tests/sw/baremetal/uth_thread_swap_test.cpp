@@ -27,7 +27,7 @@ void thread(void *ud) {
 	*td = 0;
 }
 
-static char buf[256];
+//static char buf[256];
 
 int main(int argc, char **argv) {
 	uint32_t n_threads = 4;

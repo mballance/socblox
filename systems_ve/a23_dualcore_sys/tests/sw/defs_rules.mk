@@ -10,7 +10,7 @@ SRC_DIRS += $(TESTS_SW_DIR) $(TESTS_SW_DIR)/baremetal
 # EXE_TARGETS += smoke.mem smoke.hex smoke.elf smoke.dat
 
 BAREMETAL_TESTS := smoke thread_primitives msg_queue_smoke \
-  uth_yield_test uth_thread_swap_test
+  uth_yield_test uth_thread_swap_test svf_smoketest
 # UEX_TESTS := uex_simple_thread
 EXTS=.bin .mem .hex .elf .dat
 
@@ -60,15 +60,17 @@ baremetal/%.elf : baremetal/%.o \
 	$(SVF_LIBDIR)/libtimer.a   \
 	$(SVF_LIBDIR)/libintc.a		\
 	$(SVF_LIBDIR)/libbidi_message_queue_drv.a \
+	$(LIBSVF_UTH_AR) \
 	$(UTH_COOP_THREAD_MGR_SLIB) \
 	$(UTH_SLIB) \
 	$(UTH_A23_SLIB) \
-	$(BIDI_MESSAGE_QUEUE_DRV_UTH_SLIB)
+	$(BIDI_MESSAGE_QUEUE_DRV_UTH_SLIB) 
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(LD) $(LDFLAGS) -o $@ \
 		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal.lds $^ \
 		$(LIBC) $(LIBGCC)
-		
+	
+	# $(LIBCPP)	
 #		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal.lds $^ 
 
 baremetal/%.o : %.cpp
@@ -84,7 +86,7 @@ uex/%.elf : uex/%.o \
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(LD) $(LDFLAGS) -o $@ \
 		-T $(SOCBLOX)/esw/a23_uex_hal/a23_uex_hal.lds $^ \
-		$(LIBC) $(LIBGCC)
+		$(LIBCPP) $(LIBC) $(LIBGCC)
 	
 #uex/%.o : %.cpp
 #	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi

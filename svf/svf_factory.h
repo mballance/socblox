@@ -7,10 +7,8 @@
 
 #ifndef SVF_FACTORY_H_
 #define SVF_FACTORY_H_
-#include <map>
-#include <string>
-
-using namespace std;
+#include "svf_string.h"
+#include "svf_string_map.h"
 
 class svf_component_ctor_base;
 class svf_component;
@@ -40,8 +38,8 @@ class svf_factory {
 		static svf_factory *get_default();
 
 	private:
-		map<string, svf_component_ctor_base *>			m_component_ctor_rgy;
-		map<string, svf_test_ctor_base *>				m_test_ctor_rgy;
+		svf_string_map<svf_component_ctor_base>			m_component_ctor_rgy;
+		svf_string_map<svf_test_ctor_base>				m_test_ctor_rgy;
 
 		static svf_factory				*m_default;
 };

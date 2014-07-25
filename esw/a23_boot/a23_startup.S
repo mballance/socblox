@@ -26,8 +26,8 @@
  	.align 4
 
 _reset:
-	ldr			r0, =0x20000364
-	ldr			r1, [r0]
+//	ldr			r0, =0x20000364
+//	ldr			r1, [r0]
 
 /*
 	LDR			r0, =0xAA55EEFF
@@ -131,6 +131,7 @@ _cstartup:
 	BLT			1b
  */
 
+
 	/* Clear .bss */
 	LDR			r1, =__bss_start__
 	LDR			r2, =__bss_end__
@@ -161,6 +162,20 @@ _cstartup:
 	MOV			pc, r12
 	 */
 //	B			r12
+
+	// Call init methods
+	LDR			r1, =__init_array_start
+	LDR			r2, =__init_array_end
+ia_1:
+	push		{r1, r2}
+	MOV			lr, pc
+	LDR			pc, [r1]
+	pop			{r1, r2}
+	ADD			r1, #4
+	CMP			r1, r2
+	BLT			ia_1
+	/*
+	 */
 
 	/* Finally, call C/C++ code */
 	LDR			r12, =main

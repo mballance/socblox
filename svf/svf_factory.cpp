@@ -26,7 +26,7 @@ svf_factory::~svf_factory() {
 void svf_factory::register_component_ctor(const char *name, svf_component_ctor_base *ctor)
 {
 	fprintf(stdout, "register_component_ctor: %s\n", name);
-	m_component_ctor_rgy.insert(pair<string, svf_component_ctor_base *>(name, ctor));
+	m_component_ctor_rgy.insert(name, ctor);
 }
 
 svf_factory *svf_factory::get_default()
@@ -42,14 +42,13 @@ svf_component *svf_factory::create_component(
 		const char			*name,
 		svf_component		*parent) {
 	svf_component *ret = 0;
-	map<string, svf_component_ctor_base *>::iterator it;
+	int32_t it;
 
 	// TODO: detect remap
 
-	it = m_component_ctor_rgy.find(type_name);
+	svf_component_ctor_base *ctor;
 
-	if (it != m_component_ctor_rgy.end()) {
-		svf_component_ctor_base *ctor = it->second;
+	if ((ctor = m_component_ctor_rgy.find(type_name))) {
 		ret = ctor->create_default(name, parent);
 	} else {
 		// Error
@@ -65,20 +64,19 @@ svf_component *svf_factory::create_component(
 void svf_factory::register_test_ctor(const char *name, svf_test_ctor_base *ctor)
 {
 	fprintf(stdout, "register_test_ctor: %s\n", name);
-	m_test_ctor_rgy.insert(pair<string, svf_test_ctor_base *>(name, ctor));
+	m_test_ctor_rgy.insert(name, ctor);
 }
 
 svf_test *svf_factory::create_test(const char *type_name, const char *name)
 {
 	svf_test *ret = 0;
-	map<string, svf_test_ctor_base *>::iterator it;
+	int32_t it;
 
 	// TODO: detect remap
 
-	it = m_test_ctor_rgy.find(type_name);
+	svf_test_ctor_base *ctor = m_test_ctor_rgy.find(type_name);
 
-	if (it != m_test_ctor_rgy.end()) {
-		svf_test_ctor_base *ctor = it->second;
+	if ((ctor = m_test_ctor_rgy.find(type_name))) {
 		ret = ctor->create_default(name);
 	} else {
 		// Error

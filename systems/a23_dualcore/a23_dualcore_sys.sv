@@ -34,6 +34,7 @@ module a23_dualcore_sys #(
 	reg[31:0]			cnt = 0;
 	reg[3:0]			state = 0;
 	reg					rst_n;
+	wire				rst_n_1;
 	wire				irq;
 	wire				firq;
 //	reg[31:0]			idle = 20000000;
@@ -247,7 +248,7 @@ module a23_dualcore_sys #(
 		.A23_CACHE_WAYS  (4)
 		) u_a23_1 (
 		.i_clk           (core_clk       ),
-		.i_rstn          (1'b0          ),
+		.i_rstn          (rst_n_1        ),
 		.i_irq           (irq            ),
 		.i_firq          (firq           ),
 		.master          (core12ic.master));
@@ -257,7 +258,7 @@ module a23_dualcore_sys #(
 		.AXI4_DATA_WIDTH     (32    ), 
 		.AXI4_ID_WIDTH       (4      ), 
 		.SLAVE0_ADDR_BASE    ('h0000_0000  ), // ROM
-		.SLAVE0_ADDR_LIMIT   ('h0000_FFFF  ),
+		.SLAVE0_ADDR_LIMIT   ('h000F_FFFF  ),
 		.SLAVE1_ADDR_BASE    ('h2000_0000  ), // RAM
 		.SLAVE1_ADDR_LIMIT   ('h200F_FFFF  ),
 		.SLAVE2_ADDR_BASE    ('h8000_0000  ),
@@ -288,7 +289,7 @@ module a23_dualcore_sys #(
 		);
 	
 	axi4_rom #(
-		.MEM_ADDR_BITS      (14     ), 
+		.MEM_ADDR_BITS      ((20-2) ), 
 		.AXI_ADDRESS_WIDTH  (32     ), 
 		.AXI_DATA_WIDTH     (32     ), 
 		.AXI_ID_WIDTH       (5      ), 
@@ -327,7 +328,8 @@ module a23_dualcore_sys #(
 			) u_coreinfo(
 				.clk_i(core_clk),
 				.rst_n(rst_n),
-				.s(ic2coreinfo.slave)
+				.s(ic2coreinfo.slave),
+				.rst_n_1(rst_n_1)
 			);
 
 	generic_sram_line_en_if #(

@@ -28,7 +28,7 @@ void a23_dualcore_sys_smoke_test::connect()
 
 void a23_dualcore_sys_smoke_test::start()
 {
-	string target_exe;
+	svf_string target_exe;
 	if (!cmdline().valueplusarg("TARGET_EXE=", target_exe)) {
 
 	}

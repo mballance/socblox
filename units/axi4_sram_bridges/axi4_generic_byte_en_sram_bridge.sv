@@ -9,9 +9,10 @@
  */
 module axi4_generic_byte_en_sram_bridge #(
 			parameter int MEM_ADDR_BITS=10,
-			parameter AXI_ADDRESS_WIDTH=32,
-			parameter AXI_DATA_WIDTH=1024,
-			parameter AXI_ID_WIDTH=4
+			parameter int AXI_ADDRESS_WIDTH=32,
+			parameter int AXI_DATA_WIDTH=1024,
+			parameter int AXI_ID_WIDTH=4,
+			parameter bit[MEM_ADDR_BITS-1:0]    MEM_ADDR_OFFSET=0
 		) (
 			input									clk,
 			input									rst_n,
@@ -214,7 +215,8 @@ module axi4_generic_byte_en_sram_bridge #(
 	
 	assign sram_if.read_en = 1;
     
-	assign sram_addr = (sram_owner == 0)?write_addr_w:read_addr_w;
+	assign sram_addr = (sram_owner == 0)?(write_addr_w-MEM_ADDR_OFFSET):
+			(read_addr_w-MEM_ADDR_OFFSET);
    
 	assign axi_if.AWREADY = (write_state == 0 && 
 			((sram_owner == 1 && axi_if.AWVALID) || !axi_if.ARVALID));

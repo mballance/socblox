@@ -9,7 +9,10 @@
 #define A23_DISASM_TRACER_H_
 #include "a23_tracer_if.h"
 #include "svf.h"
+#include <string>
 #include <stdio.h>
+
+using namespace std;
 
 class a23_disasm_tracer : public virtual a23_tracer_if {
 

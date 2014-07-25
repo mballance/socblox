@@ -10,6 +10,8 @@
  * Address Map:
  * 0x0000:		N_CORES
  * 0x0004:		CORE_ID
+ * 0x0008:		SET_RST	-- write core ID for which to set rst_n
+ * 0x000C:		CLR_RST -- write core ID for which to clear rst_n
  */
 module coreinfo_2 #(
 		parameter int AXI_ID_WIDTH=4,
@@ -20,7 +22,8 @@ module coreinfo_2 #(
 		) (
 		input			clk_i,
 		input			rst_n,
-		axi4_if.slave	s
+		axi4_if.slave	s,
+		output reg		rst_n_1 = 0
 		);
 
 	localparam N_CORES=2;
@@ -85,7 +88,7 @@ module coreinfo_2 #(
 
     assign s.ARREADY = (read_state == 1'b0);
     assign s.RVALID = (read_state == 2);
-
+    
     assign s.RDATA = (read_addr == 0)?N_CORES:(read_addr == 1)?core_id:{32{1'b1}};
     assign s.RLAST = (read_state == 2 && read_count == read_length)?1'b1:1'b0;
     assign s.RID   = (read_state == 2)?read_id:0;

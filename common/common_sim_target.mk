@@ -11,6 +11,7 @@ OBJCOPY=$(TARGET)-objcopy
 
 LIBGCC:=$(shell $(CC) -mno-thumb-interwork -print-libgcc-file-name)
 LIBC:=$(dir $(LIBGCC))/../../../../$(TARGET)/lib/libc.a
+LIBCPP:=$(dir $(LIBGCC))/../../../../$(TARGET)/lib/libstdc++.a
 
 
 # include $(COMMON_SIM_MK_DIR)/common_defs.mk

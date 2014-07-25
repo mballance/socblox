@@ -8,15 +8,15 @@
 #include "svf_cmdline.h"
 #include "systemc.h"
 #include "svf_argfile_parser.h"
-#include <vector>
 #include <string>
+#include <vector>
 #ifndef _WIN32
 #include <dlfcn.h>
 #endif
 
 using namespace std;
 
-vector<string> svf_cmdline::args()
+svf_ptr_vector<svf_string> svf_cmdline::args()
 {
 	int argc = sc_argc();
 	const char *const *argv = sc_argv();
@@ -25,8 +25,15 @@ vector<string> svf_cmdline::args()
 
 	parser.process(argc, argv);
 
+	svf_ptr_vector<svf_string> ret;
 
-	return parser.cmdline();
+	vector<string> tmp = parser.cmdline();
+
+	for (uint32_t i=0; i<tmp.size(); i++) {
+		ret.push_back(new svf_string(tmp.at(i).c_str()));
+	}
+
+	return ret;
 }
 
 

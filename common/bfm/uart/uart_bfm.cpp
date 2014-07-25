@@ -17,7 +17,7 @@ uart_bfm::~uart_bfm() {
 	// TODO Auto-generated destructor stub
 }
 
-void uart_bfm::putc(char ch)
+void uart_bfm::writec(char ch)
 {
 	bfm_port->tx_start(ch);
 

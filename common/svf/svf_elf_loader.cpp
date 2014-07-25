@@ -48,13 +48,15 @@ int svf_elf_loader::load(const char *filename)
 
 		fread(&shdr, sizeof(Elf32_Shdr), 1, fp);
 
-		/*
 		fprintf(stdout, "sh_type=0x%08x size=0x%08x flags=0x%08x\n",
 				shdr.sh_type, shdr.sh_size, shdr.sh_flags);
+		/*
 		 */
 
-		if (shdr.sh_type == SHT_PROGBITS && shdr.sh_size != 0 &&
-			(shdr.sh_flags & SHF_ALLOC) != 0) {
+		shdr.sh_type &= 0xFF; // Sometimes have flags on high bits
+
+		if ((shdr.sh_type == SHT_PROGBITS || shdr.sh_type == SHT_INIT_ARRAY) &&
+				shdr.sh_size != 0 && (shdr.sh_flags & SHF_ALLOC) != 0) {
 			// read in data
 			uint8_t *tmp = new uint8_t[shdr.sh_size];
 			uint32_t data;
@@ -102,18 +104,19 @@ int svf_elf_loader::load(const char *filename)
 			}
 
 			delete [] str_tmp;
-		}
-
-		if (shdr.sh_type == SHT_NOBITS && shdr.sh_size != 0) {
+		} else if (shdr.sh_type == SHT_NOBITS && shdr.sh_size != 0) {
 			fprintf(stdout, "Fill %0d bytes @ 0x%08x..0x%08x\n",
 					shdr.sh_size, shdr.sh_addr, (shdr.sh_addr+shdr.sh_size));
 			for (int j=0; j<shdr.sh_size; j+=4) {
 				m_mem_if->write32(shdr.sh_addr+j, 0);
 
 				if (j+4 >= shdr.sh_size) {
-					fprintf(stdout, "Fill last addr=0x%08x", (uint32_t)(shdr.sh_addr+j));
+					fprintf(stdout, "Fill last addr=0x%08x\n", (uint32_t)(shdr.sh_addr+j));
 				}
 			}
+		} else {
+			fprintf(stdout, "Skip section sh_type=%d sh_addr=0x%08x sh_size=0x%08x\n",
+					(int)shdr.sh_type, shdr.sh_addr, shdr.sh_size);
 		}
 	}
 

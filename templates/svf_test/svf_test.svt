@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<template category="net.sf.svf.templates" id="net.sf.svf.templates.svf_test" name="SVF Test">
+<description>SVF Test class</description>
+<parameters>
+<parameter default="svf_test" name="baseclass" type="id"/>
+</parameters>
+<files>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<file executable="false" name="${name}.cpp" template="svf_test.cpp"/>
+<file executable="false" name="${name}.h" template="svf_test.h"/>
+</files>
+</template>
+</sv_template>

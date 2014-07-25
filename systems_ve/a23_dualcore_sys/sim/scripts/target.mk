@@ -10,6 +10,7 @@ SVF_LIBDIR = $(BUILD_DIR)/target/libs
 SVF_BUILD_CORE_DLL := 0
 SVF_BUILD_SIM_WRAPPERS := 0
 SVF_BUILD_HOST_WRAPPERS := 0
+SVF_BUILD_UTH_WRAPPERS := 1
 
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/../units/timer/sw/defs_rules.mk
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/../units/interrupt_controller/sw/defs_rules.mk
@@ -35,7 +36,7 @@ TARGET=arm-none-eabi
 CFLAGS +=-march=armv2a -mno-thumb-interwork 
 LDFLAGS +=-Bstatic --fix-v4bx -nostartfiles
 
-CFLAGS += -g
+CFLAGS += -g -O3
 
 CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions -Wall
 

@@ -3,7 +3,7 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 
 MEMORY {
-	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 64k
+	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 1M
 	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 1M
 	GBL(rwx)	: ORIGIN = 0x30000000, LENGTH = 16k
 /*
@@ -65,6 +65,7 @@ SECTIONS {
 
 	.init_array : {
 		__init_array_start = .;	
+		_init = .;
 		*(.init_array)
 	} >ROM
 	__init_array_end = .;

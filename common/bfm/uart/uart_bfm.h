@@ -27,7 +27,7 @@ class uart_bfm :
 
 		virtual ~uart_bfm();
 
-		void putc(char ch);
+		void writec(char ch);
 
 		int getc();
 

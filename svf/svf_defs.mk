@@ -10,10 +10,12 @@ SVF_BUILD_CORE_DLL ?= 1
 SVF_BUILD_SIM_WRAPPERS ?= 1
 SVF_BUILD_SIM_SC_WRAPPER ?= 1
 SVF_BUILD_HOST_WRAPPERS ?= 1
+SVF_BUILD_UTH_WRAPPERS ?= 0
 LIBPREF ?= lib
 DLLEXT ?= .so
 
 SRC_DIRS += $(SVF_DIR) $(SVF_DIR)/dpi $(SVF_DIR)/host $(SVF_DIR)/sc $(SVF_DIR)/utils
+SRC_DIRS += $(SVF_DIR)/uth
 SRC_DIRS += $(SVF_DIR)/
 # SRC_DIRS := $(SRC_DIRS) $(SVF_DIR) $(SVF_DIR)/dpi $(SVF_DIR)/host $(SVF_DIR)/sc $(SVF_DIR)/utils
 # SRC_DIRS := $(SRC_DIRS) $(SVF_DIR)/
@@ -27,6 +29,8 @@ LIBSVF_DPI_DPI=$(SVF_LIBDIR)/dpi/$(LIBPREF)svf_dpi$(DLLEXT)
 LIBSVF_HOST=$(SVF_LIBDIR)/host/$(LIBPREF)svf$(DLLEXT)
 LIBSVF_LINK=-L$(SVF_LIBDIR)/core -lsvf
 LIBSVF_SC_LINK=-L$(SVF_LIBDIR)/sc -lsvf
+LIBSVF_UTH=$(SVF_LIBDIR)/uth/$(LIBPREF)svf$(DLLEXT)
+LIBSVF_UTH_AR=$(SVF_LIBDIR)/uth/$(LIBPREF)svf.a
 
 ifeq (1,$(SVF_BUILD_CORE_DLL))
 LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF)
@@ -47,8 +51,15 @@ ifeq (1,$(SVF_BUILD_HOST_WRAPPERS))
 LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_HOST)
 endif
 
+ifeq (1,$(SVF_BUILD_UTH_WRAPPERS))
+LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_UTH_AR)
+endif
+
 
 SVF_SRC= \
+  svf_string.cpp \
+  svf_string_map.cpp \
+  svf_ptr_vector.cpp \
   svf_bfm.cpp \
   svf_cmdline.cpp \
   svf_component_ctor.cpp \
@@ -87,6 +98,9 @@ SVF_HOST_SRC= \
 	svf_cmdline_host.cpp \
 	svf_argfile_parser.cpp
 	
+SVF_UTH_SRC= \
+	svf_thread_uth.cpp \
+	
 SVF_DPI_SRC= \
 	svf_cmdline_dpi.cpp			\
 	svf_argfile_parser.cpp		\
@@ -106,6 +120,7 @@ SVF_SC_QS_OBJS=$(foreach o,$(SVF_SC_SRC:.cpp=.o),$(SVF_OBJDIR)/qs/$(o))
 SVF_DPI_OBJS=$(foreach o,$(SVF_DPI_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
 LIBSVF_DPI_OBJS=$(foreach o,$(LIBSVF_DPI_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
 SVF_HOST_OBJS=$(foreach o,$(SVF_HOST_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
+SVF_UTH_OBJS=$(foreach o,$(SVF_UTH_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
 
 CXXFLAGS += -I$(SOCBLOX)/svf
 CXXFLAGS += -I$(SOCBLOX)/svf/dpi
@@ -122,5 +137,7 @@ $(LIBSVF_DPI) : $(SVF_OBJS) $(SVF_DPI_OBJS)
 $(LIBSVF_SC_QS) : $(SVF_SC_QS_OBJS)
 
 $(LIBSVF_DPI_DPI) : $(LIBSVF_DPI_OBJS) $(LIBSVF_DPI)
+
+$(LIBSVF_UTH_AR) : $(SVF_OBJS) $(SVF_UTH_OBJS)
 
 
