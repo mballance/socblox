@@ -65,10 +65,10 @@ parameter CACHE_WORDS_PER_LINE = 4,
 parameter WAYS              = 4,
 
 // derived configuration parameters
-parameter CACHE_ADDR_WIDTH  = log2 ( CACHE_LINES ),                        // = 8
+parameter reg[7:0] CACHE_ADDR_WIDTH  = log2 ( CACHE_LINES ),                        // = 8
 parameter WORD_SEL_WIDTH    = log2 ( CACHE_WORDS_PER_LINE ),               // = 2
 parameter TAG_ADDR_WIDTH    = 32 - CACHE_ADDR_WIDTH - WORD_SEL_WIDTH - 2,  // = 20
-parameter TAG_WIDTH         = TAG_ADDR_WIDTH + 1,                          // = 21, including Valid flag
+parameter reg[7:0] TAG_WIDTH         = TAG_ADDR_WIDTH + 1,                          // = 21, including Valid flag
 parameter CACHE_LINE_WIDTH  = CACHE_WORDS_PER_LINE * 32,                   // = 128
 parameter TAG_ADDR32_LSB    = CACHE_ADDR_WIDTH + WORD_SEL_WIDTH + 2,       // = 12
 parameter CACHE_ADDR32_MSB  = CACHE_ADDR_WIDTH + WORD_SEL_WIDTH + 2 - 1,   // = 11
@@ -81,6 +81,7 @@ parameter WORD_SEL_LSB      =                  2                           // = 
 
 (
 input                               i_clk,
+input								i_rstn,
 
 // Read / Write requests from core
 input                               i_select,
@@ -218,11 +219,13 @@ assign o_wb_req        = (( read_miss || write_miss ) && c_state == CS_IDLE ) ||
 
 // Little State Machine to Flush Tag RAMS
 always @ ( posedge i_clk )
-    if ( i_cache_flush )
+    if ( i_cache_flush || i_rstn == 0)
         begin
         c_state     <= C_INIT;
         source_sel  <= 1'd1 << C_INIT;
         init_count  <= 'd0;
+        select_way  <= 0;
+        random_num  <= 4'hf;
         `ifdef A23_CACHE_DEBUG  
         `TB_DEBUG_MESSAGE  
         $display("Cache Flush");
@@ -586,7 +589,9 @@ generate
 if ( WAYS == 2 ) begin : valid_bits_2ways
 
     always @ ( posedge i_clk )
-        if ( c_state == CS_IDLE )
+    	if (i_rstn == 0) begin
+    		valid_bits_r <= 0;
+    	end else if ( c_state == CS_IDLE )
             valid_bits_r <= {tag_rdata_way[1][TAG_WIDTH-1], 
                              tag_rdata_way[0][TAG_WIDTH-1]};
                            
@@ -594,7 +599,9 @@ end
 else if ( WAYS == 3 ) begin : valid_bits_3ways
 
     always @ ( posedge i_clk )
-        if ( c_state == CS_IDLE )
+    	if ( i_rstn == 0) begin
+    		valid_bits_r <= 0;
+    	end else if ( c_state == CS_IDLE )
             valid_bits_r <= {tag_rdata_way[2][TAG_WIDTH-1], 
                              tag_rdata_way[1][TAG_WIDTH-1], 
                              tag_rdata_way[0][TAG_WIDTH-1]};
@@ -603,7 +610,9 @@ end
 else if ( WAYS == 4 ) begin : valid_bits_4ways
 
     always @ ( posedge i_clk )
-        if ( c_state == CS_IDLE )
+    	if (i_rstn == 0) begin
+    		valid_bits_r <= 0;
+    	end else if ( c_state == CS_IDLE )
             valid_bits_r <= {tag_rdata_way[3][TAG_WIDTH-1], 
                              tag_rdata_way[2][TAG_WIDTH-1], 
                              tag_rdata_way[1][TAG_WIDTH-1], 
@@ -613,7 +622,9 @@ end
 else begin : valid_bits_8ways
 
     always @ ( posedge i_clk )
-        if ( c_state == CS_IDLE )
+    	if (i_rstn == 0) begin
+    		valid_bits_r <= 0;
+    	end else if ( c_state == CS_IDLE )
             valid_bits_r <= {tag_rdata_way[7][TAG_WIDTH-1], 
                              tag_rdata_way[6][TAG_WIDTH-1], 
                              tag_rdata_way[5][TAG_WIDTH-1], 
@@ -666,7 +677,7 @@ else begin : read_data_8ways
                           data_hit_way[6] ? data_rdata_way[6] :
                           data_hit_way[7] ? data_rdata_way[7] :
                                      {CACHE_LINE_WIDTH{1'd1}} ;  // all 1's for debug
-                           
+
 end
 endgenerate
 

@@ -545,6 +545,12 @@ module axi4_interconnect_6x4 #(
 	assign RREADY[3] = m3.RREADY;
 	assign RREADY[4] = m4.RREADY;
 	assign RREADY[5] = m5.RREADY;
+	assign m0.RRESP = RRESP[0];
+	assign m1.RRESP = RRESP[1];
+	assign m2.RRESP = RRESP[2];
+	assign m3.RRESP = RRESP[3];
+	assign m4.RRESP = RRESP[4];
+	assign m5.RRESP = RRESP[5];
 	assign m0.RDATA = RDATA[0];
 	assign m1.RDATA = RDATA[1];
 	assign m2.RDATA = RDATA[2];
@@ -644,6 +650,11 @@ module axi4_interconnect_6x4 #(
 	assign SRID[2] = s2.RID;
 	assign SRID[3] = s3.RID;
 	assign SRID[4] = sdflt.RID;
+	assign SRRESP[0] = s0.RRESP;
+	assign SRRESP[1] = s1.RRESP;
+	assign SRRESP[2] = s2.RRESP;
+	assign SRRESP[3] = s3.RRESP;
+	assign SRRESP[4] = sdflt.RRESP;
 	assign s0.RREADY = SRREADY[0];
 	assign s1.RREADY = SRREADY[1];
 	assign s2.RREADY = SRREADY[2];

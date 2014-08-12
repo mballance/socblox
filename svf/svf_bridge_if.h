@@ -3,6 +3,8 @@
 #define INCLUDED_SVF_BRIDGE_IF_H
 #include "svf_bridge_msg.h"
 
+class svf_bridge_socket;
+
 class svf_bridge_if {
 
 	public:
@@ -10,10 +12,10 @@ class svf_bridge_if {
 
 		/**
 		 * endpoint registration API
-		 */
 		virtual void connect(svf_bridge_endpoint_if *endpoint) = 0;
 
 		virtual void disconnect(svf_bridge_endpoint_if *endpoint) = 0;
+		 */
 
 		/**
 		 * Allocates a message for use by the caller
@@ -28,9 +30,7 @@ class svf_bridge_if {
 		/**
 		 * Sends a message via the bridge
 		 */
-		virtual void send_msg(uint32_t endpoint_id, svf_bridge_msg *msg) = 0;
-
-		// TODO: need enumeration and point-to-point connection methods
+		virtual void send_msg(svf_bridge_socket *sock, svf_bridge_msg *msg) = 0;
 
 };
 

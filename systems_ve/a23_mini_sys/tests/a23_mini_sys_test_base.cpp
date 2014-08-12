@@ -36,7 +36,9 @@ void a23_mini_sys_test_base::connect()
 	string TB_ROOT(TB_ROOT_c);
 
 	generic_rom_dpi_mgr::connect(TB_ROOT + ".u_mini_sys.u_rom.u_rom", m_env->m_rom_bfm->bfm_port);
-	generic_sram_byte_en_dpi_mgr::connect(TB_ROOT + ".u_mini_sys.u_ram.ram", m_env->m_sram_bfm->bfm_port);
+	generic_sram_byte_en_dpi_mgr::connect(
+		TB_ROOT + ".u_mini_sys.u_ram.ram_w.ram", 
+		m_env->m_sram_bfm->bfm_port);
 
 	a23_tracer_bfm_dpi_mgr::connect(TB_ROOT + ".u_mini_sys.u_a23.u_tracer.u_tracer_bfm", m_env->m_a23_tracer->bfm_port);
 
@@ -53,8 +55,8 @@ void a23_mini_sys_test_base::start()
 
 void a23_mini_sys_test_base::run()
 {
-	string target_exe;
-	string testname = "unknown";
+	svf_string target_exe;
+	svf_string testname = "unknown";
 	fprintf(stdout, "run thread\n");
 	fprintf(stdout, "--> raise_objection()\n");
 	raise_objection();

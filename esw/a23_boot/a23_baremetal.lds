@@ -5,8 +5,8 @@ ENTRY(_start)
 MEMORY {
 	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 1M
 	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 1M
-	GBL(rwx)	: ORIGIN = 0x30000000, LENGTH = 16k
 /*
+	GBL(rwx)	: ORIGIN = 0x30000000, LENGTH = 16k
 	ROM(rx)		: ORIGIN = 0x00010000, LENGTH = 64k
 	RAM(rwx)	: ORIGIN = 0x00020000, LENGTH = 16k
 	GBL(rwx)	: ORIGIN = 0x00030000, LENGTH = 16k
@@ -26,15 +26,12 @@ SECTIONS {
 	.reset : {
 		*a23_startup.o (.text)
 		. = ALIGN(0x4);
-/*	. */
 	} > ROM
 	
 	.ramvect : {
 		__ram_start = .;
 		. = 0x40;
 	} > RAM
-	
-/*	.  */
 	
 	.text : {
 		CREATE_OBJECT_SYMBOLS
@@ -57,10 +54,8 @@ SECTIONS {
 	
 		*(.rodata .rodata.* .gnu.linkonce.r.*)
 		
-/*		. . .  */
 		*(.init)
 		*(.fini)
-/*		. . .	 */
 	} >ROM
 
 	.init_array : {
@@ -142,13 +137,15 @@ SECTIONS {
 		
 		__stack_end__ = . ;
 	} >RAM
-	
+
+/*	
 	.shared : {
 		__mailbox_start = .;
 		. += (MBOX_SIZE * MAX_N_CORES);
 		. = ALIGN(4);
 		__mailbox_end = .;
 	} > GBL
+ */
 	
 	
 	.stab 0 (NOLOAD) : {
@@ -161,6 +158,5 @@ SECTIONS {
 	
 	.debug			0 : { *(.debug) }
 	.line			0 : { *(.line) }
-/*	. . . */
 }
 	

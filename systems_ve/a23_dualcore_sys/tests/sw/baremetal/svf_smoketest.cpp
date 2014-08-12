@@ -14,6 +14,8 @@
 
 #include "svf_cmdline.h"
 
+extern "C" int write(int fd, const void *data, int sz);
+
 
 svf_ptr_vector<svf_string> svf_cmdline::args()
 {
@@ -37,6 +39,9 @@ extern "C" uth_thread_mgr *uth_get_thread_mgr()
 	return thread_mgr;
 }
 
+#ifdef UNDEFINED
+#endif
+
 class svf_smoketest : public svf_test {
 	svf_test_ctor_decl(svf_smoketest)
 
@@ -45,7 +50,48 @@ class svf_smoketest : public svf_test {
 
 		}
 
+		void build() {
+			fprintf(stdout, "build\n");
+		}
+
+		void start() {
+			fprintf(stdout, "--> start\n");
+			fflush(stdout);
+			raise_objection();
+			raise_objection();
+			m_thread1.init(this, &svf_smoketest::run1);
+			m_thread1.start();
+			m_thread2.init(this, &svf_smoketest::run2);
+			m_thread2.start();
+			fprintf(stdout, "<-- start\n");
+			fflush(stdout);
+		}
+
+		void run1() {
+			char *buf = (char *)malloc(128);
+			for (uint32_t i=0; i<16; i++) {
+				fprintf(stdout, "run1: %d\n", i);
+//				sprintf(buf, "run1: %d\n", (15-i));
+//				fwrite(buf, 1, strlen(buf), stdout);
+//				fflush(stdout);
+//				write(0, buf, strlen(buf));
+				uth_thread_yield();
+			}
+			drop_objection();
+		}
+
+		void run2() {
+			for (uint32_t i=0; i<16; i++) {
+				fprintf(stdout, "run2: %d\n", i);
+				fflush(stdout);
+				uth_thread_yield();
+			}
+			drop_objection();
+		}
+
 	private:
+		svf_thread					m_thread1;
+		svf_thread					m_thread2;
 
 };
 
@@ -53,22 +99,26 @@ svf_test_ctor_def(svf_smoketest)
 /*
  */
 
-extern "C" int write(int fd, const void *data, int sz);
 
-svf_smoketest *ctor() {
-	return new svf_smoketest("foo");
-}
 
 int main(int argc, char **argv)
 {
 	char buf[256];
 	char *c;
-	FILE *fp = fopen("foo", "r");
+
+	for (uint32_t i=0; i<16; i++) {
+		fprintf(stdout, "i: %d\n", (15-i));
+		fflush(stdout);
+	}
+
+#ifdef UNDEFINED
+#endif
+//	FILE *fp = fopen("foo", "r");
 	write(0, "Hello World\n", 12);
 //	for (uint32_t i=0; i<64; i++) {
 	c = (char *)malloc(32);
-	fprintf(fp, "Hello World (1) %p\n", c);
-	fflush(fp);
+//	fprintf(fp, "Hello World (1) %p\n", c);
+//	fflush(fp);
 	sprintf(buf, "Hello World %p\n", c);
 	write(0, buf, strlen(buf));
 //	}
@@ -81,14 +131,27 @@ int main(int argc, char **argv)
 	fprintf(stdout, "test=%p\n", test);
 	fflush(stdout);
 
-	test = svf_smoketest::type_id.create("foo");
-	fprintf(stdout, "test=%p\n", test);
+	fprintf(stdout, "--> elaborate()\n");
 	fflush(stdout);
+	test->elaborate();
+	fprintf(stdout, "<-- elaborate()\n");
+	fflush(stdout);
+	fprintf(stdout, "--> run()\n");
+	fflush(stdout);
+	test->run();
+	fprintf(stdout, "<-- run()\n");
+	fflush(stdout);
+
+	/*
+	svf_runtest("svf_smoketest");
+	 */
 
 	/*
 	 */
 
-	while (1) {}
+	while (1) {
+		uth_thread_yield();
+	}
 }
 
 

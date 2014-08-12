@@ -19,6 +19,14 @@ uart_bfm_monitor::~uart_bfm_monitor() {
 }
 
 void uart_bfm_monitor::getc(int ch) {
+	if (m_buf_idx >= 1023) {
+		fprintf(stdout, "Error: UART buffer overflow\n");
+		fflush(stdout);
+		m_buf[m_buf_idx] = 0;
+		fprintf(stdout, "Buffer: %s\n", m_buf);
+		fflush(stdout);
+		m_buf_idx = 0;
+	}
 	m_buf[m_buf_idx++] = ch;
 
 	if (ch == '\n') {

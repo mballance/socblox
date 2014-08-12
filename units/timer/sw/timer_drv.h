@@ -11,6 +11,7 @@
 
 class timer_drv {
 
+	public:
 	struct timer {
 		uint32_t			load;
 		uint32_t			value;

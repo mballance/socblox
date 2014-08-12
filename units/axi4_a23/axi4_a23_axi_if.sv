@@ -63,6 +63,7 @@ input						i_rstn,
 
 // Core Accesses to Wishbone bus
 input                       i_select,
+output						o_ack,
 input       [31:0]          i_write_data,
 input                       i_write_enable,
 input       [3:0]           i_byte_enable,    // valid for writes only
@@ -92,9 +93,9 @@ wire                        core_write_request;
 wire                        cache_read_request;
 wire                        cache_write_request;
 wire                        start_access;
-reg                         servicing_cache = 'd0;
+/* reg                         servicing_cache = 'd0; */
 wire    [3:0]               byte_enable;
-reg                         exclusive_access = 'd0;
+/* reg                         exclusive_access = 'd0; */
 wire                        read_ack, write_ack;
 wire                        cache_read_ack, cache_write_ack;
 wire                        wait_write_ack;
@@ -106,30 +107,35 @@ assign master.AWID = 0;
 assign master.AWBURST = 0;
 assign master.AWCACHE = 0;
 assign master.AWPROT = 0;
-assign master.AWQOS = 0;
+assign master.AWQOS = 4'b0000;
 assign master.AWREGION = 0;
 
 assign master.ARID = 0;
+assign master.ARQOS = 4'b0000;
 assign master.ARCACHE = 0;
 assign master.ARPROT = 0;
 assign master.ARREGION = 0;
 
 	// Write buffer
+	/*
 	reg     [31:0]          wbuf_addr_r = 'd0;
 	reg     [3:0]           wbuf_sel_r  = 'd0;
+	 */
 	reg                     wbuf_busy_r = 'd0;
 
 	reg[2:0]				read_state = 0;
-	reg						data_valid = 0;
+//	reg						data_valid = 0;
 
 	// Read logic
 	always @(posedge i_clk) begin
 		if (i_rstn == 0) begin
+			/*
 			wbuf_addr_r <= 0;
 			wbuf_sel_r <= 0;
+			 */
 			wbuf_busy_r <= 0;
 			read_state <= 0;
-			data_valid <= 0;
+//			data_valid <= 0;
 		end else begin
 		case (read_state)
 			0: begin
@@ -256,14 +262,20 @@ assign master.ARREGION = 0;
 		( core_write_request && servicing_cache ) || */
 		( core_write_request && !write_ack) ||
 		( cache_write_request && !cache_write_ack) || 
-		wbuf_busy_r;	
+		wbuf_busy_r
+		;	
+	
+	assign o_ack =
+		( core_read_request && read_ack) ||
+		( core_write_request && write_ack) ||
+		( cache_write_request && cache_write_ack);
 	
 //	assign master.ARVALID = ((i_select && !i_write_enable) && (read_state == 1));
 	assign master.ARVALID = (read_state == 1 || read_state == 3);
 	assign master.ARADDR = (master.ARVALID)?i_address:32'h0;
-	assign master.ARLEN = (read_state == 3)?3:0;
-	assign master.ARBURST = (read_state == 3)?'b10:'b01;
-	assign master.ARSIZE = 2;
+	assign master.ARLEN = (read_state == 3)?8'd3:0;
+	assign master.ARBURST = (read_state == 3)?2'b10:2'b01;
+	assign master.ARSIZE = 3'd2;
 	assign master.RREADY = (read_state == 2 || read_state ==4);
 	
 	assign master.AWVALID = (write_state == 1 || write_state == 4);
@@ -271,11 +283,11 @@ assign master.ARREGION = 0;
 	assign master.AWLEN = 0;
 	assign master.AWSIZE = 2;
 	
-	assign master.WVALID = (write_state == 2 || write_state == 5)?1:0;
+	assign master.WVALID = (write_state == 2 || write_state == 5)?1'b1:1'b0;
 	assign master.WDATA = (write_state == 2 || write_state == 5)?i_write_data:{32{1'b0}};
-	assign master.WLAST = (write_state == 2 || write_state == 5)?1:0;
+	assign master.WLAST = (write_state == 2 || write_state == 5)?1'b1:1'b0;
 //	assign master.WSTRB = (write_state == 2 || write_state == 5)?{4{1'b1}}:0;
-	assign master.WSTRB = (write_state == 2 || write_state == 5)?i_byte_enable:0;
+	assign master.WSTRB = (write_state == 2 || write_state == 5)?i_byte_enable:4'b0;
 
 	assign master.BREADY = (write_state == 3 || write_state == 6);
 	

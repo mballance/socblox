@@ -33,6 +33,12 @@ module axi4_wb_bridge #(
 	reg[AXI4_DATA_WIDTH-1:0]			AXI_DAT_R_r;
 	reg[AXI4_ID_WIDTH-1:0]				AXI_ID_r;
 	
+	assign axi_i.BRESP = 2'b00;
+	assign axi_i.RRESP = 2'b00;
+	
+	assign wb_o.CTI = 3'b000;
+	assign wb_o.BTE = 2'b00;
+	
 	always @(posedge axi_clk) begin
 		if (rstn == 0) begin
 			access_state <= 0;

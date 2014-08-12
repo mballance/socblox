@@ -12,31 +12,28 @@
 
  _start:
 
- 	B			_reset
- 	B			.		// Undefined instruction
- 	B			.		// SWI
- 	B			.		// PREF
- 	B			.		// DABT
- 	B			.		// Reserved
- 	B			_service_irq	// IRQ
- 	B			.		// FIQ
+ 	B			_reset			// 0x00000000: Reset
+// 	B			.				// 0x00000000: Reset
+ 	B			.				// 0x00000004: Undefined instruction
+ 	B			.				// 0x00000008: SWI
+ 	B			.				// 0x0000000C: PREF
+ 	B			.				// 0x00000010: DABT
+ 	B			.				// 0x00000014: Reserved
+ 	B			_service_irq	// 0x00000018: IRQ
+ 	B			.				// 0x0000001c: FIQ
 
 
  	.string "Copyright (c) Matthew Ballance. All Rights Reserved."
  	.align 4
 
 _reset:
-//	ldr			r0, =0x20000364
-//	ldr			r1, [r0]
-
 /*
-	LDR			r0, =0xAA55EEFF
-	LDR			r1, =0x30000000
-	SWP			r0, r0, [r1]
-
-	LDR			r0, =0xF1000004
-//	ADD			r0, r0, #0x3004
-	LDR			r0, [r0]
+	mov			r0, #0
+	ldr			r1, =0x80000000
+l1:
+	str			r0, [r1]
+	add			r0, r0, #1
+	b			l1
  */
 
 	// First, setup the SVC stack for this core
@@ -120,6 +117,7 @@ _cstartup:
 
 	/* Relocate the .data section from ROM to RAM */
 /** TODO:
+ */
 	LDR			r0, =__data_load
 	LDR			r1, =__data_start
 	LDR			r2, =_edata
@@ -129,7 +127,6 @@ _cstartup:
 	LDMLTIA		r0!, {r3}
 	STMLTIA		r1!, {r3}
 	BLT			1b
- */
 
 
 	/* Clear .bss */
@@ -166,6 +163,8 @@ _cstartup:
 	// Call init methods
 	LDR			r1, =__init_array_start
 	LDR			r2, =__init_array_end
+	CMP			r1, r2
+	BEQ			ia_done
 ia_1:
 	push		{r1, r2}
 	MOV			lr, pc
@@ -174,6 +173,7 @@ ia_1:
 	ADD			r1, #4
 	CMP			r1, r2
 	BLT			ia_1
+ia_done:
 	/*
 	 */
 

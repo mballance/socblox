@@ -11,4 +11,9 @@ else
   PATH=${socblox}/common/scripts:$PATH
 fi
 
+export SOCBLOX=$socblox
+export UNITS=$SOCBLOX/units
+export COMMON_RTL=$SOCBLOX/common/rtl
+export SYSTEMS=$SOCBLOX/systems
+
 

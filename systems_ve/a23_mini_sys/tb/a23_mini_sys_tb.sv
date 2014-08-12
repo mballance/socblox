@@ -53,10 +53,12 @@ module a23_mini_sys_tb(input clk);
 	
 	a23_mini_sys u_mini_sys (
 		.clk_i  (clk   ),
+/*
 		.sw1    (sw1   ), 
 		.sw2    (sw2   ), 
 		.sw3    (sw3   ), 
 		.sw4    (sw4   ), 
+ */
 		.led0   (led0  ), 
 		.led1   (led1  ), 
 		.led2   (led2  ), 

@@ -36,7 +36,7 @@ int uth_thread_create(
 		void				*ud
 		)
 {
-	uint32_t stk_sz = 8192;
+	uint32_t stk_sz = 16*1024;
 	uint8_t *stack_top;
 	uth_thread_mgr *mgr = uth_get_thread_mgr();
 
@@ -132,6 +132,20 @@ int uth_cond_signal(uth_cond_t *cond)
 	}
 
 	unblock->thread_mgr->unblock_thread(unblock);
+
+	return 0;
+}
+
+int uth_cond_broadcast(uth_cond_t *cond)
+{
+	// Entry: mutex locked
+
+	uth_thread_t *unblock;
+
+	while ((unblock = cond->cond_wait_list)) {
+		cond->cond_wait_list = cond->cond_wait_list->cond_wait_next;
+		unblock->thread_mgr->unblock_thread(unblock);
+	}
 
 	return 0;
 }

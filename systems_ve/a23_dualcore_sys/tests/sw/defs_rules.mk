@@ -10,7 +10,9 @@ SRC_DIRS += $(TESTS_SW_DIR) $(TESTS_SW_DIR)/baremetal
 # EXE_TARGETS += smoke.mem smoke.hex smoke.elf smoke.dat
 
 BAREMETAL_TESTS := smoke thread_primitives msg_queue_smoke \
-  uth_yield_test uth_thread_swap_test svf_smoketest
+  uth_yield_test uth_thread_swap_test svf_smoketest memmove_test \
+  memaccess_test sprintf_test
+
 # UEX_TESTS := uex_simple_thread
 EXTS=.bin .mem .hex .elf .dat
 
@@ -47,6 +49,9 @@ $(SVF_OBJDIR)/%.o : %.c
 
 # LIBC := /usr1/src/newlib/arm-none-eabi/newlib/libc.a		
 # LIBC := /usr1/src/newlib_O2/arm-none-eabi/newlib/libc/libc.a		
+# LIBC := /usr1/src/libc_O2.a
+# LIBC := /usr1/src/libc.a
+# LIBC := /usr1/src/newlib_gOs/inst/arm-none-eabi/lib/libc.a		
 
 #	$(SVF_OBJDIR)/a23_simple_startup.o \
 	

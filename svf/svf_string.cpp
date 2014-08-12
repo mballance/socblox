@@ -25,7 +25,7 @@ svf_string::svf_string(const char *str) {
 void svf_string::operator =(const char *str)
 {
 	uint32_t sz = strlen(str);
-	if (sz > m_max) {
+	if (sz >= m_max) {
 		char *tmp = m_store;
 		m_store = new char[sz+1];
 		m_max = sz;

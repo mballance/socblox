@@ -53,7 +53,7 @@ module a23_tracer_bfm(
 	wire    [(8*8)-1:0]    TYPE_NAME;
 	reg     [3:0]          fchars;
 	reg     [31:0]         execute_address = 'd0;
-	reg     [2:0]          interrupt_d1;
+	reg     [2:0]          interrupt_d1 = 0;
 	reg     [31:0]         execute_instruction = 'd0;
 	reg                    execute_now = 'd0;
 	reg                    execute_valid = 'd0;

@@ -127,7 +127,7 @@ sub axi4_ar_master_assign($) {
 	my($n_masters) = @_;
 	my($i,$out,$name);
 	my(@LHS) = ("ARADDR", "ARID", "ARLEN", "ARSIZE", "ARBURST",
-		"ARCACHE", "ARPROT", "ARREGION", "ARVALID");
+		"ARCACHE", "ARPROT", "ARREGION", "ARVALID", "ARQOS");
 	my(@RHS) = ("ARREADY");
 
 	foreach (@LHS) {
@@ -174,7 +174,7 @@ sub axi4_r_master_assign($) {
 	my($n_masters) = @_;
 	my($i,$out,$name);
 	my(@LHS) = ("RREADY");
-	my(@RHS) = ("RDATA", "RLAST", "RVALID", "RID");
+	my(@RHS) = ("RRESP", "RDATA", "RLAST", "RVALID", "RID");
 
 	foreach (@LHS) {
 		$name=$_;
@@ -251,7 +251,7 @@ sub axi4_ar_slave_assign($) {
 	my($n_slaves) = @_;
 	my($i,$out,$name);
 	my(@LHS) = ("ARREADY");
-	my(@RHS) = ("ARADDR", "ARID", "ARLEN", "ARSIZE", "ARBURST", "ARCACHE", "ARPROT", "ARREGION", "ARVALID");
+	my(@RHS) = ("ARADDR", "ARID", "ARLEN", "ARSIZE", "ARBURST", "ARCACHE", "ARPROT", "ARREGION", "ARVALID", "ARQOS");
 
 	foreach (@LHS) {
 		$name=$_;
@@ -312,7 +312,7 @@ sub axi4_w_slave_assign($) {
 sub axi4_r_slave_assign($) {
 	my($n_slaves) = @_;
 	my($i,$out,$name);
-	my(@LHS) = ("RDATA", "RLAST", "RVALID", "RID");
+	my(@LHS) = ("RDATA", "RLAST", "RVALID", "RID", "RRESP");
 	my(@RHS) = ("RREADY");
 
 	foreach (@LHS) {

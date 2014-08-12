@@ -415,6 +415,7 @@ module axi4_interconnect_1x5 #(
 	
 	
 	assign RREADY[0] = m0.RREADY;
+	assign m0.RRESP = RRESP[0];
 	assign m0.RDATA = RDATA[0];
 	assign m0.RLAST = RLAST[0];
 	assign m0.RVALID = RVALID[0];
@@ -508,6 +509,12 @@ module axi4_interconnect_1x5 #(
 	assign SRID[3] = s3.RID;
 	assign SRID[4] = s4.RID;
 	assign SRID[5] = sdflt.RID;
+	assign SRRESP[0] = s0.RRESP;
+	assign SRRESP[1] = s1.RRESP;
+	assign SRRESP[2] = s2.RRESP;
+	assign SRRESP[3] = s3.RRESP;
+	assign SRRESP[4] = s4.RRESP;
+	assign SRRESP[5] = sdflt.RRESP;
 	assign s0.RREADY = SRREADY[0];
 	assign s1.RREADY = SRREADY[1];
 	assign s2.RREADY = SRREADY[2];

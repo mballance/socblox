@@ -47,8 +47,8 @@ input                       i_clk,
 wb_if.slave					slave,
 
 
-output reg                  o_irq,
-output reg                  o_firq,
+output reg                  o_irq = 1'b0,
+output reg                  o_firq = 1'b0,
 
 input		[15:0]			i_interrupts
 

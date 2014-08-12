@@ -40,7 +40,7 @@ module axi4_generic_byte_en_sram_bridge #(
 	reg[AXI_ID_WIDTH-1:0]			read_id;
 	reg[1:0]						read_burst;
 	reg[3:0]						read_wrap_mask;
-	reg[1:0]						sram_owner = 0;
+	reg								sram_owner_r = 0;
 	wire[MEM_ADDR_BITS-1:0]			sram_addr;
 
 	always @(posedge clk)
@@ -54,28 +54,19 @@ module axi4_generic_byte_en_sram_bridge #(
 			write_addr <= 0;
 			write_count <= 4'b0000;
     		
-			read_state <= 2'b00;
-			read_addr <= 0;
-			read_offset <= 0;
-			read_count <= 4'b0000;
-			read_length <= 4'b0000;
-			read_id <= 0;
-			read_burst <= 0;
-			read_wrap_mask <= 0;
-			sram_owner <= 0;
-    		
 		end else begin
 //			write_data <= axi_if.WDATA;
 			case (write_state) 
 				2'b00: begin // Wait Address state
-					if (axi_if.AWVALID == 1'b1 && axi_if.AWREADY == 1'b1) begin
+					if (axi_if.AWVALID == 1'b1 && axi_if.AWREADY == 1'b1 &&
+							sram_owner_r == 0 &&
+							!(axi_if.ARVALID && axi_if.ARREADY)) begin
 						write_addr <= axi_if.AWADDR[MEM_ADDR_BITS+2:6];
 						write_offset <= axi_if.AWADDR[5:2];
     					
 						write_id <= axi_if.AWID;
 						write_count <= 0;
 						write_state <= 1;
-						sram_owner <= 0;
     				
 						case (axi_if.AWBURST)
 							2: begin
@@ -133,6 +124,14 @@ module axi4_generic_byte_en_sram_bridge #(
 	always @(posedge clk) begin
 		if (rst_n == 0) begin
 			read_state <= 0;
+			read_addr <= 0;
+			read_offset <= 0;
+			read_count <= 4'b0000;
+			read_length <= 4'b0000;
+			read_id <= 0;
+			read_burst <= 0;
+			read_wrap_mask <= 0;
+			sram_owner_r <= 0;
 		end else begin
 			case (read_state)
 				2'b00: begin // Wait address state
@@ -144,7 +143,7 @@ module axi4_generic_byte_en_sram_bridge #(
 						read_count <= 0;
 						read_state <= 1;
 						read_id <= axi_if.ARID;
-						sram_owner <= 1;
+						sram_owner_r <= 1;
     					
 						case (axi_if.ARBURST) 
 							2: begin
@@ -174,6 +173,7 @@ module axi4_generic_byte_en_sram_bridge #(
 					if (axi_if.RVALID && axi_if.RREADY) begin
 						if (read_count == read_length) begin
 							read_state <= 1'b0;
+							sram_owner_r <= 0;
 						end else begin
 							read_count <= read_count + 1;
 							read_state <= 4;
@@ -197,7 +197,10 @@ module axi4_generic_byte_en_sram_bridge #(
     			
 				4: read_state <= 2;
     			
-				default: read_state <= 0;
+				default: begin
+					read_state <= 0;
+					sram_owner_r <= 0;
+				end 
 			endcase
 		end
 	end
@@ -215,18 +218,18 @@ module axi4_generic_byte_en_sram_bridge #(
 	
 	assign sram_if.read_en = 1;
     
-	assign sram_addr = (sram_owner == 0)?(write_addr_w-MEM_ADDR_OFFSET):
-			(read_addr_w-MEM_ADDR_OFFSET);
+	assign sram_addr = (sram_owner_r == 1)?(read_addr_w-MEM_ADDR_OFFSET):
+			(write_addr_w-MEM_ADDR_OFFSET);
    
 	assign axi_if.AWREADY = (write_state == 0 && 
-			((sram_owner == 1 && axi_if.AWVALID) || !axi_if.ARVALID));
+			((sram_owner_r == 0 && axi_if.AWVALID) || !axi_if.ARVALID));
 	assign axi_if.WREADY = (write_state == 1);
     
 	assign axi_if.BVALID = (write_state == 2);
 	assign axi_if.BID = (write_state == 2)?write_id:0;
     
 	assign axi_if.ARREADY = (read_state == 1'b0 && 
-			((sram_owner == 0 && axi_if.ARVALID) || !axi_if.AWVALID));
+			((sram_owner_r == 1 && axi_if.ARVALID) || !axi_if.AWVALID));
 
 	assign axi_if.RVALID = (read_state == 3);
 	assign axi_if.RLAST = (read_state == 3 && read_count == read_length)?1'b1:1'b0;

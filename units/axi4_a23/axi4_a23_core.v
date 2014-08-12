@@ -60,8 +60,6 @@ axi4_if.master				master
 );
 
 // rst is more useful to us.
-wire					  i_system_rdy;
-assign i_system_rdy = i_rstn;
 
 wire      [31:0]          execute_address;
 wire                      execute_address_valid;
@@ -69,6 +67,7 @@ wire      [31:0]          execute_address_nxt;  // un-registered version of exec
 wire      [31:0]          write_data;
 wire                      write_enable;
 wire      [31:0]          read_data;
+wire                      read_data_valid;
 wire                      priviledged;
 wire                      exclusive_exec;
 wire                      data_access_exec;
@@ -168,6 +167,7 @@ axi4_a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
     .i_write_data                       ( write_data                        ),
     .i_write_enable                     ( write_enable                      ),
     .o_read_data                        ( read_data                         ),
+    .o_read_data_valid                  ( read_data_valid                   ),
     .i_priviledged                      ( priviledged                       ),
     .i_byte_enable                      ( byte_enable                       ),
     .i_data_access                      ( data_access                       ),      
@@ -189,6 +189,7 @@ a23_decode u_decode (
     
     // Instruction fetch or data read signals
     .i_read_data                        ( read_data                         ),                                          
+    .i_read_data_valid                  ( read_data_valid                   ),
     .i_execute_address                  ( execute_address                   ),
     .i_adex                             ( adex                              ),
     .i_iabt                             ( 1'd0                              ),

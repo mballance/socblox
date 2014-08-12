@@ -45,6 +45,7 @@ module timer_module  #(
 	parameter int WB_DWIDTH = 32
 	)(
 		input                       i_clk,
+		input						i_rstn,
 		wb_if.slave					slave,
 		output      [2:0]           o_timer_int
 	);
@@ -150,7 +151,20 @@ assign o_timer_int = { timer2_int_reg,
 // ========================================================
 always @( posedge i_clk )
     begin
-    if ( wb_start_write )
+   	if (i_rstn == 0) begin
+   		timer0_load_reg <= 0;
+   		timer1_load_reg <= 0;
+   		timer2_load_reg <= 0;
+   		timer0_value_reg <= 'hffffff;
+   		timer1_value_reg <= 'hffffff;
+   		timer2_value_reg <= 'hffffff;
+   		timer0_ctrl_reg <= 0;
+   		timer1_ctrl_reg <= 0;
+   		timer2_ctrl_reg <= 0;
+   		timer0_int_reg <= 0;
+   		timer1_int_reg <= 0;
+   		timer2_int_reg <= 0;
+   	end else if ( wb_start_write )
         case ( i_wb_adr[11:0] )
             // write to timer control registers
             AMBER_TM_TIMER0_CTRL: timer0_ctrl_reg <= i_wb_dat[7:0];

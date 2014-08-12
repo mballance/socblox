@@ -47,8 +47,8 @@ module generic_sram_line_en #(
 	input						i_write_enable,
 	output[DATA_WIDTH-1:0]		o_read_data);
 
-	wire [127:0] sub_wire0;
-	assign o_read_data = sub_wire0[127:0];
+	wire [DATA_WIDTH-1:0] sub_wire0;
+	assign o_read_data = sub_wire0[DATA_WIDTH-1:0];
 
 	altsyncram	altsyncram_component (
 				.address_a (i_address),
@@ -80,14 +80,14 @@ module generic_sram_line_en #(
 		altsyncram_component.intended_device_family = "Cyclone IV GX",
 		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
 		altsyncram_component.lpm_type = "altsyncram",
-		altsyncram_component.numwords_a = 128,
+		altsyncram_component.numwords_a = (1 << ADDRESS_WIDTH),
 		altsyncram_component.operation_mode = "SINGLE_PORT",
 		altsyncram_component.outdata_aclr_a = "NONE",
 		altsyncram_component.outdata_reg_a = "CLOCK0",
 		altsyncram_component.power_up_uninitialized = "FALSE",
 		altsyncram_component.read_during_write_mode_port_a = "NEW_DATA_NO_NBE_READ",
-		altsyncram_component.widthad_a = 7,
-		altsyncram_component.width_a = 128,
+		altsyncram_component.widthad_a = ADDRESS_WIDTH,
+		altsyncram_component.width_a = DATA_WIDTH,
 		altsyncram_component.width_byteena_a = 1;
 
 

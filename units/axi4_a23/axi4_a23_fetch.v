@@ -54,6 +54,7 @@ input       [31:0]          i_address_nxt,      // un-registered version of addr
 input       [31:0]          i_write_data,
 input                       i_write_enable,
 output       [31:0]         o_read_data,
+output						o_read_data_valid,
 input                       i_priviledged,
 input                       i_exclusive,        // high for read part of swap access
 input       [3:0]           i_byte_enable,
@@ -79,6 +80,7 @@ wire                        wb_stall;
 wire    [31:0]              cache_read_data;
 wire                        sel_cache;
 wire                        sel_wb;
+wire						ack_wb;
 wire                        cache_wb_req;
 wire                        address_cachable;
 
@@ -124,6 +126,8 @@ assign sel_wb            = !sel_cache && i_address_valid && !(cache_stall);
 assign o_read_data       = sel_cache  ? cache_read_data : 
                            sel_wb     ? master.RDATA    :
                                         32'hffeeddcc    ;
+assign o_read_data_valid = 
+	((sel_wb && ack_wb) || (sel_cache && !cache_stall));
 
 // Stall the instruction decode and execute stages of the core
 // when the fetch stage needs more than 1 cycle to return the requested
@@ -151,6 +155,7 @@ axi4_a23_cache #(
 	u_cache 
 	(
     .i_clk                      ( i_clk                 ),
+    .i_rstn						( i_rstn				),
      
     .i_select                   ( sel_cache             ),
     .i_exclusive                ( i_exclusive           ),
@@ -185,6 +190,7 @@ axi4_a23_axi_if u_axi4 (
     
     // Core Accesses to Wishbone bus
     .i_select                   ( sel_wb                ),
+    .o_ack						( ack_wb				),
     .i_write_data               ( i_write_data          ),
     .i_write_enable             ( i_write_enable        ),
     .i_byte_enable              ( i_byte_enable         ),

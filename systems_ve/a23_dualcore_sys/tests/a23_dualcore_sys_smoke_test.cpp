@@ -54,7 +54,6 @@ void a23_dualcore_sys_smoke_test::mem_access(
 			fprintf(stdout, "Error: %0lld Read 0x%08x: Expected=0x%08x Actual=0x%08x\n",
 					m_env->m_timebase->gettime(), addr, mem_data, data);
 		}
-
 	}
 	if (addr == 0xF0000000) {
 		fprintf(stdout, "Test Status: %d\n", data);

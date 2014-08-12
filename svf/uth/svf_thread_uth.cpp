@@ -74,7 +74,6 @@ void svf_thread_cond::notify(svf_thread_cond_h c)
 
 void svf_thread_cond::notify_all(svf_thread_cond_h c)
 {
-//TODO:	uth_cond_broadcast(static_cast<uth_cond_t *>(c));
-	uth_cond_signal(static_cast<uth_cond_t *>(c));
+	uth_cond_broadcast(static_cast<uth_cond_t *>(c));
 }
 

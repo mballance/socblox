@@ -87,7 +87,8 @@ proc main {argv} {
 	}
 	
 	add_compile_options $argv_p
-	execute_flow -compile
+	
+#	execute_flow -compile
 	
 	project_close
 }

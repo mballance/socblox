@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 
 extern "C" void _exit(int code)
 {

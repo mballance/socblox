@@ -37,9 +37,12 @@ module axi4_rom #(
     assign s.BRESP = {2{1'b0}};
     
     reg[2:0] 						write_state;
+    reg[AXI_ID_WIDTH-1:0]			write_id;
+	// synopsys translate_off
     reg[MEM_ADDR_BITS-1:0]			write_addr;
     reg[3:0]						write_count;
-    reg[AXI_ID_WIDTH-1:0]			write_id;
+	// synopsys translate_on
+    
     reg[2:0] 						read_state;
     reg[MEM_ADDR_BITS-1:4]		read_addr;
     wire[MEM_ADDR_BITS-1:0]			read_addr_w;
@@ -54,14 +57,17 @@ module axi4_rom #(
     begin
     	if (!ARESETn) begin
     		write_state <= 2'b00;
-    		read_state <= 2'b00;
+    		write_id <= {AXI_ID_WIDTH{1'b1}};
+	// synopsys translate_off
     		write_addr <= {MEM_ADDR_BITS{1'b0}};
-    		write_addr <= 0;
     		write_count <= 4'b0000;
+	// synopsys translate_on
+    		read_state <= 2'b00;
     		read_addr <= {MEM_ADDR_BITS{1'b0}};
     		read_count <= 4'b0000;
     		read_length <= 4'b0000;
     	end else begin
+	// synopsys translate_off
     		case (write_state) 
     			2'b00: begin // Wait Address state
     				if (s.AWVALID == 1'b1 && s.AWREADY == 1'b1) begin
@@ -94,6 +100,7 @@ module axi4_rom #(
     				write_state <= 0;
     			end
     		endcase
+	// synopsys translate_on
     		
     		case (read_state)
     			2'b00: begin // Wait address state

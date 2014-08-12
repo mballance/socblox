@@ -31,6 +31,10 @@ ifeq (qs,$(SIM))
 SVF_BUILD_SIM_SC_WRAPPER := 0
 endif
 
+ifeq (qsa,$(SIM))
+SVF_BUILD_SIM_SC_WRAPPER := 0
+endif
+
 
 # include $(SOCBLOX)/defs.mk
 include $(COMMON_SIM_MK_DIR)/common_defs.mk
@@ -63,7 +67,7 @@ target_build :
 
 QS_VLOG_ARGS += $(SOCBLOX)/svf/dpi/svf_pkg.sv
 VL_VLOG_ARGS += $(SOCBLOX)/svf/sc/svf_pkg.sv
-VLOG_ARGS += -F $(SIM_DIR)/scripts/vlog.F
+VLOG_ARGS += -f $(SIM_DIR)/scripts/vlog.f
 
 
 LD_LIBRARY_PATH := $(BUILD_DIR)/libs:$(LD_LIBRARY_PATH)

@@ -84,7 +84,7 @@ void svf_root::do_build(svf_component *level)
 void svf_root::do_connect(svf_component *level)
 {
 	int entry_size = level->m_children.size();
-	fprintf(stdout, "do_connect: level=%p %s entry_size=%d\n", level, level->get_name().c_str(), entry_size);
+//	fprintf(stdout, "do_connect: level=%p %s entry_size=%d\n", level, level->get_name().c_str(), entry_size);
 	for (int i=0; i<level->m_children.size(); i++) {
 		do_connect(level->m_children.at(i));
 	}

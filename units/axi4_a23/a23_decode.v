@@ -46,6 +46,7 @@ module a23_decode
 input                       i_clk,
 input						i_rstn,
 input       [31:0]          i_read_data,
+input						i_read_data_valid,
 input                       i_fetch_stall,                  // stall all stages of the cpu at the same time
 input                       i_irq,                          // interrupt request
 input                       i_firq,                         // Fast interrupt request
@@ -63,7 +64,7 @@ input                       i_multiply_done,                // multiply unit is 
 // --------------------------------------------------
 // Control signals to execute stage
 // --------------------------------------------------
-output reg  [31:0]          o_read_data = 1'd0,
+output reg  [31:0]          o_read_data = 31'd0,
 output reg  [4:0]           o_read_data_alignment = 1'd0,  // 2 LSBs of read address used for calculating shift in LDRB ops
 
 output reg  [31:0]          o_imm32 = 'd0,
@@ -93,8 +94,8 @@ output reg  [3:0]           o_address_sel = 4'd2,
 output reg  [1:0]           o_pc_sel = 2'd2,
 output reg  [1:0]           o_byte_enable_sel = 'd0,        // byte, halfword or word write
 output reg  [2:0]           o_status_bits_sel = 'd0,
-output reg  [2:0]           o_reg_write_sel,
-output reg                  o_user_mode_regs_load,
+output reg  [2:0]           o_reg_write_sel = 0,
+output reg                  o_user_mode_regs_load = 0,
 output reg                  o_user_mode_regs_store_nxt,
 output reg                  o_firq_not_user_mode,
 
@@ -130,7 +131,7 @@ output      [7:0]           o_dabt_status
 
 
 );
-
+	
 `include "a23_localparams.v"
 `include "a23_functions.v"
 
@@ -173,7 +174,9 @@ wire    [31:0]         instruction_address;     // instruction virtual address, 
                                                 // the instruction
 wire    [7:0]          instruction_iabt_status; // abort status, follows the instruction
 wire    [1:0]          instruction_sel;
+// synthesis keep
 reg     [3:0]          i_type;
+// synthesis preserve
 wire    [3:0]          opcode;
 wire    [7:0]          imm8;
 wire    [31:0]         offset12;
@@ -364,6 +367,9 @@ assign instruction_adex =         instruction_sel == 2'd0 ? adex_reg            
 
 // Instruction Decode - Order is important!
 always @*
+	if (i_rstn == 0) begin
+		i_type = REGOP;
+	end else begin
     casez ({instruction[27:20], instruction[7:4]})
         12'b00010?001001 : i_type = SWAP;
         12'b000000??1001 : i_type = MULT;
@@ -376,6 +382,7 @@ always @*
         12'b1110???????1 : i_type = CORTRANS;       
         default:           i_type = SWI;
     endcase
+	end
 
     
 // ========================================================
@@ -472,6 +479,9 @@ assign alu_function_nxt     = { alu_swap_sel_nxt,
    // Bit 0  = R0
    // In LDM and STM instructions R0 is loaded or stored first 
 always @*
+	if (i_rstn == 0) begin
+		mtrans_reg = 4'h0;
+	end else begin
     casez (instruction[15:0])
     16'b???????????????1 : mtrans_reg = 4'h0 ;
     16'b??????????????10 : mtrans_reg = 4'h1 ;
@@ -490,8 +500,12 @@ always @*
     16'b?100000000000000 : mtrans_reg = 4'he ;
     default              : mtrans_reg = 4'hf ;
     endcase
+	end
 
 always @*
+	if (i_rstn == 0) begin
+		mtrans_instruction_nxt = 32'b0;
+	end else begin
     casez (instruction[15:0])
     16'b???????????????1 : mtrans_instruction_nxt = {instruction[31:16], instruction[15: 1],  1'd0};
     16'b??????????????10 : mtrans_instruction_nxt = {instruction[31:16], instruction[15: 2],  2'd0}; 
@@ -510,6 +524,7 @@ always @*
     16'b?100000000000000 : mtrans_instruction_nxt = {instruction[31:16], instruction[15   ], 15'd0}; 
     default              : mtrans_instruction_nxt = {instruction[31:16],                     16'd0}; 
     endcase
+	end
 
 
 // number of registers to be stored
@@ -1382,6 +1397,9 @@ assign instruction_valid = (control_state == EXECUTE || control_state == PRE_FET
 
  always @*
     begin
+    if (i_rstn == 0) begin
+		control_state_nxt = RST_WAIT1;
+    end else begin
     // default is to hold the current state
     control_state_nxt = control_state;
     
@@ -1500,6 +1518,7 @@ assign instruction_valid = (control_state == EXECUTE || control_state == PRE_FET
         if ( interrupt )        
                 control_state_nxt = INT_WAIT1;
         end
+    end // else if rstn
     end
 
 
@@ -1507,9 +1526,49 @@ assign instruction_valid = (control_state == EXECUTE || control_state == PRE_FET
 // Register Update
 // ========================================================
 always @ ( posedge i_clk )
-    if (!i_fetch_stall) 
-        begin                                                                                                                 
-        o_read_data                 <= i_read_data;
+	if (i_rstn == 0) begin
+		o_read_data <= 32'd0;
+		o_read_data_alignment <= 0;
+		o_imm32 <= 0;
+		o_imm_shift_amount <= 0;
+		o_shift_imm_zero <= 0;
+		o_condition <= 'he;
+		o_exclusive_exec <= 0;
+		o_data_access_exec <= 0;
+		o_status_bits_mode <= 2'b11;
+		o_status_bits_irq_mask <= 1'd1;
+		o_status_bits_firq_mask <= 1'd1;
+		o_rm_sel <= 0;
+		o_rds_sel <= 0;
+		o_rn_sel <= 0;
+		o_barrel_shift_amount_sel <= 0;
+		o_barrel_shift_data_sel <= 0;
+		o_barrel_shift_function <= 0;
+		o_alu_function <= 0;
+		o_multiply_function <= 0;
+		o_interrupt_vector_sel <= 0;
+		o_address_sel <= 4'd2;
+		o_pc_sel <= 2'd2;
+		o_byte_enable_sel <= 0;
+		o_status_bits_sel <= 0;
+		o_write_data_wen <= 0;
+		o_base_address_wen <= 0;
+		o_pc_wen <= 1;
+		o_reg_bank_wen <= 0;
+		o_reg_bank_wsel <= 0;
+		o_status_bits_flags_wen <= 0;
+		o_status_bits_mode_wen <= 0;
+		o_status_bits_irq_mask_wen <= 0;
+		o_status_bits_firq_mask_wen <= 0;
+		o_reg_write_sel <= 0;
+		o_user_mode_regs_load <= 0;
+		o_firq_not_user_mode <= 0;
+		control_state <= RST_WAIT1;
+	end else if (!i_fetch_stall) 
+        begin
+        	if (i_read_data_valid) begin
+        		o_read_data                 <= i_read_data;
+        	end
         o_read_data_alignment       <= {i_execute_address[1:0], 3'd0};  
         abt_address_reg             <= i_execute_address;
         iabt_reg                    <= i_iabt;
@@ -1611,7 +1670,10 @@ always @ ( posedge i_clk )
 
         
 always @ ( posedge i_clk )
-    if ( !i_fetch_stall )
+	if (i_rstn == 0) begin
+		dabt_reg <= 0;
+		dabt_reg_d1 <= 0;
+	end else if ( !i_fetch_stall )
         begin
         irq   <= i_irq;  
         firq  <= i_firq; 
@@ -1629,89 +1691,6 @@ always @ ( posedge i_clk )
         end  
 
 assign dabt = dabt_reg || i_dabt;
-
-
-// ========================================================
-// Decompiler for debugging core - not synthesizable
-// ========================================================
-//synopsys translate_off
-
-/*
-a23_tracer u_tracer (
-	.i_clk                    (i_clk							), 
-	.i_fetch_stall            (i_fetch_stall					), 
-	.i_instruction            (instruction						), 
-	.i_instruction_valid      (instruction_valid				), 
-	.i_instruction_undefined  (und_request						), 
-	.i_instruction_execute    (instruction_execute				), 
-	.i_interrupt              ({3{interrupt}} & next_interrupt	), 
-	.i_interrupt_state        (control_state == INT_WAIT2		), 
-	.i_instruction_address    (instruction_address				),
-	.i_pc_sel                 (o_pc_sel							), 
-	.i_pc_wen                 (o_pc_wen							));
-	 */
-
-`ifdef AXI_AMBER23_DEBUG
-`include "debug_functions.v"
-
-a23_decompile  u_decompile (
-    .i_clk                      ( i_clk                            ),
-    .i_fetch_stall              ( i_fetch_stall                    ),
-    .i_instruction              ( instruction                      ),
-    .i_instruction_valid        ( instruction_valid                ),
-    .i_instruction_execute      ( instruction_execute              ),
-    .i_instruction_address      ( instruction_address              ),
-    .i_interrupt                ( {3{interrupt}} & next_interrupt  ),
-    .i_interrupt_state          ( control_state == INT_WAIT2       ),
-    .i_instruction_undefined    ( und_request                      ),
-    .i_pc_sel                   ( o_pc_sel                         ),
-    .i_pc_wen                   ( o_pc_wen                         )
-);
-
-
-wire    [(15*8)-1:0]    xCONTROL_STATE;
-wire    [(15*8)-1:0]    xMODE;
-
-assign xCONTROL_STATE        = 
-                               control_state == RST_WAIT1      ? "RST_WAIT1"      :
-                               control_state == RST_WAIT2      ? "RST_WAIT2"      :
-
-
-                               control_state == INT_WAIT1      ? "INT_WAIT1"      :
-                               control_state == INT_WAIT2      ? "INT_WAIT2"      :
-                               control_state == EXECUTE        ? "EXECUTE"        :
-                               control_state == PRE_FETCH_EXEC ? "PRE_FETCH_EXEC" :
-                               control_state == MEM_WAIT1      ? "MEM_WAIT1"      :
-                               control_state == MEM_WAIT2      ? "MEM_WAIT2"      :
-                               control_state == PC_STALL1      ? "PC_STALL1"      :
-                               control_state == PC_STALL2      ? "PC_STALL2"      :
-                               control_state == MTRANS_EXEC1   ? "MTRANS_EXEC1"   :
-                               control_state == MTRANS_EXEC2   ? "MTRANS_EXEC2"   :
-                               control_state == MTRANS_EXEC3   ? "MTRANS_EXEC3"   :
-                               control_state == MTRANS_EXEC3B  ? "MTRANS_EXEC3B"  :
-                               control_state == MTRANS_EXEC4   ? "MTRANS_EXEC4"   :
-                               control_state == MTRANS5_ABORT  ? "MTRANS5_ABORT"  :
-                               control_state == MULT_PROC1     ? "MULT_PROC1"     :
-                               control_state == MULT_PROC2     ? "MULT_PROC2"     :
-                               control_state == MULT_STORE     ? "MULT_STORE"     :
-                               control_state == MULT_ACCUMU    ? "MULT_ACCUMU"    :
-                               control_state == SWAP_WRITE     ? "SWAP_WRITE"     :
-                               control_state == SWAP_WAIT1     ? "SWAP_WAIT1"     :
-                               control_state == SWAP_WAIT2     ? "SWAP_WAIT2"     :
-                               control_state == COPRO_WAIT     ? "COPRO_WAIT"     :
-                                                                 "UNKNOWN "       ;
-
-assign xMODE  = mode_name ( o_status_bits_mode );
-
-always @( posedge i_clk )
-    if (control_state == EXECUTE && ((instruction[0] === 1'bx) || (instruction[31] === 1'bx)))
-        begin
-        `TB_ERROR_MESSAGE
-        $display("Instruction with x's =%08h", instruction);
-        end
-`endif /* AXI_AMBER23_DEBUG */
-
-//synopsys translate_on
 
 endmodule
 
