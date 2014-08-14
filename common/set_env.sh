@@ -13,7 +13,8 @@ fi
 
 export SOCBLOX=$socblox
 export UNITS=$SOCBLOX/units
-export COMMON_RTL=$SOCBLOX/common/rtl
+export COMMON_DIR=$SOCBLOX/common
+export COMMON_RTL=$COMMON_DIR/rtl
 export SYSTEMS=$SOCBLOX/systems
 
 
