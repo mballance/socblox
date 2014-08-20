@@ -2,12 +2,6 @@
  * a23_mini_sys.sv
  ****************************************************************************/
  
-module dummy_slave(axi4_if.slave slave);
-endmodule
-
-// `define SMALL
-// `define MICRO
-
 /**
  * Module: a23_mini_sys
  * 
@@ -27,32 +21,20 @@ module a23_mini_sys(
 		output		led3
 		);
 
-//	reg[31:0]			clk_cnt = 0;
 	reg[4:0]			clk_cnt = 0;
 	reg[31:0]			cnt = 0;
 	reg[3:0]			state = 0;
 	reg					rst_n = 0;
 	wire				irq;
 	wire				firq;
-//	reg[31:0]			idle = 20000000;
-	/*
-	reg[31:0]			idle   = 200000;
-	reg[31:0]			active = 20000000;
-	 */
 `ifdef FPGA
 	reg[31:0]			idle = 200;
-//	reg[31:0]			active = 2000000;
-	reg[31:0]			active = 80000;
+	reg[31:0]			active = 0;
 `else
 	reg[31:0]			idle = 200;
 	reg[31:0]			active = 80000;
-//	reg[31:0]			active = 0;
 `endif
-	/*
-	 */
 	
-//	assign core_clk = clk_cnt[4];
-
 `ifdef FPGA	
 	localparam INIT_FILE = "rom.hex";
 `else	
@@ -60,7 +42,12 @@ module a23_mini_sys(
 `endif
 	
 	localparam WB_PERIPH_ADDR_BASE  = 'hF000_0000;
-	localparam WB_PERIPH_ADDR_LIMIT = 'hFFFF_FFFF;
+	localparam WB_PERIPH_ADDR_LIMIT = 'hF0FF_FFFF;
+
+`ifdef FPGA
+	localparam HPS_PERIPH_ADDR_BASE  = 'hFF00_0000;
+	localparam HPS_PERIPH_ADDR_LIMIT = 'hFFFF_FFFF;
+`endif	
 	
 	localparam WB_TIMER_ADDR_BASE  = (WB_PERIPH_ADDR_BASE + 0*'h1000);
 	localparam WB_TIMER_ADDR_LIMIT = (WB_PERIPH_ADDR_BASE + (1*'h1000)-1);
@@ -72,19 +59,11 @@ module a23_mini_sys(
 	reg		core_clk_r = 0;
 	
 	assign core_clk = core_clk_r;
-//	assign core_clk = clk_i;
-	
 	
 	always @(posedge clk_i) begin
 		clk_cnt <= clk_cnt + 5'b1;
 
-		/*
-		case (clk_cnt)
-			0, 1: core_clk_r <= 0;
-			2, 3: core_clk_r <= 1;
-		endcase
-		 */
-		case (clk_cnt[4])
+		case (clk_cnt[0])
 			0: core_clk_r <= 0;
 			1: core_clk_r <= 1;
 		endcase
@@ -116,8 +95,6 @@ module a23_mini_sys(
 		endcase
 	end
 	
-//	assign rst_n = (state != 0);
-
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
@@ -141,6 +118,7 @@ module a23_mini_sys(
 		) ic2rom ();
 
 	/*
+		 */
 	axi4_monitor #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
@@ -150,7 +128,6 @@ module a23_mini_sys(
 			.rst_n(rst_n),
 			.monitor(ic2rom.monitor)
 		);
-		 */
 
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
@@ -180,6 +157,14 @@ module a23_mini_sys(
 		.AXI4_ID_WIDTH       (5  )
 		) ic2sys ();
 
+`ifdef FPGA
+	axi4_if #(
+		.AXI4_ADDRESS_WIDTH  (32 ), 
+		.AXI4_DATA_WIDTH     (32 ), 
+		.AXI4_ID_WIDTH       (5  )
+		) ic2hps ();
+`endif	
+
 	wire				irq_z, firq_z;
 	assign irq_z = irq; // 0;
 	assign firq_z = firq; // 0;
@@ -192,7 +177,11 @@ module a23_mini_sys(
 		.i_firq          (firq_z         ),
 		.master          (core2ic.master));
 
+`ifdef FPGA
+	axi4_interconnect_1x5 #(
+`else
 	axi4_interconnect_1x4 #(
+`endif			
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32    ), 
 		.AXI4_ID_WIDTH       (4      ), 
@@ -204,6 +193,11 @@ module a23_mini_sys(
 		.SLAVE2_ADDR_LIMIT   ('h8FFF_FFFF  ),
 		.SLAVE3_ADDR_BASE    (WB_PERIPH_ADDR_BASE ),
 		.SLAVE3_ADDR_LIMIT   (WB_PERIPH_ADDR_LIMIT)
+`ifdef FPGA
+		,
+		.SLAVE4_ADDR_BASE    (HPS_PERIPH_ADDR_BASE ),
+		.SLAVE4_ADDR_LIMIT   (HPS_PERIPH_ADDR_LIMIT)
+`endif
 		) u_ic1 (
 		.clk                 (core_clk           ), 
 		.rstn                (rst_n              ), 
@@ -211,7 +205,12 @@ module a23_mini_sys(
 		.s0                  (ic2rom.master      ),
 		.s1                  (ic2ram.master      ),
 		.s2                  (ic2sys.master      ),
-		.s3                  (ic2wb.master       ));
+		.s3                  (ic2wb.master       )
+`ifdef FPGA
+		,
+		.s4                  (ic2hps.master      )
+`endif
+		);
 	
 	axi4_rom #(
 		.MEM_ADDR_BITS      (12     ), 
@@ -249,6 +248,14 @@ module a23_mini_sys(
 		.WB_DATA_WIDTH  (32 )
 		) wbic2intc();
 
+`ifdef FPGA
+	hps_slave_only u_hps(
+			.clk_clk(core_clk),
+			.reset_reset_n(rst_n),
+			.s(ic2hps.slave)
+			);
+`endif
+
 	axi4_wb_bridge #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32    ), 
@@ -279,8 +286,6 @@ module a23_mini_sys(
 	wire[2:0]			o_timer_int;
 	wire[15:0]			i_interrupts;
 	
-//	assign irq = o_timer_int[0];
-
 	assign i_interrupts[2:0] = o_timer_int;
 	assign i_interrupts[15:3] = 0;
 
@@ -302,12 +307,14 @@ module a23_mini_sys(
 	// read handling
 	reg[3:0]		read_state = 0;
 	reg[31:0]		read_addr = 0;
-	reg[31:0]		read_data = 0;
+	reg[31:0]		read_data = 'hffeeaabb;
+	reg[4:0]		read_id = 0;
 	assign ic2sys.ARREADY = (read_state == 0);
 	assign ic2sys.RVALID = (read_state == 1);
 	assign ic2sys.RDATA = read_data;
 	assign ic2sys.RRESP = 0;
 	assign ic2sys.RLAST = 1;
+	assign ic2sys.RID = read_id;
 	always @(posedge core_clk) begin
 		if (rst_n == 0) begin
 			read_state <= 0;
@@ -317,6 +324,7 @@ module a23_mini_sys(
 				0: begin
 					if (ic2sys.ARVALID == 1) begin
 						read_addr <= ic2sys.ARADDR;
+						read_id <= ic2sys.ARID;
 						read_state <= 1;
 					end
 				end
@@ -344,43 +352,16 @@ module a23_mini_sys(
 		led_r <= read_addr[5:2];
 	end
 
-	/*
-	assign led0 = led_r[0];
-	assign led1 = led_r[1];
-	assign led2 = led_r[2];
-	assign led3 = led_r[3];
-	 */
-	
-	/*
-	assign led0 = read_addr[3];
-	assign led1 = read_addr[2];
-	assign led2 = read_addr[1];
-	assign led3 = read_addr[0];
-	 */
-	/*
-	assign led0 = ic2rom.ARADDR[5];
-	assign led1 = ic2rom.ARADDR[4];
-	assign led2 = ic2rom.ARADDR[3];
-	assign led3 = ic2rom.ARADDR[2];
-	 */
 	assign led0 = write_data[3];
 	assign led1 = write_data[2];
 	assign led2 = write_data[1];
 	assign led3 = write_data[0];
-	/*
-	 */
 
-	/*
-	assign led0 = clk_cnt[16];
-	assign led1 = clk_cnt[15];
-	assign led2 = clk_cnt[14];
-	assign led3 = clk_cnt[13];
-	 */
-	
 	assign ic2sys.AWREADY = (write_state == 0);
 	assign ic2sys.WREADY = (write_state == 1);
 	assign ic2sys.BVALID = (write_state == 2);
 	assign ic2sys.BID = write_id;
+	assign ic2sys.BRESP = 0;
 	always @(posedge core_clk) begin
 		if (rst_n == 0) begin
 			write_state <= 0;
@@ -399,6 +380,7 @@ module a23_mini_sys(
 					// 
 					if (ic2sys.WVALID == 1) begin
 						write_data <= ic2sys.WDATA;
+						read_data <= ic2sys.WDATA;
 						write_state <= 2;
 					end
 				end

@@ -17,10 +17,12 @@ module axi4_sram #(
 			input				ARESETn,
 			axi4_if.slave		s
 		);
-	
+
+	// synopsys translate_off
 	initial begin
 		$display("SRAM path %m");
 	end
+	// synopsys translate_on
 	
 	generic_sram_byte_en_if #(
 		.NUM_ADDR_BITS  (MEM_ADDR_BITS ), 

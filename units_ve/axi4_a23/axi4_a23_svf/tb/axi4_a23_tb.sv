@@ -1,14 +1,14 @@
 /****************************************************************************
- * axi4_a23_svf_tb.sv
+ * axi4_a23_tb.sv
  ****************************************************************************/
 
 /**
- * Module: axi4_a23_svf_tb
+ * Module: axi4_a23_tb
  * 
  * TODO: Add module documentation
  */
 
-module axi4_a23_svf_tb(
+module axi4_a23_tb(
 		input				clk
 		);
 	import svf_pkg::*;
@@ -63,13 +63,9 @@ module axi4_a23_svf_tb(
 				.AXI4_ADDRESS_WIDTH(32),
 				.AXI4_DATA_WIDTH(32),
 				.AXI4_ID_WIDTH(4)
-			) c2ic (
-				.ACLK(clk),
-				.ARESETn(rstn)
-			);
+			) c2ic ();
 	
 	wire i_irq, i_firq;
-	reg i_system_rdy = 1;
 	
 	assign i_irq = 0;
 	assign i_firq = 0;
@@ -81,18 +77,14 @@ module axi4_a23_svf_tb(
 		.i_rstn			 (rstn			 ),
 		.i_irq           (i_irq          ), 
 		.i_firq          (i_firq         ), 
-		.i_system_rdy    (i_system_rdy   ), 
 		.master			 (c2ic.master	 )
 		);
 	
 	axi4_if #(
 				.AXI4_ADDRESS_WIDTH(32),
 				.AXI4_DATA_WIDTH(32),
-				.AXI4_ID_WIDTH(4)
-			) ic2s0 (
-				.ACLK(clk),
-				.ARESETn(rstn)
-			);
+				.AXI4_ID_WIDTH(5)
+			) ic2s0 ();
 	
 	axi4_interconnect_1x1 #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
@@ -107,7 +99,7 @@ module axi4_a23_svf_tb(
 		.s0                  (ic2s0.master       ));
 	
 	
-	axi4_svf_sram #(
+	axi4_sram #(
 			.AXI_DATA_WIDTH(32),
 			.MEM_ADDR_BITS(22)
 		) s0(
@@ -116,7 +108,7 @@ module axi4_a23_svf_tb(
 			.s(ic2s0.slave)
 			);
 	
-	bind a23_tracer axi4_a23_svf_tracer u_svf_tracer (
+	bind a23_tracer a23_tracer_bfm u_tracer (
 		.i_clk                    (i_clk                   ), 
 		.i_fetch_stall            (i_fetch_stall           ), 
 		.i_instruction            (i_instruction           ), 

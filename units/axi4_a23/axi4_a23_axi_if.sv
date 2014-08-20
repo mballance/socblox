@@ -64,6 +64,7 @@ input						i_rstn,
 // Core Accesses to Wishbone bus
 input                       i_select,
 output						o_ack,
+output						o_dabt,
 input       [31:0]          i_write_data,
 input                       i_write_enable,
 input       [3:0]           i_byte_enable,    // valid for writes only
@@ -81,6 +82,8 @@ output						o_stall_cache,
 axi4_if.master				master
 );
 
+	
+assign o_dabt = 0;
 
 localparam [3:0] WB_IDLE            = 3'd0,
                  WB_BURST1          = 3'd1,

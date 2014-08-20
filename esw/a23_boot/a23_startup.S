@@ -13,7 +13,6 @@
  _start:
 
  	B			_reset			// 0x00000000: Reset
-// 	B			.				// 0x00000000: Reset
  	B			.				// 0x00000004: Undefined instruction
  	B			.				// 0x00000008: SWI
  	B			.				// 0x0000000C: PREF
@@ -27,43 +26,31 @@
  	.align 4
 
 _reset:
+
 /*
-	mov			r0, #0
-	ldr			r1, =0x80000000
-l1:
-	str			r0, [r1]
-	add			r0, r0, #1
-	b			l1
+ 	ldr			r0, =0x80000000
+ 	ldr			r1, =0x20000000
+	mov			r2, #1
+top:
+	ldr			r3, [r0]
+	add			r3, #1
+	str			r3, [r0]
+
+	str			r2, [r1]
+	ldr			r2, [r1]
+	add			r2, #1
+	str			r2, [r1]
+
+	b			top
  */
 
 	// First, setup the SVC stack for this core
-	/*
-	ldr			r1, =__svc_stack0_top__
-	ldr			r2, =__svc_stack0_start__
-	sub			r3, r1, r2
-	add			r2, r0, #1
-	mul			r3, r3, r2
-	sub			r3, r3, #4
-	add			r3, r3, r2
-	// r3 holds svc stack address
-	// r0 holds the core id
-	mov			sp, r3
-	 */
 	ldr			r0, =__svc_stack0_top__
 	sub			r0, r0, #4
 	mov			sp, r0
 
 
 	// Next, setup the IRQ stack for this core
-	/*
-	ldr			r1, =__irq_stack0_top__
-	ldr			r2, =__irq_stack0_start__
-	sub			r3, r1, r2
-	add			r2, r0, #1
-	mul			r3, r3, r2
-	sub			r3, r3, #4
-	add			r3, r3, r2
-	 */
 	ldr			r3, =__irq_stack_top__
 	// r3 holds irq stack address
 	// r0 holds the core id
@@ -75,17 +62,20 @@ l1:
 	mov			r1, #00000003
 	teqp		pc, r1
 
+#ifdef HAVE_COREID
 // Spin for non-0 core
 //	mov			r1, #0
 //	cmp			r1, r0
 //not_core0:
 //	BNE			not_core0
+#endif
 
-
+/*
 	LDR			r0, =_reset
 	LDR			r1, =_cstartup
 	MOV			lr, r1
 	B			low_level_init
+ */
 
 
 _cstartup:
@@ -116,8 +106,6 @@ _cstartup:
  */
 
 	/* Relocate the .data section from ROM to RAM */
-/** TODO:
- */
 	LDR			r0, =__data_load
 	LDR			r1, =__data_start
 	LDR			r2, =_edata
@@ -150,16 +138,6 @@ _cstartup:
 	STMLTIA		r1!, {r3}
 	BLT			1b
 
-	/* TODO: Initialize stack pointers */
-
-	/* Invoke static constructors */
-	/*
-	LDR			r12, =__libc_init_array
-	MOV			lr, pc
-	MOV			pc, r12
-	 */
-//	B			r12
-
 	// Call init methods
 	LDR			r1, =__init_array_start
 	LDR			r2, =__init_array_end
@@ -174,8 +152,6 @@ ia_1:
 	CMP			r1, r2
 	BLT			ia_1
 ia_done:
-	/*
-	 */
 
 	/* Finally, call C/C++ code */
 	LDR			r12, =main

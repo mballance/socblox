@@ -11,6 +11,7 @@ ${COMMON_RTL}/memory/generic_sram_line_en_w.sv
 -f ${UNITS}/axi4_a23/axi4_a23.f
 
 ${UNITS}/interconnects/axi4/axi4_interconnect_1x4.sv
+${UNITS}/interconnects/axi4/axi4_interconnect_1x5.sv
 ${UNITS}/interconnects/wb/wb_interconnect_1x2.sv
 ${UNITS}/interconnects/axi4/axi4_wb_bridge.sv
 

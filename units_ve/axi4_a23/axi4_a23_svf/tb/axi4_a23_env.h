@@ -9,8 +9,8 @@
 #define AXI4_A23_ENV_H_
 
 #include "svf.h"
-#include "axi4_svf_sram_bfm.h"
-#include "a23_tracer.h"
+#include "a23_tracer_bfm.h"
+#include "generic_sram_byte_en_bfm.h"
 
 
 class axi4_a23_env: public svf_component {
@@ -28,8 +28,8 @@ class axi4_a23_env: public svf_component {
 
 	public:
 
-		axi4_svf_sram_bfm				*m_s0_bfm;
-		a23_tracer						*m_tracer;
+		generic_sram_byte_en_bfm		*m_s0_bfm;
+		a23_tracer_bfm					*m_tracer;
 
 };
 

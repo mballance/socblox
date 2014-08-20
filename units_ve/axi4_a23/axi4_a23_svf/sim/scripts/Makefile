@@ -27,7 +27,7 @@ MK_INCLUDES += $(COMMON_SVF_DIR)/defs_rules.mk
 MK_INCLUDES += $(SIM_DIR)/../tb/defs_rules.mk 
 MK_INCLUDES += $(SIM_DIR)/../tests/defs_rules.mk
 
-UNIT_VE=a23_mini_sys
+UNIT_VE=axi4_a23
 TB=$(UNIT_VE)_tb
 
 
@@ -35,7 +35,7 @@ TB=$(UNIT_VE)_tb
 
 VERILATOR_TRACE_EN ?= 1
 
-SIM_DATAFILES += baremetal/smoke.mem
+# SIM_DATAFILES += baremetal/smoke.mem
 
 %.mem : $(BUILD_DIR)/%.mem
 	cp $^ $@

@@ -119,7 +119,7 @@ module axi4_generic_byte_en_sram_bridge #(
 		end
 	end
 	
-	reg[AXI_DATA_WIDTH-1:0]			read_data;
+	reg[AXI_DATA_WIDTH-1:0]			read_data = 0;
     		
 	always @(posedge clk) begin
 		if (rst_n == 0) begin
@@ -132,6 +132,7 @@ module axi4_generic_byte_en_sram_bridge #(
 			read_burst <= 0;
 			read_wrap_mask <= 0;
 			sram_owner_r <= 0;
+			read_data <= 0;
 		end else begin
 			case (read_state)
 				2'b00: begin // Wait address state
@@ -214,7 +215,8 @@ module axi4_generic_byte_en_sram_bridge #(
 //	assign sram_if.write_data = write_data;
 	assign sram_if.write_data = axi_if.WDATA;
 	
-	assign axi_if.RDATA = read_data;
+//	assign axi_if.RDATA = read_data;
+	assign axi_if.RDATA = sram_if.read_data;
 	
 	assign sram_if.read_en = 1;
     

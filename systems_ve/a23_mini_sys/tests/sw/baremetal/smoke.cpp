@@ -27,14 +27,16 @@ int main(int argc, char **) {
 	t_drv.init((uint32_t *)0xF0000000);
 	i_drv.init((uint32_t *)0xF0001000);
 
-	t_drv.set_load(0, 0x1000);
+	t_drv.set_load(0, 0xFFFF);
 	t_drv.set_periodic(0, true);
 	t_drv.set_enable(0, true);
 
+
 	while (1) {
+		*((volatile uint32_t *)0xFF7079004) = 0xFFFFFFFF; // DDR
 		;
 //		foo++;
-//		*((uint32_t *)0x80000000) = (foo >> 1);
+//		*((volatile uint32_t *)0x80000000) = (foo >> 16);
 //		t_drv.clr(0);
 	}
 }

@@ -138,6 +138,7 @@ wire                      multiply_done;
 wire                      decode_fault;
 wire                      iabt_trigger;
 wire                      dabt_trigger;
+wire                      dabt;
 
 wire     [7:0]            decode_fault_status;
 wire     [7:0]            iabt_fault_status;
@@ -178,6 +179,7 @@ axi4_a23_fetch #(.A23_CACHE_WAYS(A23_CACHE_WAYS)
 
     .i_system_rdy                       ( i_rstn				        	),
     .o_fetch_stall                      ( fetch_stall                       ),
+    .o_dabt								( dabt								),
     
     .master								( master							)
 );
@@ -193,7 +195,7 @@ a23_decode u_decode (
     .i_execute_address                  ( execute_address                   ),
     .i_adex                             ( adex                              ),
     .i_iabt                             ( 1'd0                              ),
-    .i_dabt                             ( 1'd0                              ),
+    .i_dabt                             ( dabt                              ),
     .i_abt_status                       ( 8'd0                              ),                                          
     
     .o_read_data                        ( read_data_s2                      ),                                          
@@ -377,7 +379,7 @@ a23_tracer u_tracer (
 	.i_instruction_undefined  (u_decode.und_request								),
 	.i_instruction_execute    (u_decode.instruction_execute   					), 
 	.i_interrupt              ({3{u_decode.interrupt}} & u_decode.next_interrupt),
-	.i_interrupt_state        (u_decode.control_state == INT_WAIT2				),
+	.i_interrupt_state        (u_decode.control_state == u_decode.INT_WAIT2		),
 	.i_instruction_address    (u_decode.instruction_address						),
 	.i_pc_sel                 (u_decode.o_pc_sel								),
 	.i_pc_wen                 (u_decode.o_pc_wen								),

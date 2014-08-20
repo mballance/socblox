@@ -22,6 +22,11 @@ int svf_elf_loader::load(const char *filename)
 	Elf32_Phdr phdr;
 	Elf32_Shdr shdr;
 
+	if (!m_mem_if) {
+		fprintf(stdout, "Error: memory interface passed to svf_elf_loader is null\n");
+		return -1;
+	}
+
 	fp = fopen(filename, "r");
 
 	if (!fp) {

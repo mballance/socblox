@@ -5,6 +5,8 @@ ${COMMON_RTL}/../sram/fpga/altera/generic_rom.v
 ${COMMON_RTL}/../sram/fpga/altera/generic_sram_byte_en.v
 ${COMMON_RTL}/../sram/fpga/altera/generic_sram_line_en.v
 
+${COMMON_RTL}/fpga/altera/cyclonev/hps_slave_only.sv
+
 // a23_mini_sys.sdc
 
 /**

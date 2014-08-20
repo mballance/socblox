@@ -66,6 +66,7 @@ input                       i_system_rdy,
 output                      o_fetch_stall,      // when this is asserted all registers 
                                                 // in all 3 pipeline stages are held
                                                 // at their current values
+output						o_dabt,
                                                 
 
 axi4_if.master				master
@@ -114,7 +115,7 @@ end
 // 25 - 32m
 // 26 - 64m
 // 27 - 128m
-assign address_cachable  = /*in_cachable_mem( i_address ) &&*/ i_cacheable_area[i_address[31:27]];
+assign address_cachable  = i_cacheable_area[i_address[31:27]];
 
 assign sel_cache         = address_cachable && i_address_valid && i_cache_enable &&  !i_exclusive;
 
@@ -128,6 +129,8 @@ assign o_read_data       = sel_cache  ? cache_read_data :
                                         32'hffeeddcc    ;
 assign o_read_data_valid = 
 	((sel_wb && ack_wb) || (sel_cache && !cache_stall));
+	
+// assign o_dabt = (i_exclusive && sel_wb && ack_wb);
 
 // Stall the instruction decode and execute stages of the core
 // when the fetch stage needs more than 1 cycle to return the requested
@@ -191,6 +194,7 @@ axi4_a23_axi_if u_axi4 (
     // Core Accesses to Wishbone bus
     .i_select                   ( sel_wb                ),
     .o_ack						( ack_wb				),
+    .o_dabt						( o_dabt				),
     .i_write_data               ( i_write_data          ),
     .i_write_enable             ( i_write_enable        ),
     .i_byte_enable              ( i_byte_enable         ),

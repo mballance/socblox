@@ -31,7 +31,7 @@ img : $(TOP_MODULE).qpf $(TOP_MODULE).map $(TOP_MODULE).fit $(TOP_MODULE).asm
 	
 %.sim : %.fit
 	quartus_eda $(subst .fit,,$(*)) \
-		--simulation --tool=modelsim --format=verilog 
+		--simulation --tool=modelsim --format=verilog --gen_script=on
 	touch $@
 	
 %.sta : %.fit	

@@ -19,8 +19,8 @@ axi4_a23_env::~axi4_a23_env() {
 
 void axi4_a23_env::build()
 {
-	m_s0_bfm = axi4_svf_sram_bfm::type_id.create("m_s0_bfm", this);
-	m_tracer = a23_tracer::type_id.create("m_tracer", this);
+	m_s0_bfm = generic_sram_byte_en_bfm::type_id.create("m_s0_bfm", this);
+	m_tracer = a23_tracer_bfm::type_id.create("m_tracer", this);
 }
 
 void axi4_a23_env::connect()

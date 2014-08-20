@@ -7,7 +7,6 @@
 
 #include "axi4_a23_svf_coretest.h"
 #include "svf_elf_loader.h"
-#include "a23_tracer_dpi_mgr.h"
 
 axi4_a23_svf_coretest::axi4_a23_svf_coretest(const char *name) :
 	axi4_a23_svf_test_base(name), tracer_port(this) {
@@ -22,7 +21,11 @@ axi4_a23_svf_coretest::~axi4_a23_svf_coretest() {
 
 void axi4_a23_svf_coretest::build()
 {
+	fprintf(stdout, "--> coretest::build\n");
+	fflush(stdout);
 	axi4_a23_svf_test_base::build();
+	fprintf(stdout, "<-- coretest::build\n");
+	fflush(stdout);
 }
 
 void axi4_a23_svf_coretest::connect()
@@ -40,8 +43,8 @@ void axi4_a23_svf_coretest::start()
 
 void axi4_a23_svf_coretest::run()
 {
-	string target_exe;
-	string testname = "unknown";
+	svf_string target_exe;
+	svf_string testname = "unknown";
 	fprintf(stdout, "run thread\n");
 	raise_objection();
 

@@ -6,8 +6,6 @@
  */
 
 #include "axi4_a23_svf_test_base.h"
-#include "axi4_svf_sram_dpi_mgr.h"
-#include "a23_tracer_dpi_mgr.h"
 
 axi4_a23_svf_test_base::axi4_a23_svf_test_base(const char *name) : svf_test(name) {
 	// TODO Auto-generated constructor stub
@@ -44,10 +42,15 @@ void axi4_a23_svf_test_base::connect()
 	string TB_ROOT(TB_ROOT_c);
 
 	// Connect the BFM to the sram device in the Verilog testbench
-	axi4_svf_sram_dpi_mgr::connect(TB_ROOT + ".s0", m_env->m_s0_bfm->port);
+//	axi4_svf_sram_dpi_mgr::connect(TB_ROOT + ".s0", m_env->m_s0_bfm->port);
+	generic_sram_byte_en_dpi_mgr::connect(TB_ROOT + ".s0.ram_w.ram",
+			m_env->m_s0_bfm->bfm_port);
 
 	// Connect the tracer to the
-	a23_tracer_dpi_mgr::connect(TB_ROOT + ".core.u_tracer.u_svf_tracer", m_env->m_tracer->port);
+	/*
+	*/
+	a23_tracer_bfm_dpi_mgr::connect(TB_ROOT + ".core.u_tracer.u_tracer",
+			m_env->m_tracer->bfm_port);
 }
 
 void axi4_a23_svf_test_base::start()
