@@ -21,6 +21,13 @@ class axi4_master_bfm: public svf_component,
 	svf_component_ctor_decl(axi4_master_bfm)
 
 	public:
+		static const uint32_t					CACHE_BUFFERABLE = (1 << 0);
+		static const uint32_t					CACHE_CACHEABLE  = (1 << 1);
+		static const uint32_t					CACHE_READALLOC  = (1 << 2);
+		static const uint32_t					CACHE_WRITEALLOC = (1 << 3);
+
+
+	public:
 		svf_api_export<axi4_master_if>												master_export;
 
 		// Port to the BFM
@@ -64,7 +71,7 @@ class axi4_master_bfm: public svf_component,
 
 		void wait_clks(uint32_t clks);
 
-//		void set_CACHE()
+		void set_cache(uint32_t cache);
 
 		// Implementation of host API
 	public:
@@ -83,6 +90,8 @@ class axi4_master_bfm: public svf_component,
 		uint32_t					ADDRESS_WIDTH;
 		uint32_t					DATA_WIDTH;
 		uint32_t					ID_WIDTH;
+
+		uint32_t					m_cache;
 
 		uint32_t					m_aw_id;
 		uint32_t					m_ar_id;

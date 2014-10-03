@@ -355,7 +355,7 @@ sub run_jobs {
     my($run_dir,$i, $alive, $pid, $testname);
     my(@pid_list_tmp,@cmdline);
     my($launch_sims, $n_complete, $n_started, $wpid);
-    my($seed,$report_interval,$seed_str,$testlist_idx);
+    my($seed,$report_interval,$seed_str,$testlist_idx, $testname);
 
     $report_interval=20;
     $testlist_idx=0;
@@ -402,6 +402,10 @@ sub run_jobs {
 	                }
                 
 	                close($fh);
+	                
+					# Compute the test name from the test file
+                	$testname = basename($test);
+                	$testname =~ s/\.f//g;
                 
                     system("make",
                     	"-f" ,
@@ -409,13 +413,17 @@ sub run_jobs {
                     	"SIM=${sim}",
                     	"SEED=${seed}",
 #                    	"-quiet", "$quiet", 
-                    	"TESTNAME=${test}", 
+                    	"TESTNAME=${testname}", 
                     	"INTERACTIVE=${interactive}",
                     	"DEBUG=${debug}",
                     	"run"
                     	);
+                
+                	
+                	print "testname=$testname\n"; 
+                    
                    
-                    open(my $fh, "$SIM_DIR/scripts/status.sh $test |") or die "Failed to launch check program";
+                    open(my $fh, "$SIM_DIR/scripts/status.sh $testname |") or die "Failed to launch check program";
                     
                     $result = <$fh>;
                     

@@ -14,6 +14,7 @@ axi4_master_bfm::axi4_master_bfm(const char *name, svf_component *parent) :
 		m_init_reset(false) {
 	m_ar_id = 0;
 	m_aw_id = 0;
+	m_cache = 0;
 
 }
 
@@ -69,14 +70,14 @@ void axi4_master_bfm::write(
 
 	bfm_port()->aw_valid(
 			addr,
-			m_aw_id, // AWID
-			burst_len, // AWLEN
-			burst_size, // AWSIZE
-			burst_type, // AWBURST
-			0, // AWCACHE
-			0, // AWPROT
-			0, // AWQOS
-			0  // AWREGION
+			m_aw_id, 		// AWID
+			burst_len, 		// AWLEN
+			burst_size, 	// AWSIZE
+			burst_type, 	// AWBURST
+			m_cache, 		// AWCACHE
+			0, 				// AWPROT
+			0, 				// AWQOS
+			0  				// AWREGION
 			);
 
 	m_aw_id = ((m_aw_id + 1) % (1 << ID_WIDTH));
@@ -116,9 +117,9 @@ void axi4_master_bfm::read(
 			burst_len,
 			burst_size,
 			burst_type,
-			0,
-			0,
-			0
+			m_cache,			// cache
+			0,					// prot
+			0					// region
 			);
 
 	m_ar_id = ((m_ar_id + 1) % (1 << ID_WIDTH));
@@ -216,6 +217,11 @@ void axi4_master_bfm::reset()
 void axi4_master_bfm::clk_ack()
 {
 	m_clk_sem.put();
+}
+
+void axi4_master_bfm::set_cache(uint32_t cache)
+{
+	m_cache = cache;
 }
 
 svf_component_ctor_def(axi4_master_bfm)
