@@ -38,6 +38,7 @@ typedef struct uth_thread_s {
 } uth_thread_t;
 
 typedef struct uth_mutex_s {
+	uth_thread_t		*owner;
 	uth_mutex_md_t		mutex_md;
 } uth_mutex_t;
 
@@ -45,6 +46,12 @@ typedef struct uth_cond_s {
 	uint32_t					cond;
 	uth_thread_t				*cond_wait_list;
 } uth_cond_t;
+
+#define UTH_MUTEX_STATIC_INIT \
+{ \
+	0, \
+	UTH_MUTEX_STATIC_INIT_MD \
+}
 
 int uth_thread_create(uth_thread_t *thread, uth_thread_main_f main, void *ud);
 

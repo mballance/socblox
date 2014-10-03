@@ -71,6 +71,7 @@ module axi4_interconnect_8x1 #(
 	wire[7:0]									AWLEN[N_MASTERS-1:0];
 	wire[2:0]									AWSIZE[N_MASTERS-1:0];
 	wire[1:0]									AWBURST[N_MASTERS-1:0];
+	wire     									AWLOCK[N_MASTERS-1:0];
 	wire[3:0]									AWCACHE[N_MASTERS-1:0];
 	wire[2:0]									AWPROT[N_MASTERS-1:0];
 	wire[3:0]									AWQOS[N_MASTERS-1:0];
@@ -83,8 +84,10 @@ module axi4_interconnect_8x1 #(
 	wire[7:0]									ARLEN[N_MASTERS-1:0];
 	wire[2:0]									ARSIZE[N_MASTERS-1:0];
 	wire[1:0]									ARBURST[N_MASTERS-1:0];
+	wire     									ARLOCK[N_MASTERS-1:0];
 	wire[3:0]									ARCACHE[N_MASTERS-1:0];
 	wire[2:0]									ARPROT[N_MASTERS-1:0];
+	wire[3:0]									ARQOS[N_MASTERS-1:0];
 	wire[3:0]									ARREGION[N_MASTERS-1:0];
 	wire										ARREADY[N_MASTERS-1:0];
 	wire										ARVALID[N_MASTERS-1:0];
@@ -108,6 +111,7 @@ module axi4_interconnect_8x1 #(
 	reg[7:0]									R_AWLEN[N_MASTERS-1:0];
 	reg[2:0]									R_AWSIZE[N_MASTERS-1:0];
 	reg[1:0]									R_AWBURST[N_MASTERS-1:0];
+	reg     									R_AWLOCK[N_MASTERS-1:0];
 	reg[3:0]									R_AWCACHE[N_MASTERS-1:0];
 	reg[2:0]									R_AWPROT[N_MASTERS-1:0];
 	reg[3:0]									R_AWQOS[N_MASTERS-1:0];
@@ -120,8 +124,10 @@ module axi4_interconnect_8x1 #(
 	reg[7:0]									R_ARLEN[N_MASTERS-1:0];
 	reg[2:0]									R_ARSIZE[N_MASTERS-1:0];
 	reg[1:0]									R_ARBURST[N_MASTERS-1:0];
+	reg     									R_ARLOCK[N_MASTERS-1:0];
 	reg[3:0]									R_ARCACHE[N_MASTERS-1:0];
 	reg[2:0]									R_ARPROT[N_MASTERS-1:0];
+	reg[3:0]									R_ARQOS[N_MASTERS-1:0];
 	reg[3:0]									R_ARREGION[N_MASTERS-1:0];
 	reg											R_ARVALID[N_MASTERS-1:0];
 	
@@ -147,6 +153,7 @@ module axi4_interconnect_8x1 #(
 	wire[7:0]									SAWLEN[N_SLAVES:0];
 	wire[2:0]									SAWSIZE[N_SLAVES:0];
 	wire[1:0]									SAWBURST[N_SLAVES:0];
+	wire     									SAWLOCK[N_SLAVES:0];
 	wire[3:0]									SAWCACHE[N_SLAVES:0];
 	wire[2:0]									SAWPROT[N_SLAVES:0];
 	wire[3:0]									SAWQOS[N_SLAVES:0];
@@ -169,8 +176,10 @@ module axi4_interconnect_8x1 #(
 	wire[7:0]									SARLEN[N_SLAVES:0];
 	wire[2:0]									SARSIZE[N_SLAVES:0];
 	wire[1:0]									SARBURST[N_SLAVES:0];
+	wire     									SARLOCK[N_SLAVES:0];
 	wire[3:0]									SARCACHE[N_SLAVES:0];
 	wire[2:0]									SARPROT[N_SLAVES:0];
+	wire[3:0]									SARQOS[N_SLAVES:0];
 	wire[3:0]									SARREGION[N_SLAVES:0];
 	wire										SARREADY[N_SLAVES:0];
 	wire										SARVALID[N_SLAVES:0];	
@@ -246,6 +255,14 @@ module axi4_interconnect_8x1 #(
 	assign AWBURST[5] = m5.AWBURST;
 	assign AWBURST[6] = m6.AWBURST;
 	assign AWBURST[7] = m7.AWBURST;
+	assign AWLOCK[0] = m0.AWLOCK;
+	assign AWLOCK[1] = m1.AWLOCK;
+	assign AWLOCK[2] = m2.AWLOCK;
+	assign AWLOCK[3] = m3.AWLOCK;
+	assign AWLOCK[4] = m4.AWLOCK;
+	assign AWLOCK[5] = m5.AWLOCK;
+	assign AWLOCK[6] = m6.AWLOCK;
+	assign AWLOCK[7] = m7.AWLOCK;
 	assign AWCACHE[0] = m0.AWCACHE;
 	assign AWCACHE[1] = m1.AWCACHE;
 	assign AWCACHE[2] = m2.AWCACHE;
@@ -387,6 +404,8 @@ module axi4_interconnect_8x1 #(
 	assign sdflt.AWSIZE = SAWSIZE[1];
 	assign s0.AWBURST = SAWBURST[0];
 	assign sdflt.AWBURST = SAWBURST[1];
+	assign s0.AWLOCK = SAWLOCK[0];
+	assign sdflt.AWLOCK = SAWLOCK[1];
 	assign s0.AWCACHE = SAWCACHE[0];
 	assign sdflt.AWCACHE = SAWCACHE[1];
 	assign s0.AWPROT = SAWPROT[0];
@@ -469,6 +488,14 @@ module axi4_interconnect_8x1 #(
 	assign ARBURST[5] = m5.ARBURST;
 	assign ARBURST[6] = m6.ARBURST;
 	assign ARBURST[7] = m7.ARBURST;
+	assign ARLOCK[0] = m0.ARLOCK;
+	assign ARLOCK[1] = m1.ARLOCK;
+	assign ARLOCK[2] = m2.ARLOCK;
+	assign ARLOCK[3] = m3.ARLOCK;
+	assign ARLOCK[4] = m4.ARLOCK;
+	assign ARLOCK[5] = m5.ARLOCK;
+	assign ARLOCK[6] = m6.ARLOCK;
+	assign ARLOCK[7] = m7.ARLOCK;
 	assign ARCACHE[0] = m0.ARCACHE;
 	assign ARCACHE[1] = m1.ARCACHE;
 	assign ARCACHE[2] = m2.ARCACHE;
@@ -501,6 +528,14 @@ module axi4_interconnect_8x1 #(
 	assign ARVALID[5] = m5.ARVALID;
 	assign ARVALID[6] = m6.ARVALID;
 	assign ARVALID[7] = m7.ARVALID;
+	assign ARQOS[0] = m0.ARQOS;
+	assign ARQOS[1] = m1.ARQOS;
+	assign ARQOS[2] = m2.ARQOS;
+	assign ARQOS[3] = m3.ARQOS;
+	assign ARQOS[4] = m4.ARQOS;
+	assign ARQOS[5] = m5.ARQOS;
+	assign ARQOS[6] = m6.ARQOS;
+	assign ARQOS[7] = m7.ARQOS;
 	assign m0.ARREADY = ARREADY[0];
 	assign m1.ARREADY = ARREADY[1];
 	assign m2.ARREADY = ARREADY[2];
@@ -574,6 +609,8 @@ module axi4_interconnect_8x1 #(
 	assign sdflt.ARSIZE = SARSIZE[1];
 	assign s0.ARBURST = SARBURST[0];
 	assign sdflt.ARBURST = SARBURST[1];
+	assign s0.ARLOCK = SARLOCK[0];
+	assign sdflt.ARLOCK = SARLOCK[1];
 	assign s0.ARCACHE = SARCACHE[0];
 	assign sdflt.ARCACHE = SARCACHE[1];
 	assign s0.ARPROT = SARPROT[0];
@@ -582,6 +619,8 @@ module axi4_interconnect_8x1 #(
 	assign sdflt.ARREGION = SARREGION[1];
 	assign s0.ARVALID = SARVALID[0];
 	assign sdflt.ARVALID = SARVALID[1];
+	assign s0.ARQOS = SARQOS[0];
+	assign sdflt.ARQOS = SARQOS[1];
 	
 
 	assign SRDATA[0] = s0.RDATA;
@@ -610,6 +649,7 @@ module axi4_interconnect_8x1 #(
 					R_AWADDR_i[m_aw_i] <= 0;
 					R_AWADDR[m_aw_i] <= 0;
 					R_AWBURST[m_aw_i] <= 0;
+					R_AWLOCK[m_aw_i] <= 0;
 					R_AWCACHE[m_aw_i] <= 0;
 					R_AWID[m_aw_i] <= 0;
 					R_AWLEN[m_aw_i] <= 0;
@@ -630,6 +670,7 @@ module axi4_interconnect_8x1 #(
 								R_AWLEN[m_aw_i] <= AWLEN[m_aw_i];
 								R_AWSIZE[m_aw_i] <= AWSIZE[m_aw_i];
 								R_AWBURST[m_aw_i] <= AWBURST[m_aw_i];
+								R_AWLOCK[m_aw_i] <= AWLOCK[m_aw_i];
 								R_AWCACHE[m_aw_i] <= AWCACHE[m_aw_i];
 								R_AWPROT[m_aw_i] <= AWPROT[m_aw_i];
 								R_AWQOS[m_aw_i] <= AWQOS[m_aw_i];
@@ -745,6 +786,7 @@ module axi4_interconnect_8x1 #(
 			assign SAWLEN[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWLEN[slave_active_master[s_aw_i]];
 			assign SAWSIZE[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWSIZE[slave_active_master[s_aw_i]];
 			assign SAWBURST[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWBURST[slave_active_master[s_aw_i]];
+			assign SAWLOCK[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWLOCK[slave_active_master[s_aw_i]];
 			assign SAWCACHE[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWCACHE[slave_active_master[s_aw_i]];
 			assign SAWPROT[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWPROT[slave_active_master[s_aw_i]];
 			assign SAWQOS[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWQOS[slave_active_master[s_aw_i]];
@@ -871,10 +913,12 @@ module axi4_interconnect_8x1 #(
 					R_ARADDR_i[m_ar_i] <= 0;
 					R_ARADDR[m_ar_i] <= 0;
 					R_ARBURST[m_ar_i] <= 0;
+					R_ARLOCK[m_ar_i] <= 0;
 					R_ARCACHE[m_ar_i] <= 0;
 					R_ARID[m_ar_i] <= 0;
 					R_ARLEN[m_ar_i] <= 0;
 					R_ARPROT[m_ar_i] <= 0;
+					R_ARQOS[m_ar_i] <= 0;
 					R_ARREGION[m_ar_i] <= 0;
 					R_ARSIZE[m_ar_i] <= 0;
 					R_ARVALID[m_ar_i] <= 0;
@@ -890,8 +934,10 @@ module axi4_interconnect_8x1 #(
 								R_ARLEN[m_ar_i] <= ARLEN[m_ar_i];
 								R_ARSIZE[m_ar_i] <= ARSIZE[m_ar_i];
 								R_ARBURST[m_ar_i] <= ARBURST[m_ar_i];
+								R_ARLOCK[m_ar_i] <= ARLOCK[m_ar_i];
 								R_ARCACHE[m_ar_i] <= ARCACHE[m_ar_i];
 								R_ARPROT[m_ar_i] <= ARPROT[m_ar_i];
+								R_ARQOS[m_ar_i] <= ARQOS[m_ar_i];
 								R_ARREGION[m_ar_i] <= ARREGION[m_ar_i];
 								read_req_state[m_ar_i] <= 'b01;
 							end
@@ -972,8 +1018,10 @@ module axi4_interconnect_8x1 #(
 			assign SARLEN[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARLEN[slave_active_read_master[s_ar_i]];
 			assign SARSIZE[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARSIZE[slave_active_read_master[s_ar_i]];
 			assign SARBURST[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARBURST[slave_active_read_master[s_ar_i]];
+			assign SARLOCK[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARLOCK[slave_active_read_master[s_ar_i]];
 			assign SARCACHE[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARCACHE[slave_active_read_master[s_ar_i]];
 			assign SARPROT[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARPROT[slave_active_read_master[s_ar_i]];
+			assign SARQOS[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARQOS[slave_active_read_master[s_ar_i]];
 			assign SARREGION[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARREGION[slave_active_read_master[s_ar_i]];
 			assign SARVALID[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARVALID[slave_active_read_master[s_ar_i]];
 		end

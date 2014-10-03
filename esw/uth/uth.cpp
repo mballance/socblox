@@ -65,6 +65,7 @@ int uth_thread_yield()
 int uth_mutex_init(
 		uth_mutex_t		*mutex)
 {
+	mutex->owner = 0;
 	uth_thread_int_mutex_init(mutex);
 
 	return 0;
@@ -76,9 +77,13 @@ int uth_mutex_lock(
 	/*
 	 */
 	uth_thread_mgr *mgr = uth_get_thread_mgr();
+	uth_thread_t *thread = mgr->current_thread();
 
-	while (!uth_thread_int_mutex_trylock(mutex)) {
-		mgr->yield();
+	if (mutex->owner != thread) {
+		while (!uth_thread_int_mutex_trylock(mutex)) {
+			mgr->yield();
+		}
+		mutex->owner = thread;
 	}
 
 	return 0;
@@ -89,7 +94,9 @@ int uth_mutex_unlock(
 {
 	/*
 	 */
-	uth_thread_int_mutex_unlock(mutex);
+	if (mutex->owner) {
+		uth_thread_int_mutex_unlock(mutex);
+	}
 
 	return 0;
 }

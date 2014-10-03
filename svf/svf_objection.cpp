@@ -27,6 +27,7 @@ void svf_objection::raise()
 
 void svf_objection::drop()
 {
+	fprintf(stdout, "--> drop %d\n", m_objections);
 	m_mutex.lock();
 	if (m_objections > 0) {
 		m_objections--;
@@ -35,9 +36,11 @@ void svf_objection::drop()
 	}
 
 	if (m_objections == 0) {
+		fprintf(stdout, " -- notify_all\n");
 		m_cond.notify_all();
 	}
 	m_mutex.unlock();
+	fprintf(stdout, "<-- drop %d\n", m_objections);
 }
 
 void svf_objection::wait_all_dropped()
@@ -48,6 +51,7 @@ void svf_objection::wait_all_dropped()
 
 	m_mutex.lock();
 	while (m_objections > 0) {
+		fprintf(stdout, "-- wait_all_dropped: m_objections=%d\n", m_objections);
 		m_cond.wait(m_mutex);
 	}
 	m_mutex.unlock();

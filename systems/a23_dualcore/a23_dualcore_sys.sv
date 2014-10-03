@@ -50,8 +50,6 @@ module a23_dualcore_sys #(
 //	reg[31:0]			active = 100000;
 	reg[31:0]			active = 0;
 `endif
-	/*
-	 */
 	 
 	
 //	assign core_clk = clk_cnt[4];
@@ -134,32 +132,16 @@ module a23_dualcore_sys #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (4  )
-		) core02ic ();
-	
-	axi4_if #(
-		.AXI4_ADDRESS_WIDTH  (32 ), 
-		.AXI4_DATA_WIDTH     (32 ), 
-		.AXI4_ID_WIDTH       (4  )
-		) core12ic ();
+		) core2ic ();
 	
 	axi4_monitor #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (4  )
-		) core02ic_monitor(
+		) core2ic_monitor(
 			.clk(core_clk),
 			.rst_n(rst_n),
-			.monitor(core02ic.monitor)
-		);
-	
-	axi4_monitor #(
-		.AXI4_ADDRESS_WIDTH  (32 ), 
-		.AXI4_DATA_WIDTH     (32 ), 
-		.AXI4_ID_WIDTH       (4  )
-		) core12ic_monitor(
-			.clk(core_clk),
-			.rst_n(rst_n),
-			.monitor(core12ic.monitor)
+			.monitor(core2ic.monitor)
 		);
 	
 	axi4_if #(
@@ -193,6 +175,7 @@ module a23_dualcore_sys #(
 		) ic2gbl ();
 
 	/*
+		 */
 	axi4_monitor #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
@@ -202,8 +185,6 @@ module a23_dualcore_sys #(
 			.rst_n(rst_n),
 			.monitor(ic2ram.monitor)
 		);
-		
-		 */
 
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
@@ -235,25 +216,19 @@ module a23_dualcore_sys #(
 		.AXI4_ID_WIDTH       (5      )
 		) ic2msgq_1_bridge ();
 
-	axi4_a23_core #(
-		.A23_CACHE_WAYS  (4)
-		) u_a23_0 (
-		.i_clk           (core_clk       ),
-		.i_rstn          (rst_n          ),
-		.i_irq           (irq            ),
-		.i_firq          (firq           ),
-		.master          (core02ic.master));
-	
-	axi4_a23_core #(
-		.A23_CACHE_WAYS  (4)
-		) u_a23_1 (
-		.i_clk           (core_clk       ),
-		.i_rstn          (rst_n_1        ),
-		.i_irq           (irq            ),
-		.i_firq          (firq           ),
-		.master          (core12ic.master));
+	axi4_a23_dual #(
+		.AXI4_ID_WIDTH(4)
+		) u_core (
+		.i_clk     (core_clk    ), 
+		.i_rstn    (rst_n   ), 
+		.i_rstn_1  (rst_n_1 ), 
+		.i_irq_0   (irq  ), 
+		.i_firq_0  (firq ), 
+		.i_irq_1   (irq  ), 
+		.i_firq_1  (firq ), 
+		.master    (core2ic.master   ));
 
-	axi4_interconnect_2x8 #(
+	axi4_interconnect_1x8 #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32    ), 
 		.AXI4_ID_WIDTH       (4      ), 
@@ -276,8 +251,7 @@ module a23_dualcore_sys #(
 		) u_ic1 (
 		.clk                 (core_clk           ), 
 		.rstn                (rst_n              ), 
-		.m0                  (core02ic.slave     ), 
-		.m1                  (core12ic.slave     ), 
+		.m0                  (core2ic.slave     ), 
 		.s0                  (ic2rom.master      ),
 		.s1                  (ic2ram.master      ),
 		.s2                  (ic2sys.master      ),

@@ -1,0 +1,13 @@
++incdir+.
+a23_alu.v
+a23_barrel_shift.v
+axi4_a23_cache.v
+a23_coprocessor.v
+a23_decode.v
+a23_tracer.v
+a23_execute.v
+axi4_a23_fetch.v
+a23_multiply.v
+a23_register_bank.v
+axi4_a23_axi_if.sv
+axi4_a23_core.v

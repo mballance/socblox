@@ -5,12 +5,6 @@ ENTRY(_start)
 MEMORY {
 	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 1M
 	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 1M
-/*
-	GBL(rwx)	: ORIGIN = 0x30000000, LENGTH = 16k
-	ROM(rx)		: ORIGIN = 0x00010000, LENGTH = 64k
-	RAM(rwx)	: ORIGIN = 0x00020000, LENGTH = 16k
-	GBL(rwx)	: ORIGIN = 0x00030000, LENGTH = 16k
- */
 }
 
 C_STACK_SIZE = 4096;
@@ -93,6 +87,9 @@ SECTIONS {
 	} >RAM
 	
 	.start : {
+		/* Reserve space for a pointer to the coreinfo block */
+		PROVIDE(coreinfo = .);
+		. += 16;
 	/*
 		_end = . ;
 		__end = _end;

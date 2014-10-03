@@ -286,6 +286,31 @@ module axi4_svf_master_bfm #(
 	endtask
 	export "DPI-C" task axi4_master_bfm_get_data;
 
+	reg clk_req = 0;
+	reg clk_req_state = 0;
+	
+	task axi4_master_bfm_clk_req();
+		clk_req = 1;
+	endtask
+	export "DPI-C" task axi4_master_bfm_clk_req;
+	
+	import "DPI-C" context task axi4_master_bfm_clk_ack();
+	
+	always @(posedge clk) begin
+		case (clk_req_state)
+			0: begin
+				if (clk_req) begin
+					clk_req = 0;
+					clk_req_state <= 1;
+				end
+			end
+			1: begin
+				axi4_master_bfm_clk_ack();
+				clk_req_state <= 0;
+			end
+		endcase
+	end
+
 	
 
 endmodule

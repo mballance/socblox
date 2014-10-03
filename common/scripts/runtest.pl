@@ -51,8 +51,12 @@ $sim="vl";
 # Global PID list
 @pid_list;
 
-$run_root=getcwd();
-$run_root .= "/rundir";
+if ($ENV{RUNDIR} eq "") {
+  $run_root=getcwd();
+  $run_root .= "/rundir";
+} else {
+  $run_root=$ENV{RUNDIR};
+}
 
 # Figure out maxpar first
 if (-f "/proc/cpuinfo") {
@@ -79,7 +83,7 @@ for ($i=0; $i <= $#ARGV; $i++) {
     } elsif ($arg eq "-count") {
       $i++;
       $count=$ARGV[$i];
-    } elsif ($arg eq "-max_par") {
+    } elsif ($arg eq "-max_par" || $arg eq "-j") {
       $i++;
       $max_par=$ARGV[$i];
     } elsif ($arg eq "-rundir") {
@@ -123,7 +127,25 @@ for ($i=0; $i <= $#ARGV; $i++) {
 
 $ENV{ENABLE_QVIP}=$enable_qvip;
 
-print "run_root=$run_root\n";
+# Setup link to rundir if it's different than local
+#$local_rundir = getcwd() . "/rundir";
+#unless ($run_root eq $local_rundir) {
+#  if (-d $local_rundir) { 
+#    print "rundir is directory\n";
+#  } elsif (-l $local_rundir) {
+#    print "rundir is link\n";
+#  } else {
+#    print "rundir doesn't exist\n";
+#  }
+#  print "ln -s $run_root rundir\n";
+#  system("ln -s $run_root rundir");
+#}
+
+$project=basename(dirname($SIM_DIR));
+
+$run_root="${run_root}/${project}";
+
+print "run_root=${run_root}\n";
 $ENV{RUN_ROOT}=$run_root;
 
 if ($builddir eq "") {

@@ -44,6 +44,7 @@ simx_build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS)
 		$(BUILD_DIR)/simx
 	touch $@
 
+ifeq (true,$(VERBOSE))
 $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DIR)/objs/$(TB).o
 	$(CXX) -o $(BUILD_DIR)/simx \
 	    	$(BUILD_DIR)/objs/$(TB).o \
@@ -55,9 +56,36 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DI
 			$(foreach l,$(filter %.so, $(BFM_LIBS)), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l))))) \
 			$(LIBSVF_SC_LINK) \
 			$(SYSTEMC)/lib-linux/libsystemc.a -lpthread
-			
+else
+$(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DIR)/objs/$(TB).o
+	@echo "link simx"
+	@$(CXX) -o $(BUILD_DIR)/simx \
+	    	$(BUILD_DIR)/objs/$(TB).o \
+			$(TESTBENCH_OBJS) \
+			-Wl,--whole-archive \
+			V$(TB)__ALL.a \
+			-Wl,--no-whole-archive \
+			$(VK_GLOBAL_OBJS) \
+			$(foreach l,$(filter %.so, $(BFM_LIBS)), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l))))) \
+			$(LIBSVF_SC_LINK) \
+			$(SYSTEMC)/lib-linux/libsystemc.a -lpthread
+endif
+		
+ifeq (true,$(VERBOSE))			
 $(BUILD_DIR)/objs/$(TB).o : $(SIM_DIR)/../tb/$(TB).cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $^
+else	
+$(BUILD_DIR)/objs/$(TB).o : $(SIM_DIR)/../tb/$(TB).cpp
+	@echo "$(CXX) `basename $^`"
+	@$(CXX) -c $(CXXFLAGS) -o $@ $^
+endif
+
+ifeq (true,$(VERBOSE))
+else	
+%.o : %.cpp
+	@echo "$(CXX) `basename $^`"
+	@$(CXX) -c $(CXXFLAGS) -o $@ $^
+endif
 
 ifeq ($(DEBUG),true)
 RT_TRACE_FLAGS = -trace -tracefile vlt_dump.fst

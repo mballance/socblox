@@ -83,7 +83,6 @@ axi4_if.master				master
 );
 
 	
-assign o_dabt = 0;
 
 localparam [3:0] WB_IDLE            = 3'd0,
                  WB_BURST1          = 3'd1,
@@ -104,6 +103,14 @@ wire                        cache_read_ack, cache_write_ack;
 wire                        wait_write_ack;
 wire                        wb_wait;
 
+assign o_dabt = (i_exclusive)?(
+			(write_ack && master.BRESP != 2'b01) ||
+			(read_ack && master.RRESP != 2'b01)
+		):(
+			(write_ack && master.BRESP != 2'b00) ||
+			(read_ack && master.RRESP != 2'b00)
+		);
+
 // Tie off signals
 assign master.AWID = 0;
 // TODO:
@@ -118,6 +125,9 @@ assign master.ARQOS = 4'b0000;
 assign master.ARCACHE = 0;
 assign master.ARPROT = 0;
 assign master.ARREGION = 0;
+
+assign master.ARLOCK = i_exclusive;
+assign master.AWLOCK = i_exclusive;
 
 	// Write buffer
 	/*

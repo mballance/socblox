@@ -102,7 +102,7 @@ exit 0;
 sub axi4_aw_master_assign($) {
 	my($n_masters) = @_;
 	my($i,$out,$name);
-	my(@AWNAMES_LHS) = ("AWADDR", "AWID", "AWLEN", "AWSIZE", "AWBURST",
+	my(@AWNAMES_LHS) = ("AWADDR", "AWID", "AWLEN", "AWSIZE", "AWBURST", "AWLOCK",
 		"AWCACHE", "AWPROT", "AWQOS", "AWREGION", "AWVALID");
 	my(@AWNAMES_RHS) = ("AWREADY");
 
@@ -126,7 +126,7 @@ sub axi4_aw_master_assign($) {
 sub axi4_ar_master_assign($) {
 	my($n_masters) = @_;
 	my($i,$out,$name);
-	my(@LHS) = ("ARADDR", "ARID", "ARLEN", "ARSIZE", "ARBURST",
+	my(@LHS) = ("ARADDR", "ARID", "ARLEN", "ARSIZE", "ARBURST", "ARLOCK",
 		"ARCACHE", "ARPROT", "ARREGION", "ARVALID", "ARQOS");
 	my(@RHS) = ("ARREADY");
 
@@ -220,7 +220,7 @@ sub axi4_aw_slave_assign($) {
 	my($n_slaves) = @_;
 	my($i,$out,$name);
 	my(@LHS) = ("AWREADY");
-	my(@RHS) = ("AWADDR", "AWID", "AWLEN", "AWSIZE", "AWBURST", "AWCACHE", "AWPROT", "AWQOS", "AWREGION", "AWVALID");
+	my(@RHS) = ("AWADDR", "AWID", "AWLEN", "AWSIZE", "AWBURST", "AWLOCK", "AWCACHE", "AWPROT", "AWQOS", "AWREGION", "AWVALID");
 
 	foreach (@LHS) {
 		$name=$_;
@@ -251,7 +251,7 @@ sub axi4_ar_slave_assign($) {
 	my($n_slaves) = @_;
 	my($i,$out,$name);
 	my(@LHS) = ("ARREADY");
-	my(@RHS) = ("ARADDR", "ARID", "ARLEN", "ARSIZE", "ARBURST", "ARCACHE", "ARPROT", "ARREGION", "ARVALID", "ARQOS");
+	my(@RHS) = ("ARADDR", "ARID", "ARLEN", "ARSIZE", "ARBURST", "ARLOCK", "ARCACHE", "ARPROT", "ARREGION", "ARVALID", "ARQOS");
 
 	foreach (@LHS) {
 		$name=$_;

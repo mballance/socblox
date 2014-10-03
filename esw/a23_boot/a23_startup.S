@@ -16,7 +16,7 @@
  	B			.				// 0x00000004: Undefined instruction
  	B			.				// 0x00000008: SWI
  	B			.				// 0x0000000C: PREF
- 	B			.				// 0x00000010: DABT
+ 	B			_service_dabt	// 0x00000010: DABT
  	B			.				// 0x00000014: Reserved
  	B			_service_irq	// 0x00000018: IRQ
  	B			.				// 0x0000001c: FIQ
@@ -26,24 +26,6 @@
  	.align 4
 
 _reset:
-
-/*
- 	ldr			r0, =0x80000000
- 	ldr			r1, =0x20000000
-	mov			r2, #1
-top:
-	ldr			r3, [r0]
-	add			r3, #1
-	str			r3, [r0]
-
-	str			r2, [r1]
-	ldr			r2, [r1]
-	add			r2, #1
-	str			r2, [r1]
-
-	b			top
- */
-
 	// First, setup the SVC stack for this core
 	ldr			r0, =__svc_stack0_top__
 	sub			r0, r0, #4
@@ -176,6 +158,10 @@ _service_irq:
 	pop {r0-r4, r12, lr}
 //	ldmfd		sp!, {lr}
 	subs		pc, lr, #4
+
+_service_dabt:
+	// Jump back
+	mov			pc, lr
 
 	.size		_start, . - _start
 

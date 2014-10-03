@@ -54,6 +54,8 @@ class axi4_master_bfm_target_if {
 		virtual void has_been_reset(
 				uint32_t				*reset) = 0;
 
+		virtual void clk_req() = 0;
+
 };
 
 class axi4_master_bfm_host_if {
@@ -69,6 +71,8 @@ class axi4_master_bfm_host_if {
 		virtual void rresp(uint32_t resp) = 0;
 
 		virtual void reset() = 0;
+
+		virtual void clk_ack() = 0;
 
 };
 

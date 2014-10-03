@@ -58,6 +58,7 @@ ${ADDR2SLAVE_BODY}
 	wire[7:0]									AWLEN[N_MASTERS-1:0];
 	wire[2:0]									AWSIZE[N_MASTERS-1:0];
 	wire[1:0]									AWBURST[N_MASTERS-1:0];
+	wire     									AWLOCK[N_MASTERS-1:0];
 	wire[3:0]									AWCACHE[N_MASTERS-1:0];
 	wire[2:0]									AWPROT[N_MASTERS-1:0];
 	wire[3:0]									AWQOS[N_MASTERS-1:0];
@@ -70,8 +71,10 @@ ${ADDR2SLAVE_BODY}
 	wire[7:0]									ARLEN[N_MASTERS-1:0];
 	wire[2:0]									ARSIZE[N_MASTERS-1:0];
 	wire[1:0]									ARBURST[N_MASTERS-1:0];
+	wire     									ARLOCK[N_MASTERS-1:0];
 	wire[3:0]									ARCACHE[N_MASTERS-1:0];
 	wire[2:0]									ARPROT[N_MASTERS-1:0];
+	wire[3:0]									ARQOS[N_MASTERS-1:0];
 	wire[3:0]									ARREGION[N_MASTERS-1:0];
 	wire										ARREADY[N_MASTERS-1:0];
 	wire										ARVALID[N_MASTERS-1:0];
@@ -95,6 +98,7 @@ ${ADDR2SLAVE_BODY}
 	reg[7:0]									R_AWLEN[N_MASTERS-1:0];
 	reg[2:0]									R_AWSIZE[N_MASTERS-1:0];
 	reg[1:0]									R_AWBURST[N_MASTERS-1:0];
+	reg     									R_AWLOCK[N_MASTERS-1:0];
 	reg[3:0]									R_AWCACHE[N_MASTERS-1:0];
 	reg[2:0]									R_AWPROT[N_MASTERS-1:0];
 	reg[3:0]									R_AWQOS[N_MASTERS-1:0];
@@ -107,8 +111,10 @@ ${ADDR2SLAVE_BODY}
 	reg[7:0]									R_ARLEN[N_MASTERS-1:0];
 	reg[2:0]									R_ARSIZE[N_MASTERS-1:0];
 	reg[1:0]									R_ARBURST[N_MASTERS-1:0];
+	reg     									R_ARLOCK[N_MASTERS-1:0];
 	reg[3:0]									R_ARCACHE[N_MASTERS-1:0];
 	reg[2:0]									R_ARPROT[N_MASTERS-1:0];
+	reg[3:0]									R_ARQOS[N_MASTERS-1:0];
 	reg[3:0]									R_ARREGION[N_MASTERS-1:0];
 	reg											R_ARVALID[N_MASTERS-1:0];
 	
@@ -134,6 +140,7 @@ ${ADDR2SLAVE_BODY}
 	wire[7:0]									SAWLEN[N_SLAVES:0];
 	wire[2:0]									SAWSIZE[N_SLAVES:0];
 	wire[1:0]									SAWBURST[N_SLAVES:0];
+	wire     									SAWLOCK[N_SLAVES:0];
 	wire[3:0]									SAWCACHE[N_SLAVES:0];
 	wire[2:0]									SAWPROT[N_SLAVES:0];
 	wire[3:0]									SAWQOS[N_SLAVES:0];
@@ -156,8 +163,10 @@ ${ADDR2SLAVE_BODY}
 	wire[7:0]									SARLEN[N_SLAVES:0];
 	wire[2:0]									SARSIZE[N_SLAVES:0];
 	wire[1:0]									SARBURST[N_SLAVES:0];
+	wire     									SARLOCK[N_SLAVES:0];
 	wire[3:0]									SARCACHE[N_SLAVES:0];
 	wire[2:0]									SARPROT[N_SLAVES:0];
+	wire[3:0]									SARQOS[N_SLAVES:0];
 	wire[3:0]									SARREGION[N_SLAVES:0];
 	wire										SARREADY[N_SLAVES:0];
 	wire										SARVALID[N_SLAVES:0];	
@@ -233,6 +242,7 @@ ${R_SLAVE_ASSIGN}
 					R_AWADDR_i[m_aw_i] <= 0;
 					R_AWADDR[m_aw_i] <= 0;
 					R_AWBURST[m_aw_i] <= 0;
+					R_AWLOCK[m_aw_i] <= 0;
 					R_AWCACHE[m_aw_i] <= 0;
 					R_AWID[m_aw_i] <= 0;
 					R_AWLEN[m_aw_i] <= 0;
@@ -253,6 +263,7 @@ ${R_SLAVE_ASSIGN}
 								R_AWLEN[m_aw_i] <= AWLEN[m_aw_i];
 								R_AWSIZE[m_aw_i] <= AWSIZE[m_aw_i];
 								R_AWBURST[m_aw_i] <= AWBURST[m_aw_i];
+								R_AWLOCK[m_aw_i] <= AWLOCK[m_aw_i];
 								R_AWCACHE[m_aw_i] <= AWCACHE[m_aw_i];
 								R_AWPROT[m_aw_i] <= AWPROT[m_aw_i];
 								R_AWQOS[m_aw_i] <= AWQOS[m_aw_i];
@@ -368,6 +379,7 @@ ${R_SLAVE_ASSIGN}
 			assign SAWLEN[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWLEN[slave_active_master[s_aw_i]];
 			assign SAWSIZE[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWSIZE[slave_active_master[s_aw_i]];
 			assign SAWBURST[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWBURST[slave_active_master[s_aw_i]];
+			assign SAWLOCK[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWLOCK[slave_active_master[s_aw_i]];
 			assign SAWCACHE[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWCACHE[slave_active_master[s_aw_i]];
 			assign SAWPROT[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWPROT[slave_active_master[s_aw_i]];
 			assign SAWQOS[s_aw_i] = (slave_active_master[s_aw_i] == NO_MASTER)?0:R_AWQOS[slave_active_master[s_aw_i]];
@@ -494,10 +506,12 @@ ${R_SLAVE_ASSIGN}
 					R_ARADDR_i[m_ar_i] <= 0;
 					R_ARADDR[m_ar_i] <= 0;
 					R_ARBURST[m_ar_i] <= 0;
+					R_ARLOCK[m_ar_i] <= 0;
 					R_ARCACHE[m_ar_i] <= 0;
 					R_ARID[m_ar_i] <= 0;
 					R_ARLEN[m_ar_i] <= 0;
 					R_ARPROT[m_ar_i] <= 0;
+					R_ARQOS[m_ar_i] <= 0;
 					R_ARREGION[m_ar_i] <= 0;
 					R_ARSIZE[m_ar_i] <= 0;
 					R_ARVALID[m_ar_i] <= 0;
@@ -513,8 +527,10 @@ ${R_SLAVE_ASSIGN}
 								R_ARLEN[m_ar_i] <= ARLEN[m_ar_i];
 								R_ARSIZE[m_ar_i] <= ARSIZE[m_ar_i];
 								R_ARBURST[m_ar_i] <= ARBURST[m_ar_i];
+								R_ARLOCK[m_ar_i] <= ARLOCK[m_ar_i];
 								R_ARCACHE[m_ar_i] <= ARCACHE[m_ar_i];
 								R_ARPROT[m_ar_i] <= ARPROT[m_ar_i];
+								R_ARQOS[m_ar_i] <= ARQOS[m_ar_i];
 								R_ARREGION[m_ar_i] <= ARREGION[m_ar_i];
 								read_req_state[m_ar_i] <= 'b01;
 							end
@@ -595,8 +611,10 @@ ${R_SLAVE_ASSIGN}
 			assign SARLEN[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARLEN[slave_active_read_master[s_ar_i]];
 			assign SARSIZE[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARSIZE[slave_active_read_master[s_ar_i]];
 			assign SARBURST[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARBURST[slave_active_read_master[s_ar_i]];
+			assign SARLOCK[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARLOCK[slave_active_read_master[s_ar_i]];
 			assign SARCACHE[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARCACHE[slave_active_read_master[s_ar_i]];
 			assign SARPROT[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARPROT[slave_active_read_master[s_ar_i]];
+			assign SARQOS[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARQOS[slave_active_read_master[s_ar_i]];
 			assign SARREGION[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARREGION[slave_active_read_master[s_ar_i]];
 			assign SARVALID[s_ar_i] = (slave_active_read_master[s_ar_i] == NO_MASTER)?0:R_ARVALID[slave_active_read_master[s_ar_i]];
 		end

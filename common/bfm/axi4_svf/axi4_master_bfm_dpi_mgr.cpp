@@ -23,6 +23,7 @@ SVF_DPI_CLOSURE_EXPORT_TASK(axi4_master_bfm, get_parameters,
 		(ADDRESS_WIDTH, DATA_WIDTH, ID_WIDTH));
 SVF_DPI_CLOSURE_IMPORT_TASK(axi4_master_bfm, aw_ready, (), ());
 SVF_DPI_CLOSURE_IMPORT_TASK(axi4_master_bfm, reset, (), ());
+SVF_DPI_CLOSURE_IMPORT_TASK(axi4_master_bfm, clk_ack, (), ());
 
 SVF_DPI_CLOSURE_EXPORT_TASK(axi4_master_bfm, aw_valid, (
 				uint64_t			AWADDR,
@@ -54,6 +55,8 @@ SVF_DPI_CLOSURE_EXPORT_TASK(axi4_master_bfm, has_been_reset, (uint32_t *reset), 
 
 SVF_DPI_CLOSURE_EXPORT_TASK(axi4_master_bfm, set_data, (uint32_t idx, uint32_t data), (idx, data));
 SVF_DPI_CLOSURE_EXPORT_TASK(axi4_master_bfm, get_data, (uint32_t idx, uint32_t *data), (idx, data));
+
+SVF_DPI_CLOSURE_EXPORT_TASK(axi4_master_bfm, clk_req, (), ());
 
 
 

@@ -927,7 +927,7 @@ always @*
             end
 
         
-        if ( i_type == SWI || und_request )
+        if ( i_type == SWI || und_request || dabt_request )
             begin
             // save address of next instruction to Supervisor Mode LR
             reg_write_sel_nxt               = 3'd1;            // pc -4
@@ -1277,6 +1277,7 @@ always @*
         write_data_wen_nxt              = 1'd1;
         data_access_exec_nxt            = 1'd1; // indicate that its a data read or write, 
                                                 // rather than an instruction fetch
+        exclusive_exec_nxt              = 1'd1; // signal an exclusive access
         
         if ( instruction[22] )
             byte_enable_sel_nxt = 2'd1;         // Save byte

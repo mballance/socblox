@@ -41,3 +41,5 @@ CXXFLAGS += -g
 CXXFLAGS += -I$(VERILATOR_ROOT)/include
 CXXFLAGS += -I$(VERILATOR_ROOT)/include/vltstd
 CXXFLAGS += -std=c++0x
+
+VERBOSE=false

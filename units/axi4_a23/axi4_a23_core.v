@@ -57,6 +57,7 @@ input                       i_firq,             // Fast Interrupt request, activ
 
 // Wishbone Master I/F
 axi4_if.master				master
+
 );
 
 // rst is more useful to us.

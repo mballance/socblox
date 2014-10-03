@@ -81,6 +81,7 @@ RULES := 1
 include $(COMMON_SIM_MK_DIR)/common_rules.mk
 include $(MK_INCLUDES)
 
+ifeq (true,$(VERBOSE))
 $(SVF_OBJDIR)/%.o : %.cpp
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(CXX) -c -o $@ $(CXXFLAGS) $^
@@ -101,5 +102,33 @@ $(SVF_LIBDIR)/dpi/%.so :
 $(SVF_LIBDIR)/sc_qs/%.so : 
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(LINK) -shared -o $@ $^
+else
+$(SVF_OBJDIR)/%.o : %.cpp
+	@if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	@echo "$(CXX) `basename $^`"
+	@$(CXX) -c -o $@ $(CXXFLAGS) $^
+	
+$(SVF_LIBDIR)/%.a : 
+	@if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	@rm -f $@
+	@echo "ar `basename $@`"
+	@ar vcq $@ $^ > /dev/null 2>&1
+	
+$(SVF_LIBDIR)/sc/%.so : 
+	@if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	@echo "link `basename $@`"
+	@$(LINK) -shared -o $@ $^
+	
+$(SVF_LIBDIR)/dpi/%.so : 
+	@if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	@echo "link `basename $@`"
+	@$(LINK) -shared -o $@ $^
+	
+$(SVF_LIBDIR)/sc_qs/%.so : 
+	@if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	@echo "link `basename $@`"
+	@$(LINK) -shared -o $@ $^
+	
+endif	
 
 	

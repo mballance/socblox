@@ -56,6 +56,8 @@ class axi4_master_bfm_dpi_closure : public svf_dpi_closure<axi4_master_bfm_host_
 		void get_data(
 				uint32_t			idx,
 				uint32_t			*data);
+
+		void clk_req();
 };
 
 class axi4_master_bfm_dpi_mgr : public svf_dpi_mgr<axi4_master_bfm_dpi_closure> {

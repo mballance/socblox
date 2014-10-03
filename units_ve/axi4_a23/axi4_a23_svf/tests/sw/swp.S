@@ -41,7 +41,21 @@
 #include "amber_registers.h"
 
 	.section .text
-	.globl	main        
+	.globl	main
+
+_start:
+	B				main
+ 	B			.				// 0x00000004: Undefined instruction
+ 	B			.				// 0x00000008: SWI
+ 	B			.				// 0x0000000C: PREF
+ 	B			dabt			// 0x00000010: DABT
+ 	B			.				// 0x00000014: Reserved
+ 	B			.				// 0x00000018: IRQ
+ 	B			.				// 0x0000001c: FIQ
+
+dabt:
+		mov		pc, lr			// Return
+
 main:
         @ ---------------------
         @ swp     r2, r2, [r0]

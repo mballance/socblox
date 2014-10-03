@@ -177,6 +177,18 @@ void axi4_master_bfm::write64(uint64_t addr, uint64_t data)
 
 }
 
+void axi4_master_bfm::wait_clks(uint32_t clks)
+{
+	m_mutex.lock();
+
+	for (uint32_t i=0; i<clks; i++) {
+		bfm_port->clk_req();
+		m_clk_sem.get();
+	}
+
+	m_mutex.unlock();
+}
+
 void axi4_master_bfm::bresp(uint32_t resp)
 {
 	m_bresp_sem.put();
@@ -199,6 +211,11 @@ void axi4_master_bfm::reset()
 	m_init_reset = true;
 	m_reset_cond.notify_all();
 	m_reset_cond_mutex.unlock();
+}
+
+void axi4_master_bfm::clk_ack()
+{
+	m_clk_sem.put();
 }
 
 svf_component_ctor_def(axi4_master_bfm)

@@ -23,7 +23,7 @@
  *   Inbound  FIFO: [2**(QUEUE_ADDR_BITS/2)]
  *   Outbound FIFO: [2**(QUEUE_ADDR_BITS/2)]
  */
-module bidi_message_queue #(
+interface bidi_message_queue #(
 		// Total number of 32-bit words in the two queues
 		parameter int QUEUE_ADDR_BITS=10
 		) (
@@ -192,5 +192,5 @@ module bidi_message_queue #(
     	bidi_message_queue_direct_bfm_register();
     end
 
-endmodule
+endinterface
 

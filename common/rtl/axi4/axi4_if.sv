@@ -20,7 +20,7 @@ interface axi4_if #(
 	bit[7:0]						AWLEN;
 	bit[2:0]						AWSIZE;
 	bit[1:0]						AWBURST;
-	// LOCK excluded (AXI4)
+	bit								AWLOCK;
 	bit[3:0]						AWCACHE;
 	
 	bit[2:0]						AWPROT;
@@ -59,7 +59,7 @@ interface axi4_if #(
 	bit[7:0]						ARLEN;
 	bit[2:0]						ARSIZE;
 	bit[1:0]						ARBURST;
-	// LOCK excluded (AXI4)
+	bit								ARLOCK;
 	bit[3:0]						ARCACHE;
 	
 	bit[2:0]						ARPROT;
@@ -92,6 +92,7 @@ interface axi4_if #(
 			output AWLEN,
 			output AWSIZE,
 			output AWBURST,
+			output AWLOCK,
 			output AWCACHE,
 			output AWPROT,
 			output AWQOS,
@@ -118,6 +119,7 @@ interface axi4_if #(
 			output ARLEN,
 			output ARSIZE,
 			output ARBURST,
+			output ARLOCK,
 			output ARCACHE,
 			output ARPROT,
 			output ARQOS,
@@ -140,6 +142,7 @@ interface axi4_if #(
 			input AWLEN,
 			input AWSIZE,
 			input AWBURST,
+			input AWLOCK,
 			input AWCACHE,
 			input AWPROT,
 			input AWQOS,
@@ -163,6 +166,7 @@ interface axi4_if #(
 			input ARLEN,
 			input ARSIZE,
 			input ARBURST,
+			input ARLOCK,
 			input ARCACHE,
 			input ARPROT,
 			input ARQOS,
@@ -183,6 +187,7 @@ interface axi4_if #(
 			input AWLEN,
 			input AWSIZE,
 			input AWBURST,
+			input AWLOCK,
 			input AWCACHE,
 			input AWPROT,
 			input AWQOS,
@@ -206,6 +211,7 @@ interface axi4_if #(
 			input ARLEN,
 			input ARSIZE,
 			input ARBURST,
+			input ARLOCK,
 			input ARCACHE,
 			input ARPROT,
 			input ARREGION,

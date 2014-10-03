@@ -43,8 +43,8 @@ void ${name}_test_base::start()
 
 void ${name}_test_base::run()
 {
-	string target_exe;
-	string testname = "unknown";
+	svf_string target_exe;
+	svf_string testname = "unknown";
 	fprintf(stdout, "run thread\n");
 	raise_objection();
 

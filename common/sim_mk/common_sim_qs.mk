@@ -27,10 +27,10 @@ vlog_build : vopt
 vopt : vopt_opt vopt_dbg
 
 vopt_opt : vopt_compile
-	vopt -o $(TB)_opt $(TB)
+	vopt -o $(TB)_opt $(TB) +designfile
 
 vopt_dbg : vopt_compile
-	vopt +acc -o $(TB)_dbg $(TB)
+	vopt +acc -o $(TB)_dbg $(TB) +designfile
 
 vopt_compile :
 	rm -rf work
@@ -59,7 +59,7 @@ run :
 	echo $(DOFILE_COMMANDS) > run.do
 	echo "run $(TIMEOUT); quit -f" >> run.do
 	vmap work ${BUILD_DIR}/work
-	vsim -c -do run.do $(TOP) \
+	vsim -c -do run.do $(TOP) -qwavedb=+signal \
 		+TESTNAME=$(TESTNAME) -f sim.f \
 		$(foreach dpi,$(DPI_LIBS),-sv_lib $(dpi))
 

@@ -9,6 +9,11 @@
 #define UTH_MD_H_
 #include <stdint.h>
 
+#define UTH_MUTEX_STATIC_INIT_MD \
+{ \
+	0 \
+}
+
 typedef struct uth_thread_ctxt_md_s {
 	uint32_t				regs[16];
 } uth_thread_ctxt_md_t;

@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //                                                              //
 //  Fetch - Instantiates the fetch stage sub-modules of         //
 //  the Amber 2 Core                                            //
@@ -72,8 +72,6 @@ output						o_dabt,
 axi4_if.master				master
 
 );
-
-// `include "memory_configuration.v"
 
 wire                        cache_stall;
 wire                        stall_cache;
@@ -179,6 +177,7 @@ axi4_a23_cache #(
     .i_wb_read_data             ( RDATA					),
     .i_read_data_valid			( RVALID				),
     .i_wb_stall                 ( stall_cache			)
+    
 );
 
 

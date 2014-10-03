@@ -21,19 +21,19 @@ module axi4_monitor_bfm #(
 		if (rst_n == 0) begin
 		end else begin
 			if (monitor.ARVALID && monitor.ARREADY) begin
-				$display("%m AR: ARADDR='h%08h", monitor.ARADDR);
+				$display("%0t %m AR: ARADDR='h%08h", $time, monitor.ARADDR);
 			end
 			
 			if (monitor.RVALID && monitor.RREADY) begin
-				$display("%m R: RDATA='h%08h", monitor.RDATA);
+				$display("%0t %m R: RDATA='h%08h", $time, monitor.RDATA);
 			end
 			
 			if (monitor.AWVALID && monitor.AWREADY) begin
-				$display("%m AW: AWADDR='h%08h", monitor.AWADDR);
+				$display("%0t %m AW: AWADDR='h%08h", $time, monitor.AWADDR);
 			end
 			
 			if (monitor.WVALID && monitor.WREADY) begin
-				$display("%m W: WDATA='h%08h", monitor.WDATA);
+				$display("%0t %m W: WDATA='h%08h", $time, monitor.WDATA);
 			end
 		end
 	end	
