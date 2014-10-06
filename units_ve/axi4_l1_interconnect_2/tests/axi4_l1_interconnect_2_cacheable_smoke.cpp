@@ -37,6 +37,12 @@ void axi4_l1_interconnect_2_cacheable_smoke::start() {
 
 void axi4_l1_interconnect_2_cacheable_smoke::main_m0() {
 	raise_objection();
+	// First, initialize the memory
+
+	for (uint32_t i=0; i<1024; i++) {
+		m_env->m_sram->write32(4*i, 0x55000000 + i);
+	}
+
 	for (uint32_t i=0; i<16; i++) {
 		/*
 		int wait_clks = (rand() % 10);
@@ -53,7 +59,9 @@ void axi4_l1_interconnect_2_cacheable_smoke::main_m0() {
 		}
 		 */
 		m_env->m_m0->set_cache(axi4_master_bfm::CACHE_CACHEABLE);
-		m_env->m_m0->read32(16+4*i);
+		uint32_t data = m_env->m_m0->read32(16+4*i);
+
+		fprintf(stdout, "0x%08x: 0x%08x\n", 16+4*i, data);
 	}
 
 	drop_objection();

@@ -53,17 +53,27 @@ module axi4_l1_cache_2 #(
 	reg [31:TAG_ADDR32_LSB]					tag;
 	reg [(WORD_SEL_MSB-WORD_SEL_LSB):0]		word_index;
 	reg[$bits(in.ARADDR)-1:4]				read_addr;
-	wire[$bits(in)-1:0]						read_addr_w;
-	reg[3:0]								read_offset;
-	reg[1:0]								read_count;
-	reg[$bits(in.RDATA)-1:0]				read_data_r;
+	wire[$bits(in.ARADDR)-1:0]				read_addr_w;
+	reg[1:0]								read_offset;
+	reg[2:0]								read_count;
 	reg[$bits(in.ARID)-1:0]					id;
+	reg[1:0]								way_sel_write;
+	reg[1:0]								way_sel_rand;
+	
+	always @(posedge clk_i) begin
+		if (rst_n == 0) begin
+			way_sel_rand <= 0;
+		end else begin
+			way_sel_rand <= way_sel_rand + 1;
+		end
+	end
 	
 	assign read_addr_w = {read_addr, read_offset, 2'b0};
 
 	typedef enum {
 		ST_WAIT_REQ,
 		ST_CHECK_RD_HIT,
+		ST_HIT_READBACK,
 		ST_CHECK_WR_HIT,
 		ST_UNCACHED_AW,
 		ST_UNCACHED_BR,
@@ -92,6 +102,21 @@ module axi4_l1_cache_2 #(
 	wire rd_passthrough = 1;
 	wire wr_passthrough = 1;
 `endif
+
+	wire 							tag_wenable_way[CACHE_WAYS-1:0];
+	reg [TAG_WIDTH-1:0]				tag_wdata;
+	wire [TAG_WIDTH-2:0]			tag_rdata_way[CACHE_WAYS-1:0];
+	wire          					tag_valid_way[CACHE_WAYS-1:0];
+	wire          					tag_valid_wdata_way[CACHE_WAYS-1:0];
+	wire							data_wenable_way[CACHE_WAYS-1:0];
+	reg  [CACHE_LINE_WIDTH-1:0]		data_wdata;
+	wire [CACHE_LINE_WIDTH-1:0]		data_rdata_way[CACHE_WAYS-1:0];
+		
+	reg								hit 		= 0;
+	reg  [$clog2(CACHE_WAYS)-1:0]	hit_way 	= 0;
+	wire [$bits(in.RDATA)-1:0]		hit_data;
+	reg  [$bits(in.RDATA)-1:0]		stall_rdata;
+
 	
 	// Read/Write state machine
 	always @(posedge clk_i) begin
@@ -112,6 +137,7 @@ module axi4_l1_cache_2 #(
 			case (rw_state)
 				// Wait for a request to come in
 				ST_WAIT_REQ: begin
+					read_count <= 0;
 					if (in.ARVALID && in.ARREADY) begin
 						if (ar_passthrough) begin
 							rw_state <= ST_UNCACHED_RD;
@@ -158,11 +184,21 @@ module axi4_l1_cache_2 #(
 				ST_CHECK_RD_HIT: begin
 					if (hit) begin
 						// TODO:
+						rw_state <= ST_HIT_READBACK;
+						read_offset <= word_index;
+						read_addr <= {tag, tag_address};
 					end else begin
 						rw_state <= ST_FILL_AR;
 						read_count <= 0;
 						read_offset <= word_index;
 						read_addr <= {tag, tag_address};
+						tag_wdata <= {1'b1, tag};
+					end
+				end
+				
+				ST_HIT_READBACK: begin
+					if (in.RVALID && in.RREADY) begin
+						rw_state <= ST_WAIT_REQ;
 					end
 				end
 				
@@ -174,33 +210,62 @@ module axi4_l1_cache_2 #(
 					if (out.ARVALID && out.ARREADY) begin
 						arvalid <= 0;
 						rw_state <= ST_FILL_RDATA;
+						way_sel_write <= way_sel_rand;
 					end
 				end
 			
 				// Wait for the data to come back
 				ST_FILL_RDATA: begin
 					if (out.RVALID && out.RREADY) begin
+						case (read_offset) 
+							0: data_wdata[31:0] <= out.RDATA;
+							1: data_wdata[63:32] <= out.RDATA;
+							2: data_wdata[95:64] <= out.RDATA;
+							3: data_wdata[127:96] <= out.RDATA;
+						endcase
+						
 						if (read_count == 3) begin
 							rw_state <= ST_WAIT_REQ;
+							read_count <= read_count + 1;
 						end else if (read_count == 0) begin
 							if (!(in.RVALID && in.RREADY)) begin
 								// 
 								rw_state <= ST_FILL_STALL;
+								stall_rdata <= out.RDATA;
+							end else begin
+								// Increment once the data is accepted
+								read_count <= read_count + 1;
+								read_offset <= read_offset + 1;
 							end
+						end else begin
+							read_count <= read_count + 1;
+							read_offset <= read_offset + 1;
 						end
-						read_count <= read_count + 1;
 					end
 				end
 				
 				ST_FILL_STALL: begin
 					if (in.RVALID && in.RREADY) begin
+						// Increment once the data is accepted
+						read_count <= read_count + 1;
+						read_offset <= read_offset + 1;
 						rw_state <= ST_FILL_RDATA;
 					end
 				end
 			endcase
 		end
 	end
-	
+
+	// Control for way write control
+	generate
+		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin
+			assign tag_wenable_way[i] = 
+				((rw_state == ST_FILL_RDATA && read_count == 3) && way_sel_write == i);
+			
+			assign data_wenable_way[i] = 
+				((read_count == 4) && way_sel_write == i);
+		end
+	endgenerate
 	
 	// Mux signals through for bypass
 	assign out.AWID     = (aw_passthrough)?in.AWID:0;
@@ -229,12 +294,13 @@ module axi4_l1_cache_2 #(
 	
 
 	assign in.RID       = (rd_passthrough)?out.RID:id;
-	assign in.RDATA     = (rd_passthrough || rw_state == ST_FILL_RDATA)?out.RDATA:read_data_r;
+	assign in.RDATA     = (rd_passthrough || rw_state == ST_FILL_RDATA)?out.RDATA:hit_data;
 	assign in.RRESP     = (rd_passthrough)?out.RRESP:0;
 	assign in.RLAST     = (rd_passthrough)?out.RLAST:1;
 	assign in.RVALID    = (rd_passthrough)?out.RVALID:
 		((rw_state == ST_FILL_RDATA && read_count == 0 && out.RVALID) ||
-			(rw_state == ST_FILL_STALL));
+			(rw_state == ST_FILL_STALL) ||
+			(rw_state == ST_HIT_READBACK));
 	assign out.RREADY   = (rd_passthrough)?in.RREADY:
 		(rw_state == ST_FILL_RDATA); // TODO:
 
@@ -250,24 +316,26 @@ module axi4_l1_cache_2 #(
 	assign out.BREADY   = (wr_passthrough)?in.BREADY:0;
 
 
-	wire 							tag_wenable_way[CACHE_WAYS-1:0];
-	wire [TAG_WIDTH-1:0]			tag_wdata;
-	wire [TAG_WIDTH-2:0]			tag_rdata_way[CACHE_WAYS-1:0];
-	wire          					tag_valid_way[CACHE_WAYS-1:0];
-	wire							data_wenable_way[CACHE_WAYS-1:0];
-	wire [CACHE_LINE_WIDTH-1:0]		data_wdata;
-	wire [CACHE_LINE_WIDTH-1:0]		data_rdata_way[CACHE_WAYS-1:0];
-	
-	reg								hit = 0;
+
 
 	always @* begin
 		hit = 0;
+		hit_way = 0;
 		for (int i=0; i<CACHE_WAYS; i=i+1) begin
 			if (tag_valid_way[i] && tag_rdata_way[i] == tag) begin
 				hit = 1;
+				hit_way = i;
 			end
 		end
 	end
+
+	assign hit_data = 
+		(rw_state == ST_FILL_STALL)?stall_rdata:
+		(word_index == 0)?data_rdata_way[hit_way][31:0]:
+		(word_index == 1)?data_rdata_way[hit_way][63:32]:
+		(word_index == 2)?data_rdata_way[hit_way][95:64]:
+		data_rdata_way[hit_way][127:96];
+	
 
 	generate
 		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin : rams
@@ -278,7 +346,7 @@ module axi4_l1_cache_2 #(
 					.ADDRESS_WIDTH              ( CACHE_ADDR_WIDTH      )
 				) u_tag (
 					.i_clk                      ( clk_i                 						),
-					.i_write_data               ( {tag_valid_wdata_way[i], tag_wdata_way[i]}	),
+					.i_write_data               ( tag_wdata										),
 					.i_write_enable             ( tag_wenable_way[i]    						),
 					.i_address                  ( tag_address  		    						),
 
