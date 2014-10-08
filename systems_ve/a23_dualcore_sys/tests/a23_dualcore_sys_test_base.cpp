@@ -38,9 +38,9 @@ void a23_dualcore_sys_test_base::connect()
 	uart_bfm_dpi_mgr::connect(TB_ROOT + ".u_uart_bfm", m_env->m_uart->bfm_port);
 
 
-	a23_tracer_bfm_dpi_mgr::connect(D_ROOT + ".u_a23_0.u_tracer.u_tracer_bfm",
+	a23_tracer_bfm_dpi_mgr::connect(D_ROOT + ".u_core.u_core0.u_tracer.u_tracer_bfm",
 			m_env->m_core1_tracer->bfm_port);
-	a23_tracer_bfm_dpi_mgr::connect(D_ROOT + ".u_a23_1.u_tracer.u_tracer_bfm",
+	a23_tracer_bfm_dpi_mgr::connect(D_ROOT + ".u_core.u_core1.u_tracer.u_tracer_bfm",
 			m_env->m_core2_tracer->bfm_port);
 
 	timebase_dpi_mgr::connect(TB_ROOT + ".u_time", m_env->m_timebase->bfm_port);

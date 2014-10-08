@@ -47,13 +47,13 @@ void inbound_thread(void *ud) {
 	debug("--> inbound_thread\n");
 
 	for (uint32_t j=0; j<16; j++) {
-//		debug("--> inbound: get_next_message_sz %d\n", j);
+		debug("--> inbound: get_next_message_sz %d\n", j);
 		sz = drv->get_next_message_sz();
-//		debug("<-- inbound: get_next_message_sz %d %d\n", j, sz);
+		debug("<-- inbound: get_next_message_sz %d %d\n", j, sz);
 
-//		debug("--> inbound: read_next_message %d\n", j);
+		debug("--> inbound: read_next_message %d\n", j);
 		drv->read_next_message(msg);
-//		debug("<-- inbound: read_next_message %d\n", j);
+		debug("<-- inbound: read_next_message %d\n", j);
 	}
 
 	debug("<-- inbound_thread\n");

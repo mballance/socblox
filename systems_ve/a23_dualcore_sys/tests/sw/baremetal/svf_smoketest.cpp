@@ -13,6 +13,51 @@
 #include <stdio.h>
 
 #include "svf_cmdline.h"
+#include "svf_msg_def.h"
+
+class test_log_msg : public svf_log_msg_if {
+
+	public:
+
+		virtual ~test_log_msg() {};
+
+		virtual void init(svf_msg_def_base *msg, uint32_t n_params) {
+			fprintf(stdout, "id=%d fmt=%s\n", msg->id(), msg->fmt());
+		}
+
+		virtual int param(uint32_t p) {
+			fprintf(stdout, "param: %d\n", p);
+			return 0;
+		}
+
+		virtual int param(int32_t p) {
+			fprintf(stdout, "param: %d\n", p);
+			return 0;
+		}
+
+		virtual int param(const char *p) {
+			fprintf(stdout, "param: %s\n", p);
+			return 0;
+		}
+
+		virtual int param(const void *p) {
+			fprintf(stdout, "param: %p\n", p);
+			return 0;
+		}
+};
+
+class test_log : public svf_log_if {
+	public:
+		virtual ~test_log() { }
+
+		virtual svf_log_msg_if *alloc_msg() {
+			return new test_log_msg();
+		}
+
+		virtual void msg(svf_log_msg_if *msg) {
+			delete msg;
+		}
+};
 
 extern "C" int write(int fd, const void *data, int sz);
 
@@ -22,6 +67,12 @@ svf_ptr_vector<svf_string> svf_cmdline::args()
 	svf_ptr_vector<svf_string> ret;
 	return ret;
 }
+
+static svf_msg_def<uint32_t, const char *> foo("%d: %s");
+static svf_msg_def<uint32_t, const char *> bar("%d: %s");
+static svf_msg_def<int32_t, uint32_t> baz("%d: %d");
+static svf_msg_def<const void *> baz2("%p");
+
 
 /*
  */
@@ -36,6 +87,7 @@ extern "C" uth_thread_mgr *uth_get_thread_mgr()
 		thread_mgr = new uth_coop_thread_mgr();
 		thread_mgr->init();
 	}
+
 	return thread_mgr;
 }
 
@@ -105,11 +157,20 @@ int main(int argc, char **argv)
 {
 	char buf[256];
 	char *c;
+	test_log l;
 
 	for (uint32_t i=0; i<16; i++) {
 		fprintf(stdout, "i: %d\n", (15-i));
 		fflush(stdout);
 	}
+
+	foo.msg(&l, 16, "foobar");
+	bar.msg(&l, 16, "foobar");
+	baz.msg(&l, 16, 17);
+	baz2.msg(&l, &l);
+	baz2.msg(&l, "foobar");
+
+	fflush(stdout);
 
 #ifdef UNDEFINED
 #endif

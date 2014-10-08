@@ -47,7 +47,7 @@ void a23_dualcore_sys_smoke_test::mem_access(
 {
 
 //	fprintf(stdout, "MEM_ACCESS: 0x%08x\n", addr);
-	if (!is_write) {
+	if (!is_write && addr <= 0x30000000) {
 		uint32_t mem_data = m_env->m_mem_mgr->read32(addr);
 
 		if (mem_data != data) {
