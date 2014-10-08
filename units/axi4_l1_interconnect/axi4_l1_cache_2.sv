@@ -49,12 +49,12 @@ module axi4_l1_cache_2 #(
 	localparam WORD_SEL_MSB      = WORD_SEL_WIDTH + 2 - 1;                      // = 3
 	localparam WORD_SEL_LSB      =                  2;                          // = 2
 	
-	reg [CACHE_ADDR_WIDTH-1:0]				tag_address;
+	reg [CACHE_ADDR_WIDTH-1:0]				tag_data_address;
 	reg [31:TAG_ADDR32_LSB]					tag;
 	reg [(WORD_SEL_MSB-WORD_SEL_LSB):0]		word_index;
-	reg[$bits(in.ARADDR)-1:4]				read_addr;
-	wire[$bits(in.ARADDR)-1:0]				read_addr_w;
-	reg[1:0]								read_offset;
+	reg[$bits(in.ARADDR)-1:4]				rw_addr;
+	wire[$bits(in.ARADDR)-1:0]				rw_addr_w;
+	reg[1:0]								rw_offset;
 	reg[2:0]								read_count;
 	reg[$bits(in.ARID)-1:0]					id;
 	reg[1:0]								way_sel_write;
@@ -68,20 +68,25 @@ module axi4_l1_cache_2 #(
 		end
 	end
 	
-	assign read_addr_w = {read_addr, read_offset, 2'b0};
+	assign rw_addr_w = {rw_addr, rw_offset, 2'b0};
 
 	typedef enum {
 		ST_WAIT_REQ,
-		ST_CHECK_RD_HIT,
+		ST_CHECK_RD_HIT_1,
+		ST_CHECK_RD_HIT_2,
 		ST_HIT_READBACK,
-		ST_CHECK_WR_HIT,
+		ST_CHECK_WR_HIT_1,
+		ST_CHECK_WR_HIT_2,
 		ST_UNCACHED_AW,
-		ST_UNCACHED_BR,
+		ST_UNCACHED_BR, // 7
 		ST_UNCACHED_AR,
 		ST_UNCACHED_RD,
 		ST_UNCACHED_WR_1,
 		ST_UNCACHED_WR_2,
-		ST_FILL_AR,
+		ST_HIT_WRITEBACK, // 12
+		ST_WR_MISS,
+		ST_WR_ACK,
+		ST_FILL_AR,       // 15
 		ST_FILL_RDATA,
 		ST_FILL_STALL
 	} rw_state_e;
@@ -91,10 +96,12 @@ module axi4_l1_cache_2 #(
 	
 `ifndef UNDEFINED
 	wire ar_passthrough = (rw_state == ST_WAIT_REQ && !in.ARCACHE[1]);
-	wire aw_passthrough = (rw_state == ST_WAIT_REQ && !in.AWCACHE[1]);
+//	wire aw_passthrough = (rw_state == ST_WAIT_REQ && !in.AWCACHE[1]);
+	wire aw_passthrough = 1;
 	
 	wire rd_passthrough = (rw_state == ST_UNCACHED_RD);
 	wire wr_passthrough = (rw_state == ST_UNCACHED_WR_1 || rw_state == ST_UNCACHED_WR_2);
+//	wire wr_passthrough = 1;
 `else
 	wire ar_passthrough = 1;
 	wire aw_passthrough = 1;
@@ -116,14 +123,13 @@ module axi4_l1_cache_2 #(
 	reg  [$clog2(CACHE_WAYS)-1:0]	hit_way 	= 0;
 	wire [$bits(in.RDATA)-1:0]		hit_data;
 	reg  [$bits(in.RDATA)-1:0]		stall_rdata;
-
 	
 	// Read/Write state machine
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
 			rw_state <= ST_WAIT_REQ;
-			read_addr <= 0;
-			read_offset <= 0;
+			rw_addr <= 0;
+			rw_offset <= 0;
 			read_count <= 4'b0000;
 			arvalid <= 0;
 			/*
@@ -142,20 +148,24 @@ module axi4_l1_cache_2 #(
 						if (ar_passthrough) begin
 							rw_state <= ST_UNCACHED_RD;
 						end else begin
-							rw_state <= ST_CHECK_RD_HIT;
-							tag_address <= in.ARADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
+							rw_state <= ST_CHECK_RD_HIT_1;
+							tag_data_address <= in.ARADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
 							tag <= in.ARADDR[$bits(in.ARADDR)-1:TAG_ADDR32_LSB];
 							word_index <= in.ARADDR[WORD_SEL_MSB:WORD_SEL_LSB];
 							id <= in.ARID;
+							rw_offset <= in.ARADDR[WORD_SEL_MSB:WORD_SEL_LSB]; // word_index
+							rw_addr <= {in.ARADDR[$bits(in.ARADDR)-1:TAG_ADDR32_LSB], in.ARADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB]};
 						end
 					end else if (in.AWVALID && in.AWREADY) begin
-						if (aw_passthrough) begin
+						if (in.AWCACHE[1] == 0) begin
 							rw_state <= ST_UNCACHED_WR_1;
 						end else begin
-							rw_state <= ST_CHECK_WR_HIT;
-							tag_address <= in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
+							rw_state <= ST_CHECK_WR_HIT_1;
+							tag_data_address <= in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
 							tag <= in.AWADDR[$bits(in.ARADDR)-1:TAG_ADDR32_LSB];
 							word_index <= in.AWADDR[WORD_SEL_MSB:WORD_SEL_LSB];
+							rw_offset <= in.ARADDR[WORD_SEL_MSB:WORD_SEL_LSB]; // word_index
+							rw_addr <= {in.ARADDR[$bits(in.ARADDR)-1:TAG_ADDR32_LSB], in.ARADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB]};
 							id <= in.AWID;
 						end
 					end
@@ -181,17 +191,19 @@ module axi4_l1_cache_2 #(
 					end
 				end
 				
-				ST_CHECK_RD_HIT: begin
+				ST_CHECK_RD_HIT_1: begin
+					rw_state <= ST_CHECK_RD_HIT_2;
+				end
+				
+				ST_CHECK_RD_HIT_2: begin
 					if (hit) begin
 						// TODO:
 						rw_state <= ST_HIT_READBACK;
-						read_offset <= word_index;
-						read_addr <= {tag, tag_address};
+						// Capture the data read from the 'hit' way
+						data_wdata <= data_rdata_way[hit_way];
 					end else begin
 						rw_state <= ST_FILL_AR;
 						read_count <= 0;
-						read_offset <= word_index;
-						read_addr <= {tag, tag_address};
 						tag_wdata <= {1'b1, tag};
 					end
 				end
@@ -202,7 +214,24 @@ module axi4_l1_cache_2 #(
 					end
 				end
 				
-				ST_CHECK_WR_HIT: begin
+				ST_CHECK_WR_HIT_1: begin
+					rw_state <= ST_CHECK_WR_HIT_2;
+				end
+				
+				ST_CHECK_WR_HIT_2: begin
+					if (hit) begin
+						// TODO:
+						rw_state <= ST_HIT_WRITEBACK;
+						data_wdata <= data_rdata_way[hit_way];
+					end else begin
+						rw_state <= ST_UNCACHED_WR_1;
+					end
+				end
+				
+				ST_WR_MISS: begin
+					if (out.BREADY && out.BVALID) begin
+						rw_state <= ST_WAIT_REQ;
+					end
 				end
 			
 				// Issue the address request
@@ -217,7 +246,7 @@ module axi4_l1_cache_2 #(
 				// Wait for the data to come back
 				ST_FILL_RDATA: begin
 					if (out.RVALID && out.RREADY) begin
-						case (read_offset) 
+						case (rw_offset) 
 							0: data_wdata[31:0] <= out.RDATA;
 							1: data_wdata[63:32] <= out.RDATA;
 							2: data_wdata[95:64] <= out.RDATA;
@@ -235,11 +264,11 @@ module axi4_l1_cache_2 #(
 							end else begin
 								// Increment once the data is accepted
 								read_count <= read_count + 1;
-								read_offset <= read_offset + 1;
+								rw_offset <= rw_offset + 1;
 							end
 						end else begin
 							read_count <= read_count + 1;
-							read_offset <= read_offset + 1;
+							rw_offset <= rw_offset + 1;
 						end
 					end
 				end
@@ -248,8 +277,28 @@ module axi4_l1_cache_2 #(
 					if (in.RVALID && in.RREADY) begin
 						// Increment once the data is accepted
 						read_count <= read_count + 1;
-						read_offset <= read_offset + 1;
+						rw_offset <= rw_offset + 1;
 						rw_state <= ST_FILL_RDATA;
+					end
+				end
+				
+				ST_HIT_WRITEBACK: begin
+					if (in.WVALID && in.WREADY) begin
+						// Capture data going out
+						case (rw_offset) 
+							0: data_wdata[31:0] <= out.WDATA;
+							1: data_wdata[63:32] <= out.WDATA;
+							2: data_wdata[95:64] <= out.WDATA;
+							3: data_wdata[127:96] <= out.WDATA;
+						endcase
+						// Initiate write
+						rw_state <= ST_WR_ACK;
+					end
+				end
+				
+				ST_WR_ACK: begin
+					if (in.BVALID && in.BREADY) begin
+						rw_state <= ST_WAIT_REQ;
 					end
 				end
 			endcase
@@ -278,10 +327,11 @@ module axi4_l1_cache_2 #(
 	assign out.AWQOS    = (aw_passthrough)?in.AWQOS:0;
 	assign out.AWREGION = (aw_passthrough)?in.AWREGION:0;
 	assign out.AWVALID  = (aw_passthrough)?in.AWVALID:0;
-	assign in.AWREADY   = (aw_passthrough)?out.AWREADY:(rw_state == ST_WAIT_REQ);
+	// Do not allow a new write to start during snoop stall
+	assign in.AWREADY   = (!i_snoop_stall && (aw_passthrough)?out.AWREADY:(rw_state == ST_WAIT_REQ));
 	
 	assign out.ARID     = (ar_passthrough)?in.ARID:0;
-	assign out.ARADDR   = (ar_passthrough)?in.ARADDR:read_addr_w;
+	assign out.ARADDR   = (ar_passthrough)?in.ARADDR:rw_addr_w;
 	assign out.ARLEN    = (ar_passthrough)?in.ARLEN:(CACHE_WORDS_PER_LINE-1);
 	assign out.ARSIZE   = (ar_passthrough)?in.ARSIZE:2; // 32-bit transfer
 	assign out.ARBURST  = (ar_passthrough)?in.ARBURST:2; // wrap transfer
@@ -306,14 +356,18 @@ module axi4_l1_cache_2 #(
 
 	assign out.WDATA    = (wr_passthrough)?in.WDATA:0;
 	assign out.WSTRB    = (wr_passthrough)?in.WSTRB:0;
-	assign out.WLAST    = (wr_passthrough)?in.WLAST:0;
-	assign out.WVALID   = (wr_passthrough)?in.WVALID:0;
-	assign in.WREADY    = (wr_passthrough)?out.WREADY:0;
+//	assign out.WLAST    = (wr_passthrough)?in.WLAST:0;
+	assign out.WLAST    = in.WLAST;
+	assign out.WVALID   = (wr_passthrough)?in.WVALID:
+		(in.WVALID && (rw_state == ST_UNCACHED_WR_1 || rw_state == ST_HIT_WRITEBACK));
+	assign in.WREADY    = (wr_passthrough)?out.WREADY:
+		(out.WREADY && (rw_state == ST_UNCACHED_WR_1 || rw_state == ST_HIT_WRITEBACK));
 
 	assign in.BID       = (wr_passthrough)?out.BID:id;
-	assign in.BRESP     = (wr_passthrough)?out.BRESP:0;
-	assign in.BVALID    = (wr_passthrough)?out.BVALID:0;
-	assign out.BREADY   = (wr_passthrough)?in.BREADY:0;
+//	assign in.BRESP     = (wr_passthrough)?out.BRESP:0;
+	assign in.BRESP     = out.BRESP;
+	assign in.BVALID    = (wr_passthrough)?out.BVALID:(out.BVALID && rw_state == ST_WR_ACK);
+	assign out.BREADY   = (wr_passthrough)?in.BREADY:(in.BREADY && rw_state == ST_WR_ACK);
 
 
 
@@ -348,7 +402,7 @@ module axi4_l1_cache_2 #(
 					.i_clk                      ( clk_i                 						),
 					.i_write_data               ( tag_wdata										),
 					.i_write_enable             ( tag_wenable_way[i]    						),
-					.i_address                  ( tag_address  		    						),
+					.i_address                  ( tag_data_address  		    						),
 
 					.o_read_data                ( {tag_valid_way[i], tag_rdata_way[i]}			)
 				);
@@ -361,7 +415,7 @@ module axi4_l1_cache_2 #(
 					.i_clk                      ( clk_i                         ),
 					.i_write_data               ( data_wdata                    ),
 					.i_write_enable             ( data_wenable_way[i]           ),
-					.i_address                  ( data_address                  ),
+					.i_address                  ( tag_data_address              ),
 					.i_byte_enable              ( {CACHE_LINE_WIDTH/8{1'd1}}    ),
 					.o_read_data                ( data_rdata_way[i]             )
 				);                                                     
