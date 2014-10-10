@@ -45,21 +45,37 @@ void axi4_l1_interconnect_2_cacheable_smoke::main_m0() {
 	raise_objection();
 
 	// Uncacheable read
-	m_env->m_m0->read32(0);
+//	data = m_env->m_m0->read32(0);
+//	fprintf(stdout, "uncached data=0x%08x\n", data);
 
 	// Uncacheable write
-	m_env->m_m0->write32(0, 0x55000055);
+//	m_env->m_m0->write32(0, 0x55000055);
 
 	// First, perform a cacheable read
 	m_env->m_m0->set_cache(axi4_master_bfm::CACHE_CACHEABLE);
+	fprintf(stdout, "cached data=0x%08x\n", data);
 
 	m_env->m_m0->read32(0);
 
+	// Modify read-back data
 	m_env->m_m0->write32(4, 0x55AAEEFF);
+	data = m_env->m_sram->read32(4);
+	fprintf(stdout, "4 direct read-back: 0x%08x\n", data);
+
+	// Now, invalidate that line from the other master
+	m_env->m_m1->write32(8, 0x55AAEEF1);
+	data = m_env->m_sram->read32(8);
+	fprintf(stdout, "8 direct read-back: 0x%08x\n", data);
+
+	data = m_env->m_m0->read32(8);
+	fprintf(stdout, "8 readback: 0x%08x\n", data);
+
+	data = m_env->m_m0->read32(4);
+	fprintf(stdout, "4 readback: 0x%08x\n", data);
 
 	// read-back to ensure the correct data is read
 	data = m_env->m_m0->read32(0);
-	fprintf(stdout, "data=0x%08x\n", data);
+	fprintf(stdout, "cache data=0x%08x\n", data);
 
 	drop_objection();
 	return;

@@ -39,24 +39,23 @@
 //////////////////////////////////////////////////////////////////
 
 
-module generic_sram_line_en_dualport
-#(
-parameter DATA_WIDTH            = 128,
-parameter ADDRESS_WIDTH         = 7,
-parameter INITIALIZE_TO_ZERO    = 0
-)
+module generic_sram_line_en_dualport #(
+	parameter DATA_WIDTH            = 128,
+	parameter ADDRESS_WIDTH         = 7,
+	parameter INITIALIZE_TO_ZERO    = 0
+	) (
+		input                           i_clk,
 
-(
-input                           i_clk,
-input      [DATA_WIDTH-1:0]     i_write_data_a,
-input                           i_write_enable_a,
-input      [ADDRESS_WIDTH-1:0]  i_address_a,
-output reg [DATA_WIDTH-1:0]     o_read_data_a,
-input      [DATA_WIDTH-1:0]     i_write_data_b,
-input                           i_write_enable_b,
-input      [ADDRESS_WIDTH-1:0]  i_address_b,
-output reg [DATA_WIDTH-1:0]     o_read_data_b
-);                                                     
+		input      [DATA_WIDTH-1:0]     i_write_data_a,
+		input                           i_write_enable_a,
+		input      [ADDRESS_WIDTH-1:0]  i_address_a,
+		output reg [DATA_WIDTH-1:0]     o_read_data_a,
+
+		input      [DATA_WIDTH-1:0]     i_write_data_b,
+		input                           i_write_enable_b,
+		input      [ADDRESS_WIDTH-1:0]  i_address_b,
+		output reg [DATA_WIDTH-1:0]     o_read_data_b
+	);                                                     
 
 reg [DATA_WIDTH-1:0]   mem  [0:2**ADDRESS_WIDTH-1];
 

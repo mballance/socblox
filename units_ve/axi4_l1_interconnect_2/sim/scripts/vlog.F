@@ -13,7 +13,8 @@ ${COMMON_RTL}/memory/generic_sram_line_en_if.sv
 ${COMMON_RTL}/memory/generic_sram_line_en_w.sv
 
 // ${COMMON_RTL}/../sram/generic_sram_byte_en.v
-${COMMON_RTL}/../sram/generic_sram_line_en.v
+${COMMON_RTL}/../sram/generic_sram_line_en_dualport.v
+${COMMON_RTL}/../sram/generic_sram_byte_en_dualport.v
 ${COMMON_BFM}/generic_sram_byte_en/generic_sram_byte_en.sv
 
 ${UNITS}/axi4_sram/axi4_sram.sv

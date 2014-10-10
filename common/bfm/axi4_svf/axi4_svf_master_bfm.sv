@@ -173,6 +173,7 @@ module axi4_svf_master_bfm #(
 	assign master.WVALID = (aw_state == 2);
 	assign master.WLAST = (aw_state == 2 && write_count == AWLEN_r);
 	assign master.BREADY = (aw_state == 3);
+	assign master.WSTRB  = 'hf;
 	
 	task axi4_master_bfm_aw_valid(
 		longint unsigned				AWADDR,
