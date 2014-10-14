@@ -49,6 +49,10 @@ module axi4_l1_cache_2 #(
 	localparam WORD_SEL_MSB      = WORD_SEL_WIDTH + 2 - 1;                      // = 3
 	localparam WORD_SEL_LSB      =                  2;                          // = 2
 	
+	initial begin
+		$display("WORD_SEL_MSB=%0d WORD_SEL_LSB=%0d", WORD_SEL_MSB, WORD_SEL_LSB);
+	end
+	
 	reg [CACHE_ADDR_WIDTH-1:0]				tag_data_address;
 	reg [31:TAG_ADDR32_LSB]					tag;
 	reg [(WORD_SEL_MSB-WORD_SEL_LSB):0]		word_index;
@@ -124,6 +128,21 @@ module axi4_l1_cache_2 #(
 	wire [$bits(in.RDATA)-1:0]		hit_data;
 	reg  [$bits(in.RDATA)-1:0]		stall_rdata;
 	
+	wire 							snoop_tag_wenable_way[CACHE_WAYS-1:0];
+	reg [TAG_WIDTH-1:0]				snoop_tag_wdata;
+	wire [TAG_WIDTH-2:0]			snoop_tag_rdata_way[CACHE_WAYS-1:0];
+	wire          					snoop_tag_valid_way[CACHE_WAYS-1:0];
+	wire          					snoop_tag_valid_wdata_way[CACHE_WAYS-1:0];
+	wire							snoop_data_wenable_way[CACHE_WAYS-1:0];
+	reg  [CACHE_LINE_WIDTH-1:0]		snoop_data_wdata;
+	wire [CACHE_LINE_WIDTH-1:0]		snoop_data_rdata_way[CACHE_WAYS-1:0];
+		
+	reg								snoop_hit 		= 0;
+	reg  [$clog2(CACHE_WAYS)-1:0]	snoop_hit_way 	= 0;
+	reg [31:TAG_ADDR32_LSB]			snoop_tag;
+	reg [CACHE_ADDR_WIDTH-1:0]		snoop_tag_data_address;
+	
+	
 	// Read/Write state machine
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
@@ -162,10 +181,10 @@ module axi4_l1_cache_2 #(
 						end else begin
 							rw_state <= ST_CHECK_WR_HIT_1;
 							tag_data_address <= in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
-							tag <= in.AWADDR[$bits(in.ARADDR)-1:TAG_ADDR32_LSB];
+							tag <= in.AWADDR[$bits(in.AWADDR)-1:TAG_ADDR32_LSB];
 							word_index <= in.AWADDR[WORD_SEL_MSB:WORD_SEL_LSB];
-							rw_offset <= in.ARADDR[WORD_SEL_MSB:WORD_SEL_LSB]; // word_index
-							rw_addr <= {in.ARADDR[$bits(in.ARADDR)-1:TAG_ADDR32_LSB], in.ARADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB]};
+							rw_offset <= in.AWADDR[WORD_SEL_MSB:WORD_SEL_LSB]; // word_index
+							rw_addr <= {in.AWADDR[$bits(in.AWADDR)-1:TAG_ADDR32_LSB], in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB]};
 							id <= in.AWID;
 						end
 					end
@@ -223,6 +242,7 @@ module axi4_l1_cache_2 #(
 						// TODO:
 						rw_state <= ST_HIT_WRITEBACK;
 						data_wdata <= data_rdata_way[hit_way];
+						way_sel_write <= hit_way;
 					end else begin
 						rw_state <= ST_UNCACHED_WR_1;
 					end
@@ -286,10 +306,10 @@ module axi4_l1_cache_2 #(
 					if (in.WVALID && in.WREADY) begin
 						// Capture data going out
 						case (rw_offset) 
-							0: data_wdata[31:0] <= out.WDATA;
-							1: data_wdata[63:32] <= out.WDATA;
-							2: data_wdata[95:64] <= out.WDATA;
-							3: data_wdata[127:96] <= out.WDATA;
+							0: data_wdata[31:0] <= in.WDATA;
+							1: data_wdata[63:32] <= in.WDATA;
+							2: data_wdata[95:64] <= in.WDATA;
+							3: data_wdata[127:96] <= in.WDATA;
 						endcase
 						// Initiate write
 						rw_state <= ST_WR_ACK;
@@ -312,7 +332,60 @@ module axi4_l1_cache_2 #(
 				((rw_state == ST_FILL_RDATA && read_count == 3) && way_sel_write == i);
 			
 			assign data_wenable_way[i] = 
-				((read_count == 4) && way_sel_write == i);
+				(((read_count == 4) && way_sel_write == i) ||
+				 (rw_state == ST_WR_ACK && way_sel_write == i));
+		end
+	endgenerate
+	
+	typedef enum {
+		SS_WAIT_REQ,
+		SS_CHECK_HIT_1,
+		SS_CHECK_HIT_2
+	} snoop_state_e;
+	
+	snoop_state_e			snoop_state;
+	
+	assign o_snoop_addr = in.AWADDR;
+	assign o_snoop_addr_valid = (in.AWREADY && in.AWVALID);
+	assign o_snoop_stall = (snoop_state != SS_WAIT_REQ);
+	
+	always @(posedge clk_i) begin
+		if (rst_n == 0) begin
+			snoop_state <= SS_WAIT_REQ;
+		end else begin
+			case (snoop_state)
+				SS_WAIT_REQ: begin
+					if (i_snoop_addr_valid) begin
+						snoop_tag_data_address <= i_snoop_addr[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
+						snoop_state <= SS_CHECK_HIT_1;
+					end
+				end
+				
+				SS_CHECK_HIT_1: begin
+					snoop_state <= SS_CHECK_HIT_2;
+				end
+				
+				SS_CHECK_HIT_2: begin
+					if (snoop_hit) begin
+					end
+					snoop_state <= SS_WAIT_REQ;
+				end
+					
+			endcase
+		end
+	end
+	
+	// Control for snoop way write control
+	generate
+		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin
+			assign snoop_tag_wenable_way[i] = 
+				((snoop_state == SS_CHECK_HIT_2) && snoop_hit && (snoop_hit_way == i));
+
+			/*
+			assign data_wenable_way[i] = 
+				(((read_count == 4) && way_sel_write == i) ||
+				 (rw_state == ST_WR_ACK && way_sel_write == i));
+			  */
 		end
 	endgenerate
 	
@@ -326,9 +399,13 @@ module axi4_l1_cache_2 #(
 	assign out.AWPROT   = (aw_passthrough)?in.AWPROT:0;
 	assign out.AWQOS    = (aw_passthrough)?in.AWQOS:0;
 	assign out.AWREGION = (aw_passthrough)?in.AWREGION:0;
-	assign out.AWVALID  = (aw_passthrough)?in.AWVALID:0;
+	assign out.AWVALID  = (aw_passthrough)?
+		(rw_state == ST_WAIT_REQ && in.AWVALID):0;
 	// Do not allow a new write to start during snoop stall
-	assign in.AWREADY   = (!i_snoop_stall && (aw_passthrough)?out.AWREADY:(rw_state == ST_WAIT_REQ));
+	assign in.AWREADY   = 
+		(!i_snoop_stall && (aw_passthrough)?
+			(rw_state == ST_WAIT_REQ && out.AWREADY):
+			(rw_state == ST_WAIT_REQ && !in.ARVALID));
 	
 	assign out.ARID     = (ar_passthrough)?in.ARID:0;
 	assign out.ARADDR   = (ar_passthrough)?in.ARADDR:rw_addr_w;
@@ -354,9 +431,8 @@ module axi4_l1_cache_2 #(
 	assign out.RREADY   = (rd_passthrough)?in.RREADY:
 		(rw_state == ST_FILL_RDATA); // TODO:
 
-	assign out.WDATA    = (wr_passthrough)?in.WDATA:0;
-	assign out.WSTRB    = (wr_passthrough)?in.WSTRB:0;
-//	assign out.WLAST    = (wr_passthrough)?in.WLAST:0;
+	assign out.WDATA    = in.WDATA;
+	assign out.WSTRB    = in.WSTRB;
 	assign out.WLAST    = in.WLAST;
 	assign out.WVALID   = (wr_passthrough)?in.WVALID:
 		(in.WVALID && (rw_state == ST_UNCACHED_WR_1 || rw_state == ST_HIT_WRITEBACK));
@@ -368,9 +444,6 @@ module axi4_l1_cache_2 #(
 	assign in.BRESP     = out.BRESP;
 	assign in.BVALID    = (wr_passthrough)?out.BVALID:(out.BVALID && rw_state == ST_WR_ACK);
 	assign out.BREADY   = (wr_passthrough)?in.BREADY:(in.BREADY && rw_state == ST_WR_ACK);
-
-
-
 
 	always @* begin
 		hit = 0;
@@ -390,34 +463,56 @@ module axi4_l1_cache_2 #(
 		(word_index == 2)?data_rdata_way[hit_way][95:64]:
 		data_rdata_way[hit_way][127:96];
 	
+	always @* begin
+		snoop_hit = 0;
+		snoop_hit_way = 0;
+		for (int i=0; i<CACHE_WAYS; i=i+1) begin
+			if (snoop_tag_valid_way[i] && snoop_tag_rdata_way[i] == snoop_tag) begin
+				snoop_hit = 1;
+				snoop_hit_way = i;
+			end
+			assign snoop_tag_wenable_way[i] = (snoop_hit_way == i && snoop_state == SS_CHECK_HIT_2);
+		end
+	end
+	
 
 	generate
 		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin : rams
 
-			generic_sram_line_en #(
+			generic_sram_line_en_dualport #(
 					.DATA_WIDTH                 ( TAG_WIDTH             ),
 					.INITIALIZE_TO_ZERO         ( 1                     ),
 					.ADDRESS_WIDTH              ( CACHE_ADDR_WIDTH      )
 				) u_tag (
-					.i_clk                      ( clk_i                 						),
-					.i_write_data               ( tag_wdata										),
-					.i_write_enable             ( tag_wenable_way[i]    						),
-					.i_address                  ( tag_data_address  		    						),
-
-					.o_read_data                ( {tag_valid_way[i], tag_rdata_way[i]}			)
+					.i_clk                      ( clk_i                 							),
+					.i_write_data_a             ( tag_wdata											),
+					.i_write_enable_a           ( tag_wenable_way[i]    							),
+					.i_address_a                ( tag_data_address  		    					),
+					.o_read_data_a              ( {tag_valid_way[i], tag_rdata_way[i]}				),
+					
+					.i_write_data_b             ( {0, snoop_tag_rdata_way[i]}						),
+					.i_write_enable_b           ( snoop_tag_wenable_way[i]							),
+					.i_address_b                ( snoop_tag_data_address 	    					),
+					.o_read_data_b              ( {snoop_tag_valid_way[i], snoop_tag_rdata_way[i]}	)
 				);
             
 			// Data RAMs 
-			generic_sram_byte_en #(
+			generic_sram_byte_en_dualport #(
 					.DATA_WIDTH    ( CACHE_LINE_WIDTH) ,
 					.ADDRESS_WIDTH ( CACHE_ADDR_WIDTH) 
 				) u_data (
 					.i_clk                      ( clk_i                         ),
-					.i_write_data               ( data_wdata                    ),
-					.i_write_enable             ( data_wenable_way[i]           ),
-					.i_address                  ( tag_data_address              ),
-					.i_byte_enable              ( {CACHE_LINE_WIDTH/8{1'd1}}    ),
-					.o_read_data                ( data_rdata_way[i]             )
+					.i_write_data_a             ( data_wdata                    ),
+					.i_write_enable_a           ( data_wenable_way[i]           ),
+					.i_address_a                ( tag_data_address              ),
+					.i_byte_enable_a            ( {CACHE_LINE_WIDTH/8{1'd1}}    ),
+					.o_read_data_a              ( data_rdata_way[i]             ),
+					
+					.i_write_data_b             ( snoop_data_wdata              ),
+					.i_write_enable_b           ( snoop_data_wenable_way[i]     ),
+					.i_address_b                ( snoop_tag_data_address        ),
+					.i_byte_enable_b            ( {CACHE_LINE_WIDTH/8{1'd1}}    ),
+					.o_read_data_b              ( snoop_data_rdata_way[i]       )
 				);                                                     
 
 

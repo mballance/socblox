@@ -161,14 +161,14 @@ assign o_dabt = (i_exclusive)?(
 assign master.AWID = 0;
 // TODO:
 assign master.AWBURST = 0;
-assign master.AWCACHE = 0;
+assign master.AWCACHE = (address_cachable)?2:0;
 assign master.AWPROT = 0;
 assign master.AWQOS = 4'b0000;
 assign master.AWREGION = 0;
 
 assign master.ARID = 0;
 assign master.ARQOS = 4'b0000;
-assign master.ARCACHE = 0;
+assign master.ARCACHE = (address_cachable)?2:0;
 assign master.ARPROT = 0;
 assign master.ARREGION = 0;
 

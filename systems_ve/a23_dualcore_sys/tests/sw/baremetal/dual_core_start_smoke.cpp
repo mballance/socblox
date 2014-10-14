@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
 	while (true) {
 		uth_mutex_lock(&m);
 
+		*((volatile uint32_t *)0x80000000) = (core+1);
+
 		for (uint32_t i=0; i<16; i++) {
 			if (core == 0) {
 				c1++;

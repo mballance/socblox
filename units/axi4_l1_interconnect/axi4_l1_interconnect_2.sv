@@ -57,6 +57,13 @@ module axi4_l1_interconnect_2 #(
 	wire [AXI4_ADDRESS_WIDTH-1:0]			m1_cache_o_snoop_addr;
 	wire									m1_cache_o_snoop_addr_valid;
 	wire									m1_cache_i_snoop_stall;
+	
+	assign m0_cache_i_snoop_addr = m1_cache_o_snoop_addr;
+	assign m1_cache_i_snoop_addr = m0_cache_o_snoop_addr;
+	assign m0_cache_i_snoop_addr_valid = m1_cache_o_snoop_addr_valid;
+	assign m1_cache_i_snoop_addr_valid = m0_cache_o_snoop_addr_valid;
+	assign m0_cache_i_snoop_stall = m1_cache_o_snoop_stall;
+	assign m1_cache_i_snoop_stall = m0_cache_o_snoop_stall;
 
 	axi4_l1_cache_2 #(
 		.CACHE_WAYS  (CACHE_WAYS )

@@ -42,20 +42,14 @@ module axi4_a23_dual #(
 		.i_rstn            (i_rstn           ), 
 		.i_irq             (i_irq_0          ), 
 		.i_firq            (i_firq_0         ), 
-		.master            (core02ic.master  ), 
-		.o_cache_enable    (cache_enable_0   ), 
-		.o_cache_flush     (cache_flush_0    ), 
-		.o_cacheable_area  (cacheable_area_0 ));
+		.master            (core02ic.master  ));
 	
 	axi4_a23_core_mp u_core1 (
 		.i_clk             (i_clk            ), 
 		.i_rstn            (i_rstn_1         ), 
 		.i_irq             (i_irq_1          ), 
 		.i_firq            (i_firq_1         ), 
-		.master            (core12ic.master  ), 
-		.o_cache_enable    (cache_enable_1   ), 
-		.o_cache_flush     (cache_flush_1    ), 
-		.o_cacheable_area  (cacheable_area_1 ));
+		.master            (core12ic.master  ));
 	
 	axi4_l1_interconnect_2 #(
 		.CACHE_WAYS          (CACHE_WAYS          ), 
@@ -66,11 +60,7 @@ module axi4_a23_dual #(
 		.clk_i               (i_clk               ), 
 		.rst_n               (i_rstn              ), 
 		.m0                  (core02ic.slave      ),
-		.m0_cache_enable     (cache_enable_0      ),
-		.m0_cacheable_area   (cacheable_area_0    ),
 		.m1                  (core12ic.slave      ), 
-		.m1_cache_enable     (cache_enable_1      ),
-		.m1_cacheable_area   (cacheable_area_1    ),
 		.out                 (master              ));
 
 endmodule
