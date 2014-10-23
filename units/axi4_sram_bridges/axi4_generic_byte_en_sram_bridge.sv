@@ -55,6 +55,14 @@ module axi4_generic_byte_en_sram_bridge #(
 	
 	assign axi_if.RRESP = (read_lock)?2'b01:2'b00;
 	assign axi_if.BRESP = (write_lock && exclusive_ok)?1'b01:1'b00;
+	wire write_exclusive_fail = (write_lock && !exclusive_ok);
+	
+	always @(posedge clk) begin
+		if (write_lock && !exclusive_ok) begin
+			$display("Failed Exclusive Write");
+		end
+	end
+
 
 	// Arbitration logic for read vs write
 	always @* begin
@@ -112,6 +120,8 @@ module axi4_generic_byte_en_sram_bridge #(
 	    					
 							default: write_wrap_mask <= 'hf;
 						endcase
+					end else begin
+						write_lock <= 0;
 					end
 				end
     			
@@ -130,7 +140,7 @@ module axi4_generic_byte_en_sram_bridge #(
 							end
     						
 							default: begin
-								if (write_offset == 'hf) begin
+								if (write_offset == 'hf && !axi_if.WLAST) begin
 									write_addr <= write_addr + 1;
 								end
 								write_offset <= write_offset + 1;
@@ -198,6 +208,8 @@ module axi4_generic_byte_en_sram_bridge #(
     						
 							default: read_wrap_mask <= 'hf;
 						endcase
+					end else begin
+						read_lock <= 0;
 					end
 				end
     		

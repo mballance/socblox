@@ -71,7 +71,12 @@ void a23_dualcore_sys_smoke_test::execute(
 		uint32_t			op
 		)
 {
-//	fprintf(stdout, "EXECUTE: 0x%08x\n", addr);
+	uint32_t mem_data = m_env->m_mem_mgr->read32(addr);
+
+	if (mem_data != op) {
+		fprintf(stdout, "Error: %0lld Execute 0x%08x: Expected=0x%08x Actual=0x%08x\n",
+				m_env->m_timebase->gettime(), addr, mem_data, op);
+	}
 }
 
 void a23_dualcore_sys_smoke_test::regchange(

@@ -92,10 +92,12 @@ SECTIONS {
 		
 		__heap_start = .;
 		. += 128k;
+		. = ALIGN(4);
 		__heap_end = .;
 		
 		__stack_start__ = . ;
 		. += 128k;
+		. = ALIGN(4);
 		__stack_end__ = . ;
 	} >RAM
 

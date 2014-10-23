@@ -36,7 +36,8 @@ TARGET=arm-none-eabi
 CFLAGS +=-march=armv2a -mno-thumb-interwork 
 LDFLAGS +=-Bstatic --fix-v4bx -nostartfiles
 
-CFLAGS += -g -O3
+#CFLAGS += -g -O3
+CFLAGS += -g 
 
 CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions -Wall
 

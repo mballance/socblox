@@ -216,6 +216,8 @@ module axi4_l1_interconnect_2 #(
 	assign m12ic.RDATA = out.RDATA;
 	assign m02ic.RID   = out.RID[$bits(out.RID)-2:0];
 	assign m12ic.RID    = out.RID[$bits(out.RID)-2:0];
+	assign m02ic.RRESP = out.RRESP;
+	assign m12ic.RRESP = out.RRESP;
 	assign m02ic.RVALID = (rd_target == 0)?out.RVALID:0;
 	assign m12ic.RVALID = (rd_target == 1)?out.RVALID:0;
 	assign out.RREADY = (rd_target == 0)?m02ic.RREADY:m12ic.RREADY;

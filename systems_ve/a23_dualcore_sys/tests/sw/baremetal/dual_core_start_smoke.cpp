@@ -21,9 +21,14 @@ extern "C" uth_thread_mgr *uth_get_thread_mgr()
 	return thread_mgr[core];
 }
 
-static uth_mutex_t			m;
+static uth_mutex_t			m_req;
+static uth_cond_t			c_req;
+static bool					v_req = false;
+static uth_mutex_t			m_ack;
+static uth_cond_t			c_ack;
+static bool					v_ack = false;
 
-volatile uint32_t c1=0, c2=0;
+volatile uint32_t c_val=0;
 
 int main(int argc, char **argv) {
 	uint32_t core = *((volatile uint32_t *)0xF1000004);
@@ -31,27 +36,58 @@ int main(int argc, char **argv) {
 	uth_get_thread_mgr();
 
 	if (core == 0) {
-		uth_mutex_init(&m);
+		uth_mutex_init(&m_req);
+//		uth_cond_init(&c_req);
+		uth_mutex_init(&m_ack);
+//		uth_cond_init(&c_ack);
 
 		// Release core 1
 		*((volatile uint32_t *)0xF100000C) = 1;
 	}
 
-	// Now, try to acquire locks
-	while (true) {
-		uth_mutex_lock(&m);
+	if (core == 0) {
+		// produce values to Core1
+		while (true) {
+			uth_mutex_lock(&m_req);
+			c_val++;
+//		uth_cond_signal(&c_req);
+			v_req = true;
+			uth_mutex_unlock(&m_req);
 
-		*((volatile uint32_t *)0x80000000) = (core+1);
-
-		for (uint32_t i=0; i<16; i++) {
-			if (core == 0) {
-				c1++;
-			} else {
-				c2++;
+			while (true) {
+				uth_mutex_lock(&m_ack);
+//		uth_cond_wait(&c_ack, &m_ack);
+				if (v_ack) {
+					v_ack = false;
+					uth_mutex_unlock(&m_ack);
+					break;
+				} else {
+					uth_mutex_unlock(&m_ack);
+				}
 			}
 		}
+	} else {
+		// Core1: consume values and write to LED
 
-		uth_mutex_unlock(&m);
+		while (true) {
+			while (true) {
+				uth_mutex_lock(&m_req);
+				if (v_req) {
+					*((volatile uint32_t *)0x80000000) = c_val;
+					v_req = false;
+					uth_mutex_unlock(&m_req);
+					break;
+				} else {
+					uth_mutex_unlock(&m_req);
+				}
+			}
+//			uth_cond_wait(&c_req, &m_req);
+
+			uth_mutex_lock(&m_ack);
+//			uth_cond_signal(&c_ack);
+			v_ack = true;
+			uth_mutex_unlock(&m_ack);
+		}
 	}
 
 }

@@ -111,19 +111,22 @@ not_core0:
 
 setup_stacks:
 	mov			r4, lr
-	// First, setup the SVC stack for this core
-	mov			r0, #128
-	bl			malloc
-	sub			sp, r0, #124
 
-	// Next, setup the IRQ stack for this core
+	// Setup the IRQ stack for this core
 	mov			r0, #128
 	bl			malloc
 	mov			r1, #00000002 // IRQ mode
 	teqp		pc, r1
 	add			sp, r0, #124
 
-	// Switch to user mode
+	// Next, setup the SVC stack for this core
+	mov			r1, #00000002 // SVC mode
+	teqp		pc, r1
+	mov			r0, #128
+	bl			malloc
+	add			sp, r0, #124
+
+	// Finally, setup the USR stack
 	mov			r0, #4096
 	bl			malloc
 	mov			r1, #0
@@ -148,7 +151,7 @@ _service_irq:
 
 _service_dabt:
 	// Jump back
-	movs		pc, lr
+	subs		pc, lr, #8
 
 	.size		_start, . - _start
 

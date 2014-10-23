@@ -27,7 +27,7 @@ module coreinfo_2 #(
 		);
 
 	localparam N_CORES=2;
-	localparam N_ID_BITS=$clog2(N_CORES);
+//	localparam N_ID_BITS=$clog2(N_CORES);
 	
 	localparam ADDR_N_CORES = 'h0;
 	localparam ADDR_CORE_ID = 'h1;
@@ -35,7 +35,7 @@ module coreinfo_2 #(
 	localparam ADDR_CLR_RST = 'h3;
 
 	reg[31:0]				core_id;
-	reg[N_ID_BITS-1:0]		arid;
+	reg[$bits(s.ARID)-1:0]		arid;
 
 	always @(posedge clk_i) begin
 		if (arid == CORE0_AXI_ID) begin
@@ -66,7 +66,8 @@ module coreinfo_2 #(
 						read_count <= 0;
 						read_state <= 1;
 						read_id <= s.ARID;
-						arid <= s.ARID[AXI_ID_WIDTH-1:AXI_ID_WIDTH-N_ID_BITS];
+//						arid <= s.ARID[AXI_ID_WIDTH-1:AXI_ID_WIDTH-N_ID_BITS];
+						arid <= s.ARID;
 					end
 				end
     			
@@ -141,12 +142,12 @@ module coreinfo_2 #(
 						$display("write_addr[1:0] = 'h%0h", write_addr[1:0]);
 						case (write_addr[1:0]) 
 							ADDR_SET_RST: begin
-								if (s.WDATA == CORE1_AXI_ID) begin
+								if (s.WDATA == CORE1_ID) begin
 									rst_n_1 <= 0;
 								end
 							end
 							ADDR_CLR_RST: begin
-								if (s.WDATA == CORE1_AXI_ID) begin
+								if (s.WDATA == CORE1_ID) begin
 									rst_n_1 <= 1;
 								end
 							end

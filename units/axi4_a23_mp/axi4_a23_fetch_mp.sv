@@ -111,7 +111,7 @@ end
 // 25 - 32m
 // 26 - 64m
 // 27 - 128m
-assign address_cachable  = i_cacheable_area[i_address[31:27]];
+assign address_cachable  = (!i_exclusive && i_cacheable_area[i_address[31:27]]);
 
 // Don't start wishbone transfers when the cache is stalling the core
 // The cache stalls the core during its initialization sequence

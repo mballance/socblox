@@ -396,6 +396,7 @@ module axi4_l1_cache_2 #(
 	assign out.AWSIZE   = (aw_passthrough)?in.AWSIZE:0;
 	assign out.AWBURST  = (aw_passthrough)?in.AWBURST:0;
 	assign out.AWCACHE  = (aw_passthrough)?in.AWCACHE:0;
+	assign out.AWLOCK	= (aw_passthrough)?in.AWLOCK:0;
 	assign out.AWPROT   = (aw_passthrough)?in.AWPROT:0;
 	assign out.AWQOS    = (aw_passthrough)?in.AWQOS:0;
 	assign out.AWREGION = (aw_passthrough)?in.AWREGION:0;
@@ -413,6 +414,7 @@ module axi4_l1_cache_2 #(
 	assign out.ARSIZE   = (ar_passthrough)?in.ARSIZE:2; // 32-bit transfer
 	assign out.ARBURST  = (ar_passthrough)?in.ARBURST:2; // wrap transfer
 	assign out.ARCACHE  = (ar_passthrough)?in.ARCACHE:0;
+	assign out.ARLOCK	= (ar_passthrough)?in.ARLOCK:0;
 	assign out.ARPROT   = (ar_passthrough)?in.ARPROT:0;
 	assign out.ARQOS    = (ar_passthrough)?in.ARQOS:0;
 	assign out.ARREGION = (ar_passthrough)?in.ARREGION:0;

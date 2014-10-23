@@ -297,7 +297,7 @@ module a23_dualcore_sys #(
 			.AXI_ID_WIDTH(IC_SLAVE_ID_WIDTH),
 			.CORE0_AXI_ID(0),
 			.CORE0_ID(0),
-			.CORE1_AXI_ID(1),
+			.CORE1_AXI_ID(8),
 			.CORE1_ID(1)
 			) u_coreinfo(
 				.clk_i(core_clk),
