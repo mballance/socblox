@@ -156,6 +156,7 @@ wire                        cache_read_ack, cache_write_ack;
 	assign master.WDATA = (write_state == 2 || write_state == 5)?i_write_data:{32{1'b0}};
 	assign master.WLAST = (write_state == 2 || write_state == 5)?1'b1:1'b0;
 	assign master.WSTRB = (write_state == 2 || write_state == 5)?i_byte_enable:4'b0;
+	
 
 	assign master.BREADY = (write_state == 3 || write_state == 6);
 	

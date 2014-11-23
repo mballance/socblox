@@ -39,3 +39,23 @@ void svf_ptr_vector_base::append_int(void *it)
 	m_store[m_size++] = it;
 }
 
+void svf_ptr_vector_base::remove_int(uint32_t idx) {
+	if (idx == (m_size-1)) {
+		// Can just reduce the size
+		m_size--;
+	} else {
+		for (uint32_t i=idx; i<(m_size-1); i++) {
+			m_store[i] = m_store[i+1];
+		}
+		m_size--;
+	}
+}
+
+void svf_ptr_vector_base::remove_int(void *it) {
+	for (uint32_t i=0; i<m_size; i++) {
+		if (m_store[i] == it) {
+			remove_int(i);
+			break;
+		}
+	}
+}

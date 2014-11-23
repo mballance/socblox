@@ -214,6 +214,7 @@ interface axi4_if #(
 			input ARLOCK,
 			input ARCACHE,
 			input ARPROT,
+			input ARQOS,
 			input ARREGION,
 			input ARVALID,
 			input ARREADY,

@@ -39,7 +39,7 @@ module axi4_sram #(
 		.rst_n              (ARESETn            		), 
 		.axi_if             (s            				), 
 		.sram_if            (u_bridge2sram.sram_client	));
-
+	
     generic_sram_byte_en_w #(
     	.MEM_DATA_BITS   (AXI_DATA_WIDTH), 
     	.MEM_ADDR_BITS   (MEM_ADDR_BITS )

@@ -17,13 +17,14 @@ TIMEOUT = 4ms
 
 BFMS += COMMON_SVF GENERIC_ROM GENERIC_SRAM_BYTE_EN TIMEBASE
 BFMS += A23_TRACER BIDI_MESSAGE_QUEUE_DIRECT_BFM UART_BFM
+BFMS += AXI4_MONITOR_BFM
 
 COMMON_BFM_DIR ?= $(COMMON_SIM_MK_DIR)/bfm
 COMMON_SVF_DIR ?= $(COMMON_SIM_MK_DIR)/svf
 
 # BFM_UNIT_DIRS := $(shell echo $(BFMS) | tr '[:upper:]' '[:lower:]')
 BFM_UNIT_DIRS  = a23_tracer generic_rom uart generic_sram_byte_en timebase
-BFM_UNIT_DIRS += bidi_message_queue_direct_bfm uart
+BFM_UNIT_DIRS += bidi_message_queue_direct_bfm uart axi4_monitor
 MK_INCLUDES += $(foreach dir,$(BFM_UNIT_DIRS), $(COMMON_BFM_DIR)/$(dir)/defs_rules.mk)
 
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/../svf/svf_defs.mk

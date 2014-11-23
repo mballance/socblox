@@ -67,7 +67,7 @@ void svf_thread_cond_sc::notify_all()
 svf_thread_cond_h svf_thread_cond::create()
 {
 	void *ret;
-	uint32_t cond_id = get_svf_dpi_api()->create_cond();
+	uint64_t cond_id = get_svf_dpi_api()->create_cond();
 
 	return reinterpret_cast<svf_thread_cond_h>(cond_id);
 }
@@ -79,16 +79,16 @@ void svf_thread_cond::destroy(svf_thread_cond_h c)
 
 void svf_thread_cond::wait(svf_thread_cond_h c, svf_thread_mutex_h m)
 {
-	get_svf_dpi_api()->cond_wait((uint32_t)c, (uint32_t)m);
+	get_svf_dpi_api()->cond_wait((uint64_t)c, (uint64_t)m);
 }
 
 void svf_thread_cond::notify(svf_thread_cond_h c)
 {
-	get_svf_dpi_api()->cond_notify((uint32_t)c);
+	get_svf_dpi_api()->cond_notify((uint64_t)c);
 }
 
 void svf_thread_cond::notify_all(svf_thread_cond_h c)
 {
-	get_svf_dpi_api()->cond_notify_all((uint32_t)c);
+	get_svf_dpi_api()->cond_notify_all((uint64_t)c);
 }
 

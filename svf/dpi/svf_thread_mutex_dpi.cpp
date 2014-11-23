@@ -20,12 +20,12 @@ void svf_thread_mutex::destroy(svf_thread_mutex_h m)
 
 void svf_thread_mutex::lock(svf_thread_mutex_h m)
 {
-	get_svf_dpi_api()->mutex_lock((uint32_t)m);
+	get_svf_dpi_api()->mutex_lock((uint64_t)m);
 }
 
 void svf_thread_mutex::unlock(svf_thread_mutex_h m)
 {
-	get_svf_dpi_api()->mutex_unlock((uint32_t)m);
+	get_svf_dpi_api()->mutex_unlock((uint64_t)m);
 }
 
 

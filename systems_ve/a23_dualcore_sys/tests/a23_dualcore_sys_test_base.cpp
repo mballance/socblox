@@ -19,6 +19,13 @@ a23_dualcore_sys_test_base::~a23_dualcore_sys_test_base() {
 void a23_dualcore_sys_test_base::build()
 {
 	m_env = a23_dualcore_sys_env::type_id.create("m_env", this);
+
+//	m_axi4_trace_fp = fopen("axi4_tracer.log", "w");
+	m_axi4_trace_fp = stdout;
+	m_core12ic_logger = new axi4_monitor_stream_logger("core12ic", m_axi4_trace_fp);
+	m_core02ic_logger = new axi4_monitor_stream_logger("core02ic", m_axi4_trace_fp);
+	m_ic2ram_logger = new axi4_monitor_stream_logger("ic2ram", m_axi4_trace_fp);
+	m_core2ic_logger = new axi4_monitor_stream_logger("core2ic", m_axi4_trace_fp);
 }
 
 void a23_dualcore_sys_test_base::connect()
@@ -48,6 +55,30 @@ void a23_dualcore_sys_test_base::connect()
 	bidi_message_queue_direct_bfm_dpi_mgr::connect(
 			D_ROOT + ".u_msg_queue_0",
 			m_env->m_msg_queue_0->bfm_port);
+
+	axi4_monitor_bfm_dpi_mgr::connect(
+			D_ROOT + ".u_core.core12ic_monitor.u_monitor_bfm",
+			m_env->m_core12ic_monitor->bfm_port);
+	axi4_monitor_bfm_dpi_mgr::connect(
+			D_ROOT + ".u_core.core02ic_monitor.u_monitor_bfm",
+			m_env->m_core02ic_monitor->bfm_port);
+	axi4_monitor_bfm_dpi_mgr::connect(
+			D_ROOT + ".ic2ram_monitor.u_monitor_bfm",
+			m_env->m_ic2ram_monitor->bfm_port);
+	axi4_monitor_bfm_dpi_mgr::connect(
+			D_ROOT + ".core2ic_monitor.u_monitor_bfm",
+			m_env->m_core2ic_monitor->bfm_port);
+
+//	m_env->m_core12ic_monitor->ap.connect(m_core12ic_logger->api_export);
+//	m_env->m_core02ic_monitor->ap.connect(m_core02ic_logger->api_export);
+//	m_env->m_ic2ram_monitor->ap.connect(m_ic2ram_logger->api_export);
+//	m_env->m_core2ic_monitor->ap.connect(m_core2ic_logger->api_export);
+
+	m_core12ic_logger->set_timebase(m_env->m_timebase);
+	m_core02ic_logger->set_timebase(m_env->m_timebase);
+	m_ic2ram_logger->set_timebase(m_env->m_timebase);
+	m_core2ic_logger->set_timebase(m_env->m_timebase);
+
 	/*
 	bidi_message_queue_direct_bfm_dpi_mgr::connect(
 			D_ROOT + ".u_msg_queue_1",

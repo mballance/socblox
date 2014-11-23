@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<template category="net.sf.svf.templates" id="net.sf.svf.templates.svf_component" name="SVF Component">
+<description>SVF Component class</description>
+<parameters>
+<parameter default="svf_component" name="baseclass" type="id"/>
+</parameters>
+<files>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<file executable="false" name="${name}.cpp" template="svf_component.cpp"/>
+<file executable="false" name="${name}.h" template="svf_component.h"/>
+</files>
+</template>
+</sv_template>

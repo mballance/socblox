@@ -114,8 +114,10 @@ _trylock_locked:
 
 .globl uth_thread_int_mutex_unlock
 uth_thread_int_mutex_unlock:
-	mov			r1, #0
-	str			r1, [r0]
+	mov			r1, #1
+	mov			r2, #0
+	swp			r1, r2, [r0] // [r0] => r1 ; r2 => [r0]
+//	str			r1, [r0]
 
 .globl uth_main_thread_init
 uth_main_thread_init:

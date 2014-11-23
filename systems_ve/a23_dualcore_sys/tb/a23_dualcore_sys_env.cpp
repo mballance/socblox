@@ -26,7 +26,8 @@ void a23_dualcore_sys_env::build() {
 	m_core1_tracer = a23_tracer_bfm::type_id.create("m_core1_tracer", this);
 	m_core2_tracer = a23_tracer_bfm::type_id.create("m_core2_tracer", this);
 
-	m_trace_file = fopen("trace.dis", "w");
+//	m_trace_file = fopen("trace.dis", "w");
+	m_trace_file = stdout;
 	m_core1_disasm = new a23_disasm_tracer(m_trace_file, "core0");
 	m_core2_disasm = new a23_disasm_tracer(m_trace_file, "core1");
 
@@ -41,6 +42,11 @@ void a23_dualcore_sys_env::build() {
 
 	m_msg_queue_0 = bidi_message_queue_direct_bfm::type_id.create("m_msg_queue_0", this);
 	m_msg_queue_1 = bidi_message_queue_direct_bfm::type_id.create("m_msg_queue_1", this);
+
+	m_core12ic_monitor = axi4_monitor_bfm::type_id.create("m_core12ic_monitor", this);
+	m_core02ic_monitor = axi4_monitor_bfm::type_id.create("m_core02ic_monitor", this);
+	m_ic2ram_monitor = axi4_monitor_bfm::type_id.create("m_ic2ram_monitor", this);
+	m_core2ic_monitor = axi4_monitor_bfm::type_id.create("m_core2ic_monitor", this);
 }
 
 void a23_dualcore_sys_env::connect() {

@@ -12,6 +12,8 @@
 #include "svf_api_port.h"
 #include "svf_api_export.h"
 #include "svf_api_publisher_port.h"
+#include "svf_analysis_export.h"
+#include "svf_analysis_port.h"
 #include "svf_bidir_api_port.h"
 #include "svf_runtest.h"
 #include "svf_task.h"

@@ -25,6 +25,13 @@ endif
 #VL_DEBUG_FLAGS=--debug
 #VL_DEBUG_FLAGS=--debug --gdbbt
 
+ARCH := $(shell uname -m)
+ifeq (x86_64,$(ARCH)) 
+  SYSTEMC_ARCH=linux64
+else
+  SYSTEMC_ARCH=linux
+endif
+
 vlog_build : $(VERILATOR_DEPS)
 	rm -rf obj_dir
 	verilator $(TRACE) --sc -Wno-fatal -MMD $(VL_DEBUG_FLAGS) \
@@ -46,6 +53,7 @@ simx_build : vlog_build $(LIB_TARGETS) $(TESTBENCH_OBJS)
 
 ifeq (true,$(VERBOSE))
 $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DIR)/objs/$(TB).o
+	echo "ARCH=$(ARCH)"
 	$(CXX) -o $(BUILD_DIR)/simx \
 	    	$(BUILD_DIR)/objs/$(TB).o \
 			$(TESTBENCH_OBJS) \
@@ -55,7 +63,7 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DI
 			$(VK_GLOBAL_OBJS) \
 			$(foreach l,$(filter %.so, $(BFM_LIBS)), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l))))) \
 			$(LIBSVF_SC_LINK) \
-			$(SYSTEMC)/lib-linux/libsystemc.a -lpthread
+			$(SYSTEMC)/lib-$(SYSTEMC_ARCH)/libsystemc.a -lpthread
 else
 $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DIR)/objs/$(TB).o
 	@echo "link simx"
@@ -68,7 +76,7 @@ $(BUILD_DIR)/simx : $(VK_GLOBAL_OBJS) V$(TB)__ALL.a $(TESTBENCH_OBJS) $(BUILD_DI
 			$(VK_GLOBAL_OBJS) \
 			$(foreach l,$(filter %.so, $(BFM_LIBS)), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l))))) \
 			$(LIBSVF_SC_LINK) \
-			$(SYSTEMC)/lib-linux/libsystemc.a -lpthread
+			$(SYSTEMC)/lib-$(SYSTEMC_ARCH)/libsystemc.a -lpthread
 endif
 		
 ifeq (true,$(VERBOSE))			
@@ -89,6 +97,7 @@ endif
 
 ifeq ($(DEBUG),true)
 RT_TRACE_FLAGS = -trace -tracefile vlt_dump.fst
+#RT_TRACE_FLAGS = -trace -tracefile vlt_dump.vcd
 endif
 
 #VALGRIND=valgrind --tool=memcheck

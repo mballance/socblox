@@ -26,15 +26,16 @@
 
 _reset:
 	// Call low-level hardware initialization code
+	// First, setup a default stack
+	ldr			r0, =__stack_end__
+	sub			sp, r0, #4
+
 	LDR			r0, =_reset
 	LDR			r1, =_post_hw_init
 	MOV			lr, r1
 	B			low_level_init
 
 _post_hw_init:
-	// First, setup a default stack
-	ldr			r0, =__stack_end__
-	sub			sp, r0, #4
 
 	// Determine which core this is
 	ldr			r0, =0xF1000004

@@ -85,7 +85,7 @@ void axi4_l1_interconnect_2_traffic::main() {
 	// Now, check write-invalidate operation
 	fprintf(stdout, "==> Write-invalidate\n");
 	for (uint32_t i=3; i<8; i++) {
-		uint32_t exp_data = ~(0x55000000 + 1 + 4*i + i);
+		uint32_t exp_data = ~(0x55000000 + 2 + 4*i + i);
 		uint32_t word = ((3-i)%4) + 4*i;
 
 		m_env->m_m1->write32(4*word, exp_data);
@@ -101,6 +101,9 @@ void axi4_l1_interconnect_2_traffic::main() {
 		if (exp_data != data) {
 			fprintf(stdout, "Error: 0x%08x - expect 0x%08x receive 0x%08x\n", 4*word, exp_data, data);
 		}
+
+		// Try to produce an in-flight invalidate
+		m_env->m_m1->write32(4*word, ~exp_data);
 	}
 	fprintf(stdout, "<== Write-invalidate\n");
 	drop_objection();

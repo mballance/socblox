@@ -21,6 +21,10 @@ class svf_ptr_vector_base {
 
 		void append_int(void *it);
 
+		void remove_int(uint32_t idx);
+
+		void remove_int(void *it);
+
 	protected:
 
 		uint32_t		m_size;
@@ -45,6 +49,16 @@ template <class T> class svf_ptr_vector : public svf_ptr_vector_base {
 		inline void append(T *it) { append_int(it); }
 
 		inline void push_back(T *it) { append_int(it); }
+
+		inline T *pop_back() {
+			T *ret = (m_size>0)?static_cast<T *>(m_store[m_size-1]):0;
+			m_size--;
+			return ret;
+		}
+
+		inline void remove(uint32_t idx) { remove_int(idx); }
+
+		inline void remove(T *it) { remove_int(it); }
 
 	private:
 };

@@ -8,6 +8,7 @@
 #ifndef A23_DUALCORE_SYS_SMOKE_TEST_H_
 #define A23_DUALCORE_SYS_SMOKE_TEST_H_
 #include "a23_dualcore_sys_test_base.h"
+#include "axi4_monitor_stream_logger.h"
 
 class a23_dualcore_sys_smoke_test : public a23_dualcore_sys_test_base,
 	public a23_tracer_if {
@@ -39,6 +40,10 @@ class a23_dualcore_sys_smoke_test : public a23_dualcore_sys_test_base,
 				uint32_t			reg,
 				uint32_t			val
 				);
+
+	private:
+
+
 
 };
 

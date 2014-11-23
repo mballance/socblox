@@ -11,7 +11,8 @@ SRC_DIRS += $(TESTS_SW_DIR) $(TESTS_SW_DIR)/baremetal
 
 BAREMETAL_TESTS := smoke thread_primitives msg_queue_smoke \
   uth_yield_test uth_thread_swap_test svf_smoketest memmove_test \
-  memaccess_test sprintf_test dual_core_start_smoke
+  memaccess_test sprintf_test dual_core_start_smoke \
+  single_core_start_smoke
 
 # UEX_TESTS := uex_simple_thread
 EXTS=.bin .mem .hex .elf .dat

@@ -12,59 +12,59 @@
 
 static svScope			svf_dpi_scope;
 
-extern "C" void svf_dpi_create_thread(void *ud, uint32_t *tid);
-extern "C" uint32_t svf_dpi_create_mutex();
-extern "C" void svf_dpi_mutex_lock(uint32_t mutex_id);
-extern "C" void svf_dpi_mutex_unlock(uint32_t mutex_id);
-extern "C" uint32_t svf_dpi_create_cond();
-extern "C" void svf_dpi_cond_wait(uint32_t cond_id, uint32_t mutex_id);
-extern "C" void svf_dpi_cond_notify(uint32_t cond_id);
-extern "C" void svf_dpi_cond_notify_all(uint32_t cond_id);
+extern "C" void svf_dpi_create_thread(void *ud, uint64_t *tid);
+extern "C" uint64_t svf_dpi_create_mutex();
+extern "C" void svf_dpi_mutex_lock(uint64_t mutex_id);
+extern "C" void svf_dpi_mutex_unlock(uint64_t mutex_id);
+extern "C" uint64_t svf_dpi_create_cond();
+extern "C" void svf_dpi_cond_wait(uint64_t cond_id, uint64_t mutex_id);
+extern "C" void svf_dpi_cond_notify(uint64_t cond_id);
+extern "C" void svf_dpi_cond_notify_all(uint64_t cond_id);
 extern "C" void svf_dpi_thread_yield();
 
-static void svf_dpi_create_thread_w(void *ud, uint32_t *tid)
+static void svf_dpi_create_thread_w(void *ud, uint64_t *tid)
 {
 	svSetScope(svf_dpi_scope);
 	svf_dpi_create_thread(ud, tid);
 }
 
-static uint32_t svf_dpi_create_mutex_w()
+static uint64_t svf_dpi_create_mutex_w()
 {
 	svSetScope(svf_dpi_scope);
 	return svf_dpi_create_mutex();
 }
 
-static void svf_dpi_mutex_lock_w(uint32_t mutex_id)
+static void svf_dpi_mutex_lock_w(uint64_t mutex_id)
 {
 	svSetScope(svf_dpi_scope);
 	svf_dpi_mutex_lock(mutex_id);
 }
 
-static void svf_dpi_mutex_unlock_w(uint32_t mutex_id)
+static void svf_dpi_mutex_unlock_w(uint64_t mutex_id)
 {
 	svSetScope(svf_dpi_scope);
 	svf_dpi_mutex_unlock(mutex_id);
 }
 
-static uint32_t svf_dpi_create_cond_w()
+static uint64_t svf_dpi_create_cond_w()
 {
 	svSetScope(svf_dpi_scope);
 	return svf_dpi_create_cond();
 }
 
-static void svf_dpi_cond_wait_w(uint32_t cond_id, uint32_t mutex_id)
+static void svf_dpi_cond_wait_w(uint64_t cond_id, uint64_t mutex_id)
 {
 	svSetScope(svf_dpi_scope);
 	return svf_dpi_cond_wait(cond_id, mutex_id);
 }
 
-static void svf_dpi_cond_notify_w(uint32_t cond_id)
+static void svf_dpi_cond_notify_w(uint64_t cond_id)
 {
 	svSetScope(svf_dpi_scope);
 	svf_dpi_cond_notify(cond_id);
 }
 
-static void svf_dpi_cond_notify_all_w(uint32_t cond_id)
+static void svf_dpi_cond_notify_all_w(uint64_t cond_id)
 {
 	svSetScope(svf_dpi_scope);
 	svf_dpi_cond_notify_all(cond_id);

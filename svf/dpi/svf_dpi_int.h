@@ -10,15 +10,15 @@
 #include <stdint.h>
 
 typedef struct {
-	void (*create_thread)(void *, uint32_t *);
-	uint32_t (*create_mutex)();
-	void (*mutex_lock)(uint32_t mutex_id);
-	void (*mutex_unlock)(uint32_t mutex_id);
+	void (*create_thread)(void *, uint64_t *);
+	uint64_t (*create_mutex)();
+	void (*mutex_lock)(uint64_t mutex_id);
+	void (*mutex_unlock)(uint64_t mutex_id);
 
-	uint32_t (*create_cond)();
-	void (*cond_wait)(uint32_t cond_id, uint32_t mutex_id);
-	void (*cond_notify)(uint32_t cond_id);
-	void (*cond_notify_all)(uint32_t cond_id);
+	uint64_t (*create_cond)();
+	void (*cond_wait)(uint64_t cond_id, uint64_t mutex_id);
+	void (*cond_notify)(uint64_t cond_id);
+	void (*cond_notify_all)(uint64_t cond_id);
 
 	void (*thread_yield)();
 

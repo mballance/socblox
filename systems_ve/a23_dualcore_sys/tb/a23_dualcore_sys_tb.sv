@@ -118,7 +118,6 @@ module a23_dualcore_sys_tb(input clk);
 			.i_r0_r15_user            (i_r0_r15_user           )
 			);	
 
-	/*
 	bind axi4_monitor axi4_monitor_bfm #(
 			.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),
 			.AXI4_DATA_WIDTH(AXI4_DATA_WIDTH),
@@ -128,6 +127,7 @@ module a23_dualcore_sys_tb(input clk);
 			.rst_n(rst_n),
 			.monitor(monitor)
 			);
+	/*
 			 */
 	
 endmodule

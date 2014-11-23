@@ -30,6 +30,12 @@ module axi4_l1_cache_2 #(
 			axi4_if.master	out
 		);
 	
+	always @(posedge clk_i) begin
+		if (out.AWVALID && out.AWREADY) begin
+//			$display("%t: %m WRITE 'h%08h", $time, out.AWADDR);
+		end
+	end
+	
 	// Limited to Linux 4k page sizes -> 256 lines
 	localparam CACHE_LINES          = 256;
 
@@ -38,10 +44,10 @@ module axi4_l1_cache_2 #(
 	localparam CACHE_WORDS_PER_LINE = 4;
 
 	// derived configuration parameters
-	localparam reg[7:0] CACHE_ADDR_WIDTH  = $clog2( CACHE_LINES );                        // = 8
-	localparam WORD_SEL_WIDTH    = $clog2 ( CACHE_WORDS_PER_LINE );               // = 2
+	localparam reg[7:0] CACHE_ADDR_WIDTH  = $clog2( CACHE_LINES );              // = 8
+	localparam WORD_SEL_WIDTH    = $clog2 ( CACHE_WORDS_PER_LINE );             // = 2
 	localparam TAG_ADDR_WIDTH    = 32 - CACHE_ADDR_WIDTH - WORD_SEL_WIDTH - 2;  // = 20
-	localparam reg[7:0] TAG_WIDTH         = TAG_ADDR_WIDTH + 1;                          // = 21, including Valid flag
+	localparam reg[7:0] TAG_WIDTH         = TAG_ADDR_WIDTH + 1;                 // = 21, including Valid flag
 	localparam CACHE_LINE_WIDTH  = CACHE_WORDS_PER_LINE * 32;                   // = 128
 	localparam TAG_ADDR32_LSB    = CACHE_ADDR_WIDTH + WORD_SEL_WIDTH + 2;       // = 12
 	localparam CACHE_ADDR32_MSB  = CACHE_ADDR_WIDTH + WORD_SEL_WIDTH + 2 - 1;   // = 11
@@ -116,10 +122,12 @@ module axi4_l1_cache_2 #(
 
 	wire 							tag_wenable_way[CACHE_WAYS-1:0];
 	reg [TAG_WIDTH-1:0]				tag_wdata;
+	reg								tag_valid;
 	wire [TAG_WIDTH-2:0]			tag_rdata_way[CACHE_WAYS-1:0];
 	wire          					tag_valid_way[CACHE_WAYS-1:0];
 	wire          					tag_valid_wdata_way[CACHE_WAYS-1:0];
 	wire							data_wenable_way[CACHE_WAYS-1:0];
+	reg  [CACHE_LINE_WIDTH/8-1:0]	data_byte_enable;
 	reg  [CACHE_LINE_WIDTH-1:0]		data_wdata;
 	wire [CACHE_LINE_WIDTH-1:0]		data_rdata_way[CACHE_WAYS-1:0];
 		
@@ -141,6 +149,12 @@ module axi4_l1_cache_2 #(
 	reg  [$clog2(CACHE_WAYS)-1:0]	snoop_hit_way 	= 0;
 	reg [31:TAG_ADDR32_LSB]			snoop_tag;
 	reg [CACHE_ADDR_WIDTH-1:0]		snoop_tag_data_address;
+
+	generate
+		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin
+			assign snoop_tag_wenable_way[i] = 0;
+		end
+	endgenerate
 	
 	
 	// Read/Write state machine
@@ -159,6 +173,15 @@ module axi4_l1_cache_2 #(
 			read_data <= 0;
 			 */
 		end else begin
+		
+			// Catch snoops that invalidate a pending fill
+			if (rw_state != ST_WAIT_REQ) begin
+				if (i_snoop_addr_valid && (i_snoop_addr[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB] == tag_data_address)) begin
+					$display("%m: Invalidate in-flight fill: snoop='h%08h", i_snoop_addr);
+					tag_valid <= 0;
+				end
+			end
+			
 			case (rw_state)
 				// Wait for a request to come in
 				ST_WAIT_REQ: begin
@@ -174,11 +197,19 @@ module axi4_l1_cache_2 #(
 							id <= in.ARID;
 							rw_offset <= in.ARADDR[WORD_SEL_MSB:WORD_SEL_LSB]; // word_index
 							rw_addr <= {in.ARADDR[$bits(in.ARADDR)-1:TAG_ADDR32_LSB], in.ARADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB]};
+							
+							if (i_snoop_addr_valid && (i_snoop_addr[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB] == in.ARADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB])) begin
+								$display("%m: Invalidate in-flight fill (1): snoop='h%08h", i_snoop_addr);
+								tag_valid <= 0; // Just got a snoop for this line
+							end else begin
+								tag_valid <= 1'b1; // initial state is valid
+							end
 						end
 					end else if (in.AWVALID && in.AWREADY) begin
+						/*
 						if (in.AWCACHE[1] == 0) begin
 							rw_state <= ST_UNCACHED_WR_1;
-						end else begin
+						end else */begin
 							rw_state <= ST_CHECK_WR_HIT_1;
 							tag_data_address <= in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
 							tag <= in.AWADDR[$bits(in.AWADDR)-1:TAG_ADDR32_LSB];
@@ -218,12 +249,14 @@ module axi4_l1_cache_2 #(
 					if (hit) begin
 						// TODO:
 						rw_state <= ST_HIT_READBACK;
+						$display("%t %m: read hit on 'h%0h", $time, tag_data_address);
 						// Capture the data read from the 'hit' way
 						data_wdata <= data_rdata_way[hit_way];
 					end else begin
 						rw_state <= ST_FILL_AR;
 						read_count <= 0;
-						tag_wdata <= {1'b1, tag};
+						tag_wdata <= {tag_valid, tag};
+						$display("%t %m: read miss on 'h%0h", $time, tag_data_address);
 					end
 				end
 				
@@ -266,6 +299,7 @@ module axi4_l1_cache_2 #(
 				// Wait for the data to come back
 				ST_FILL_RDATA: begin
 					if (out.RVALID && out.RREADY) begin
+						data_byte_enable <= {CACHE_LINE_WIDTH/8{1'b1}};
 						case (rw_offset) 
 							0: data_wdata[31:0] <= out.RDATA;
 							1: data_wdata[63:32] <= out.RDATA;
@@ -305,6 +339,7 @@ module axi4_l1_cache_2 #(
 				ST_HIT_WRITEBACK: begin
 					if (in.WVALID && in.WREADY) begin
 						// Capture data going out
+						data_byte_enable <= in.WSTRB << (rw_offset * 4);
 						case (rw_offset) 
 							0: data_wdata[31:0] <= in.WDATA;
 							1: data_wdata[63:32] <= in.WDATA;
@@ -345,9 +380,41 @@ module axi4_l1_cache_2 #(
 	
 	snoop_state_e			snoop_state;
 	
-	assign o_snoop_addr = in.AWADDR;
-	assign o_snoop_addr_valid = (in.AWREADY && in.AWVALID);
+	// Snoop address generation
+	typedef enum {
+		SG_WAIT_REQ,
+		SG_WAIT_ACK
+	} snoop_gen_state_e;
+	
+	reg[31:0]				snoop_gen_addr_r;
+	snoop_gen_state_e		snoop_gen_state;
+	
+	assign o_snoop_addr = snoop_gen_addr_r;
+	assign o_snoop_addr_valid = (in.BVALID && in.BREADY);
 	assign o_snoop_stall = (snoop_state != SS_WAIT_REQ);
+	
+	always @(posedge clk_i) begin
+		if (rst_n == 0) begin
+			snoop_gen_state <= SG_WAIT_REQ;
+		end else begin
+			case (snoop_gen_state) 
+				SG_WAIT_REQ: begin
+					if (in.AWVALID && in.AWREADY) begin
+						snoop_gen_addr_r <= in.AWADDR;
+						snoop_gen_state <= SG_WAIT_ACK;
+					end
+				end
+				SG_WAIT_ACK: begin
+					if (in.BVALID && in.BREADY) begin
+						snoop_gen_state <= SG_WAIT_REQ;
+					end
+				end
+			endcase
+		end
+	end
+	
+	
+	reg[31:0] snoop_addr_r;
 	
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
@@ -357,6 +424,8 @@ module axi4_l1_cache_2 #(
 				SS_WAIT_REQ: begin
 					if (i_snoop_addr_valid) begin
 						snoop_tag_data_address <= i_snoop_addr[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
+						snoop_tag <= i_snoop_addr[$bits(i_snoop_addr)-1:TAG_ADDR32_LSB];
+						snoop_addr_r <= i_snoop_addr;
 						snoop_state <= SS_CHECK_HIT_1;
 					end
 				end
@@ -367,6 +436,9 @@ module axi4_l1_cache_2 #(
 				
 				SS_CHECK_HIT_2: begin
 					if (snoop_hit) begin
+						$display("%t %m: snoop hit on 'h%0h", $time, snoop_tag_data_address);
+					end else begin
+						$display("%t %m: snoop miss on 'h%0h", $time, snoop_tag_data_address);
 					end
 					snoop_state <= SS_WAIT_REQ;
 				end
@@ -389,6 +461,8 @@ module axi4_l1_cache_2 #(
 		end
 	endgenerate
 	
+
+	
 	// Mux signals through for bypass
 	assign out.AWID     = (aw_passthrough)?in.AWID:0;
 	assign out.AWADDR   = (aw_passthrough)?in.AWADDR:0;
@@ -401,12 +475,21 @@ module axi4_l1_cache_2 #(
 	assign out.AWQOS    = (aw_passthrough)?in.AWQOS:0;
 	assign out.AWREGION = (aw_passthrough)?in.AWREGION:0;
 	assign out.AWVALID  = (aw_passthrough)?
-		(rw_state == ST_WAIT_REQ && in.AWVALID):0;
+		(rw_state == ST_WAIT_REQ && in.AWVALID && !i_snoop_stall):0;
 	// Do not allow a new write to start during snoop stall
-	assign in.AWREADY   = 
-		(!i_snoop_stall && (aw_passthrough)?
-			(rw_state == ST_WAIT_REQ && out.AWREADY):
-			(rw_state == ST_WAIT_REQ && !in.ARVALID));
+	
+	reg awready;
+	assign in.AWREADY   = awready;
+	
+	always @* begin
+		if (i_snoop_stall == 1) begin
+			awready = 0;
+		end else if (aw_passthrough == 1) begin
+			awready = (rw_state == ST_WAIT_REQ && out.AWREADY);
+		end else begin
+			awready = (rw_state == ST_WAIT_REQ && !in.ARVALID);
+		end
+	end
 	
 	assign out.ARID     = (ar_passthrough)?in.ARID:0;
 	assign out.ARADDR   = (ar_passthrough)?in.ARADDR:rw_addr_w;
@@ -446,7 +529,7 @@ module axi4_l1_cache_2 #(
 	assign in.BRESP     = out.BRESP;
 	assign in.BVALID    = (wr_passthrough)?out.BVALID:(out.BVALID && rw_state == ST_WR_ACK);
 	assign out.BREADY   = (wr_passthrough)?in.BREADY:(in.BREADY && rw_state == ST_WR_ACK);
-
+	
 	always @* begin
 		hit = 0;
 		hit_way = 0;
@@ -507,7 +590,7 @@ module axi4_l1_cache_2 #(
 					.i_write_data_a             ( data_wdata                    ),
 					.i_write_enable_a           ( data_wenable_way[i]           ),
 					.i_address_a                ( tag_data_address              ),
-					.i_byte_enable_a            ( {CACHE_LINE_WIDTH/8{1'd1}}    ),
+					.i_byte_enable_a            ( data_byte_enable    			),
 					.o_read_data_a              ( data_rdata_way[i]             ),
 					
 					.i_write_data_b             ( snoop_data_wdata              ),
@@ -515,22 +598,18 @@ module axi4_l1_cache_2 #(
 					.i_address_b                ( snoop_tag_data_address        ),
 					.i_byte_enable_b            ( {CACHE_LINE_WIDTH/8{1'd1}}    ),
 					.o_read_data_b              ( snoop_data_rdata_way[i]       )
-				);                                                     
-
-
-/*			// Per tag-ram write-enable
-			assign tag_wenable_way[i]  = tag_wenable && ( select_way[i] || source_sel[C_INIT] );
-
-			// Per data-ram write-enable
-			assign data_wenable_way[i] = (source_sel[C_FILL] && select_way[i]) || 
-				(write_hit && data_hit_way[i] && c_state == CS_IDLE);
-			// Per data-ram hit flag
-			assign data_hit_way[i]     = tag_rdata_way[i][TAG_WIDTH-1] &&                                                  
-				tag_rdata_way[i][TAG_ADDR_WIDTH-1:0] == i_address[31:TAG_ADDR32_LSB] &&  
-				c_state == CS_IDLE;              */                                                 
+				);
+			
+			always @(posedge clk_i) begin
+				if (tag_wenable_way[i]) begin
+					$display("%t - %m: TAG_WRITE[%0d] 'h%0h = 'h%032h", $time, i, tag_data_address, tag_wdata);
+				end
+				if (data_wenable_way[i]) begin
+					$display("%t - %m: DAT_WRITE[%0d] 'h%0h = 'h%032h", $time, i, tag_data_address, data_wdata);
+				end
+			end
 		end                                                         
 	endgenerate
-
 
 endmodule
 

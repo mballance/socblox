@@ -310,6 +310,7 @@ assign master.AWLOCK = i_exclusive;
 	assign cache_read_request   = i_cache_req && !i_write_enable;
 	assign cache_write_request  = i_cache_req &&  i_write_enable;
 	
+	
 	// ======================================
 	// Write buffer
 	// ======================================

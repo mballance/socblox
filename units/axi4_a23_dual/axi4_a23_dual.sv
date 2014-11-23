@@ -36,6 +36,26 @@ module axi4_a23_dual #(
 		.AXI4_ID_WIDTH       (AXI4_ID_WIDTH-1    )
 		) core12ic ();
 	
+	axi4_monitor #(
+		.AXI4_ADDRESS_WIDTH  (32 ), 
+		.AXI4_DATA_WIDTH     (32 ), 
+		.AXI4_ID_WIDTH       (AXI4_ID_WIDTH-1  )
+		) core02ic_monitor(
+			.clk(i_clk),
+			.rst_n(i_rstn),
+			.monitor(core02ic.monitor)
+		);
+	
+	axi4_monitor #(
+		.AXI4_ADDRESS_WIDTH  (32 ), 
+		.AXI4_DATA_WIDTH     (32 ), 
+		.AXI4_ID_WIDTH       (AXI4_ID_WIDTH-1  )
+		) core12ic_monitor(
+			.clk(i_clk),
+			.rst_n(i_rstn),
+			.monitor(core12ic.monitor)
+		);
+	
 
 	axi4_a23_core_mp u_core0 (
 		.i_clk             (i_clk            ), 

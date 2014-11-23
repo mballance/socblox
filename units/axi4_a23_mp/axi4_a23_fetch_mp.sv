@@ -314,6 +314,7 @@ assign master.AWLOCK = i_exclusive;
 	
 	assign core_read_request    = sel_wb && !i_write_enable;
 	assign core_write_request   = sel_wb &&  i_write_enable;
+	
 
 //	assign cache_read_request   = i_cache_req && !i_write_enable;
 //	assign cache_write_request  = i_cache_req &&  i_write_enable;

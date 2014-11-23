@@ -23,10 +23,10 @@ extern "C" uth_thread_mgr *uth_get_thread_mgr()
 
 static uth_mutex_t			m_req;
 static uth_cond_t			c_req;
-static bool					v_req = false;
+static volatile bool		v_req = false;
 static uth_mutex_t			m_ack;
 static uth_cond_t			c_ack;
-static bool					v_ack = false;
+static volatile bool		v_ack = false;
 
 volatile uint32_t c_val=0;
 

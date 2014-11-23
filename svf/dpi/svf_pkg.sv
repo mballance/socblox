@@ -79,7 +79,7 @@ package svf_pkg;
 		sem.get(p_tmp);
 	endtask
 	
-	task svf_dpi_create_thread(input chandle hndl, output int unsigned out_p);
+	task svf_dpi_create_thread(input chandle hndl, output longint unsigned out_p);
 		automatic process p_tmp;
 		automatic mailbox #(process) sem = new(0);
 		
@@ -90,8 +90,8 @@ package svf_pkg;
 	endtask
 	export "DPI-C" task svf_dpi_create_thread;
 	
-	function int unsigned svf_dpi_create_mutex();
-		automatic int unsigned mutex_id;
+	function longint unsigned svf_dpi_create_mutex();
+		automatic longint unsigned mutex_id;
 		automatic svf_thread_mutex m = new();
 	
 		prv_mutexlist.push_back(m);
@@ -101,20 +101,20 @@ package svf_pkg;
 	endfunction
 	export "DPI-C" function svf_dpi_create_mutex;
 	
-	task svf_dpi_mutex_lock(int unsigned mutex_id);
+	task svf_dpi_mutex_lock(longint unsigned mutex_id);
 		automatic svf_thread_mutex m = prv_mutexlist[mutex_id-1];
 		m.lock();
 	endtask
 	export "DPI-C" task svf_dpi_mutex_lock;
 	
-	task svf_dpi_mutex_unlock(int unsigned mutex_id);
+	task svf_dpi_mutex_unlock(longint unsigned mutex_id);
 		automatic svf_thread_mutex m = prv_mutexlist[mutex_id-1];
 		m.unlock();
 	endtask
 	export "DPI-C" task svf_dpi_mutex_unlock;
 	
-	function int unsigned svf_dpi_create_cond();
-		automatic int unsigned cond_id;
+	function longint unsigned svf_dpi_create_cond();
+		automatic longint unsigned cond_id;
 		automatic svf_thread_cond c = new();
 		
 		prv_condlist.push_back(c);
@@ -124,20 +124,20 @@ package svf_pkg;
 	endfunction
 	export "DPI-C" function svf_dpi_create_cond;
 	
-	task svf_dpi_cond_wait(int unsigned cond_id, int unsigned mutex_id);
+	task svf_dpi_cond_wait(longint unsigned cond_id, longint unsigned mutex_id);
 		automatic svf_thread_cond c = prv_condlist[cond_id-1];
 		automatic svf_thread_mutex m = prv_mutexlist[mutex_id-1];
 		c.cond_wait(m);
 	endtask
 	export "DPI-C" task svf_dpi_cond_wait;
 	
-	task svf_dpi_cond_notify(int unsigned cond_id);
+	task svf_dpi_cond_notify(longint unsigned cond_id);
 		automatic svf_thread_cond c = prv_condlist[cond_id-1];
 		c.cond_notify();
 	endtask
 	export "DPI-C" task svf_dpi_cond_notify;
 	
-	task svf_dpi_cond_notify_all(int unsigned cond_id);
+	task svf_dpi_cond_notify_all(longint unsigned cond_id);
 		automatic svf_thread_cond c = prv_condlist[cond_id-1];
 		c.cond_notify_all();
 	endtask

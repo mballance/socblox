@@ -16,6 +16,7 @@
 #include "a23_tracer_bfm.h"
 #include "a23_disasm_tracer.h"
 #include "timebase.h"
+#include "axi4_monitor_bfm.h"
 #include "bidi_message_queue_direct_bfm.h"
 //#include "wb_master_bfm.h"
 //#include "axi4_master_bfm.h"
@@ -50,6 +51,11 @@ class a23_dualcore_sys_env : public svf_component {
 		bidi_message_queue_direct_bfm		*m_msg_queue_0;
 		bidi_message_queue_direct_bfm		*m_msg_queue_1;
 		uart_bfm_monitor					*m_uart_monitor;
+
+		axi4_monitor_bfm					*m_core12ic_monitor;
+		axi4_monitor_bfm					*m_core02ic_monitor;
+		axi4_monitor_bfm					*m_ic2ram_monitor;
+		axi4_monitor_bfm					*m_core2ic_monitor;
 
 
 		/*

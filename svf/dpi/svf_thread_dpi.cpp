@@ -28,7 +28,7 @@ svf_native_thread_h svf_thread::create_thread(svf_closure_base *closure)
 {
 	svf_native_thread_h *thread;
 
-	get_svf_dpi_api()->create_thread((void *)closure, (uint32_t *)&thread);
+	get_svf_dpi_api()->create_thread((void *)closure, (uint64_t *)&thread);
 
 	return thread;
 }
