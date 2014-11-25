@@ -66,7 +66,9 @@ module axi4_l1_interconnect_2 #(
 	assign m1_cache_i_snoop_stall = m0_cache_o_snoop_stall;
 
 	axi4_l1_cache_2 #(
-		.CACHE_WAYS  (CACHE_WAYS )
+		.CACHE_WAYS  (CACHE_WAYS ),
+		.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),
+		.AXI4_DATA_WIDTH(AXI4_DATA_WIDTH)
 		) u_m0_cache (
 		.clk_i          (clk_i                ), 
 		.rst_n          (rst_n                ), 
@@ -77,10 +79,12 @@ module axi4_l1_interconnect_2 #(
 		.o_snoop_addr		(m0_cache_o_snoop_addr),
 		.o_snoop_addr_valid	(m0_cache_o_snoop_addr_valid),
 		.i_snoop_stall		(m0_cache_i_snoop_stall),
-		.out            (m02ic.slave          ));
+		.out            	(m02ic.master          ));
 	
 	axi4_l1_cache_2 #(
-		.CACHE_WAYS  (CACHE_WAYS )
+		.CACHE_WAYS  (CACHE_WAYS ),
+		.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),
+		.AXI4_DATA_WIDTH(AXI4_DATA_WIDTH)
 		) u_m1_cache (
 		.clk_i          (clk_i                ), 
 		.rst_n          (rst_n                ), 
@@ -91,7 +95,7 @@ module axi4_l1_interconnect_2 #(
 		.o_snoop_addr		(m1_cache_o_snoop_addr),
 		.o_snoop_addr_valid	(m1_cache_o_snoop_addr_valid),
 		.i_snoop_stall		(m1_cache_i_snoop_stall),
-		.out            (m12ic.slave          ));
+		.out            	(m12ic.master          ));
 	
 	// AR arbitration
 	reg						ar_last_owner   = 0;

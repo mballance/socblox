@@ -9,6 +9,7 @@
 #define SVF_ELF_LOADER_H_
 #include "svf_mem_if.h"
 #include <map>
+#include <string>
 
 using namespace std;
 

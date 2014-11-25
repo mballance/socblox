@@ -108,6 +108,7 @@ module coreinfo_2 #(
     assign s.RDATA = read_data;
     assign s.RLAST = (read_state == 2 && read_count == read_length)?1'b1:1'b0;
     assign s.RID   = (read_state == 2)?read_id:0;
+    assign s.RRESP = '0;
     
     
 	// Write portion

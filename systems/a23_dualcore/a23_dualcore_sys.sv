@@ -327,14 +327,22 @@ module a23_dualcore_sys #(
 	bidi_message_queue_if queue_0_if ();
 	bidi_message_queue_if queue_1_if ();
 	
-	assign queue_0_if.msg_q_client.inbound_data = 0;
-	assign queue_0_if.msg_q_client.inbound_valid = 0;
-	assign queue_0_if.msg_q_client.outbound_ready = 0;
-	
-	assign queue_1_if.msg_q_client.inbound_data = 0;
-	assign queue_1_if.msg_q_client.inbound_valid = 0;
-	assign queue_1_if.msg_q_client.outbound_ready = 0;
+//	assign queue_0_if.msg_q_client.inbound_data = 0;
+//	assign queue_0_if.msg_q_client.inbound_valid = 0;
+//	assign queue_0_if.msg_q_client.outbound_ready = 0;
+//	
+//	assign queue_1_if.msg_q_client.inbound_data = 0;
+//	assign queue_1_if.msg_q_client.inbound_valid = 0;
+//	assign queue_1_if.msg_q_client.outbound_ready = 0;
 
+	assign queue_0_if.inbound_data = 0;
+	assign queue_0_if.inbound_valid = 0;
+	assign queue_0_if.outbound_ready = 0;
+	
+	assign queue_1_if.inbound_data = 0;
+	assign queue_1_if.inbound_valid = 0;
+	assign queue_1_if.outbound_ready = 0;
+	
 	wire irq_queue_0;
 	
 	bidi_message_queue #(

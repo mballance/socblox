@@ -22,9 +22,9 @@ module a23_dualcore_sys_tb(input clk);
 	
 	initial begin
 		forever begin
-			#10ns;
+			#5ns;
 			clk_r <= 1;
-			#10ns;
+			#5ns;
 			clk_r <= 0;
 		end
 	end
@@ -78,6 +78,18 @@ module a23_dualcore_sys_tb(input clk);
 			.led3(led3),
 			.uart_dte(u_uart_if.dte)
 			);
+	
+	wire[3:0] led = {led0, led1, led2, led3};
+	reg[3:0] led_r = 0;
+	
+	always @(posedge clk) begin
+		if (led_r != led) begin
+			$display("LED: %0d", led);
+			led_r <= led;
+		end
+	end
+	
+	
 
 	/*
 	uart_dte_crossover uartco (

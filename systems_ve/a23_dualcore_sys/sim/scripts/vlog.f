@@ -24,7 +24,7 @@ ${COMMON_BFM}/axi4_monitor/axi4_monitor_bfm.sv
 
 // ${SOCBLOX}/common/bfm/uart/uart_bfm.sv
 
--F ${SYSTEMS}/a23_dualcore/a23_dualcore.F
+-f ${SYSTEMS}/a23_dualcore/a23_dualcore.f
 
 ${SOCBLOX}/systems_ve/a23_dualcore_sys/tb/a23_dualcore_sys_tb.sv
 

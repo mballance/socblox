@@ -152,6 +152,7 @@ conditional_execute
                  ( condition == GT  &&  !flags[2] && flags[3] == flags[0] ) ||
                  ( condition == LE  &&  (flags[2] || flags[3] != flags[0])) ;
             
+//	$display("conditional_execute=%0h condition=%0h flags=%0h", conditional_execute, condition, flags);
 end
 endfunction
 

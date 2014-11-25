@@ -21,17 +21,22 @@ module axi4_generic_line_en_sram_bridge #(
 		);
 	
 	generic_sram_byte_en_if #(
-		.NUM_ADDR_BITS  ($bits(sram_if.addr)),
+		.NUM_ADDR_BITS  (MEM_ADDR_BITS),
 		.NUM_DATA_BITS  ($bits(sram_if.read_data))
 		) u_sram_byte_if (
 		);
 	
-	assign sram_if.addr = u_sram_byte_if.sram.addr;
-	assign u_sram_byte_if.sram.read_data = sram_if.read_data;
-	assign sram_if.read_en = u_sram_byte_if.sram.read_en;
-	assign sram_if.write_en = u_sram_byte_if.sram.write_en;
-//	assign u_sram_byte_if.sram.write_data = sram_if.write_data;
-	assign sram_if.write_data = u_sram_byte_if.sram.write_data;
+//	assign sram_if.addr = u_sram_byte_if.sram.addr;
+//	assign u_sram_byte_if.sram.read_data = sram_if.read_data;
+//	assign sram_if.read_en = u_sram_byte_if.sram.read_en;
+//	assign sram_if.write_en = u_sram_byte_if.sram.write_en;
+//	assign sram_if.write_data = u_sram_byte_if.sram.write_data;
+
+	assign sram_if.addr = u_sram_byte_if.addr;
+	assign u_sram_byte_if.read_data = sram_if.read_data;
+	assign sram_if.read_en = u_sram_byte_if.read_en;
+	assign sram_if.write_en = u_sram_byte_if.write_en;
+	assign sram_if.write_data = u_sram_byte_if.write_data;
 	
 	axi4_generic_byte_en_sram_bridge #(
 		.MEM_ADDR_BITS      (MEM_ADDR_BITS     ), 

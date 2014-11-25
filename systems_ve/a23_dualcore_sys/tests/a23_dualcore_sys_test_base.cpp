@@ -70,9 +70,9 @@ void a23_dualcore_sys_test_base::connect()
 			m_env->m_core2ic_monitor->bfm_port);
 
 //	m_env->m_core12ic_monitor->ap.connect(m_core12ic_logger->api_export);
-//	m_env->m_core02ic_monitor->ap.connect(m_core02ic_logger->api_export);
-//	m_env->m_ic2ram_monitor->ap.connect(m_ic2ram_logger->api_export);
-//	m_env->m_core2ic_monitor->ap.connect(m_core2ic_logger->api_export);
+	m_env->m_core02ic_monitor->ap.connect(m_core02ic_logger->api_export);
+	m_env->m_ic2ram_monitor->ap.connect(m_ic2ram_logger->api_export);
+	m_env->m_core2ic_monitor->ap.connect(m_core2ic_logger->api_export);
 
 	m_core12ic_logger->set_timebase(m_env->m_timebase);
 	m_core02ic_logger->set_timebase(m_env->m_timebase);
