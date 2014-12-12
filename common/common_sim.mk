@@ -35,6 +35,10 @@ ifeq (qsa,$(SIM))
 SVF_BUILD_SIM_SC_WRAPPER := 0
 endif
 
+ifeq (qsa_gls,$(SIM))
+SVF_BUILD_SIM_SC_WRAPPER := 0
+endif
+
 
 # include $(SOCBLOX)/defs.mk
 include $(COMMON_SIM_MK_DIR)/common_defs.mk
@@ -52,7 +56,7 @@ vpath %.cpp $(SRC_DIRS)
 vpath %.S $(SRC_DIRS)
 vpath %.c $(SRC_DIRS)
 
-.phony: all build run target_build
+.phony: all build run 
 
 all :
 	echo "Error: Specify target of build or run
@@ -64,10 +68,15 @@ target_build :
 	if test "x$(TARGET_MAKEFILE)" != "x"; then \
 		$(MAKE) -f $(TARGET_MAKEFILE) build; \
 	fi
+	touch $@
 
 QS_VLOG_ARGS += $(SOCBLOX)/svf/dpi/svf_pkg.sv
 VL_VLOG_ARGS += $(SOCBLOX)/svf/sc/svf_pkg.sv
+ifeq (,$(wildcard $(SIM_DIR)/scripts/vlog_$(SIM).f))
 VLOG_ARGS += -f $(SIM_DIR)/scripts/vlog.f
+else
+VLOG_ARGS += -f $(SIM_DIR)/scripts/vlog_$(SIM).f
+endif
 
 
 LD_LIBRARY_PATH := $(BUILD_DIR)/libs:$(LD_LIBRARY_PATH)

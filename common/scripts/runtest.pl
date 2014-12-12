@@ -45,8 +45,8 @@ $quiet="";
 $interactive=0;
 $debug="false";
 $builddir="";
-$enable_qvip=0;
 $sim="vl";
+$plusargs="";
 
 # Global PID list
 @pid_list;
@@ -113,6 +113,8 @@ for ($i=0; $i <= $#ARGV; $i++) {
       printhelp();
       exit 1;
     }
+  } elsif ($arg =~ /^+/) {
+  	$plusargs = $plusargs . " " . $arg;
   } else {
     if ($arg eq "build") {
       $cmd="build";
@@ -124,8 +126,6 @@ for ($i=0; $i <= $#ARGV; $i++) {
     }
   }
 }
-
-$ENV{ENABLE_QVIP}=$enable_qvip;
 
 # Setup link to rundir if it's different than local
 #$local_rundir = getcwd() . "/rundir";
@@ -151,6 +151,9 @@ $ENV{RUN_ROOT}=$run_root;
 if ($builddir eq "") {
   $builddir=$ENV{RUN_ROOT};
 }
+
+# TODO: platform too?
+$builddir = $builddir . "/" . $sim;
 $ENV{BUILD_DIR}=$builddir;
 
 if ($cmd eq "build") {
@@ -205,7 +208,7 @@ sub printhelp {
   print "    -quiet              -- Suppress console output from simulation\n";
   print "\n";
   print "Example:\n";
-  print "    runtest -test ethmac_simple_rxtx_test\n";
+  print "    runtest -test foo_test.f\n";
 }
 
 $unget_ch_1 = -1;
@@ -321,7 +324,7 @@ sub build {
     unless ( -d "${SIM_DIR}/scripts" ) {
     	die "No 'scripts' directory present\n";
     }
-    open(CP, "make -j ${max_par} -f ${SIM_DIR}/scripts/Makefile SIM=${sim} build |");
+    open(CP, "make -C ${builddir} -j ${max_par} -f ${SIM_DIR}/scripts/Makefile SIM=${sim} build |");
     open(LOG,"> ${builddir}/compile.log");
     while (<CP>) {
        print($_);
@@ -416,6 +419,7 @@ sub run_jobs {
                     	"TESTNAME=${testname}", 
                     	"INTERACTIVE=${interactive}",
                     	"DEBUG=${debug}",
+                    	"PLUSARGS=${plusargs}",
                     	"run"
                     	);
                 

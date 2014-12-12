@@ -100,11 +100,11 @@ proc add_compile_options {argv} {
 		set arg [expand_vars $arg]
 		
 		if {[string range $arg 0 7] == "+incdir+"} {
-			set dir [string range $argv 8 [expr [string length $arg] - 1]]
+			set dir [string range $arg 8 [expr [string length $arg] - 1]]
 			puts "Note: add include path $dir"
 			set_global_assignment -name SEARCH_PATH "$dir"
 		} elseif {[string range $arg 0 7] == "+define+"} {
-			set m [string range $argv 8 [expr [string length $arg] - 1]]
+			set m [string range $arg 8 [expr [string length $arg] - 1]]
 			set_global_assignment -name VERILOG_MACRO "$m"
 		} else {
 			puts "Note: add file path $arg"

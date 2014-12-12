@@ -63,14 +63,15 @@ module bidi_message_queue #(
 			if (mem_if.addr[3:0] == 0) begin
 				inbound_rd_ptr <= mem_if.write_data;
 			end
+			/* Disabled due to multiple-driver condition
 			if (mem_if.addr[3:0] == 1) begin
 				inbound_wr_ptr <= mem_if.write_data;
 			end
 			if (mem_if.addr[3:0] == 2) begin
 				outbound_rd_ptr <= mem_if.write_data;
 			end
+			 */
 			if (mem_if.addr[3:0] == 3) begin
-				$display("outbound_wr_ptr=%0d", mem_if.write_data);
 				outbound_wr_ptr <= mem_if.write_data;
 			end
 		end
@@ -107,7 +108,7 @@ module bidi_message_queue #(
 		) u_ram_w (
 		.i_clk          (clk          ), 
 		.s_a            (u_ram_if.sram),
-		.s_b			(u_ram_hw_if.sram));
+		.s_b		(u_ram_hw_if.sram));
 	
 	
 	// HW interface support
@@ -118,19 +119,19 @@ module bidi_message_queue #(
 	reg[3:0]		outbound_state;
 	reg[31:0]		outbound_data;
 	
-	always @(posedge clk) begin
-		if (rst_n == 0) begin
-			outbound_state <= 0;
-		end else begin
-			case (outbound_state)
-				0: begin
-				end
-			endcase
-		end
-	end
+//	always @(posedge clk) begin
+//		if (rst_n == 0) begin
+//			outbound_state <= 0;
+//		end else begin
+//			case (outbound_state)
+//				0: begin
+//				end
+//			endcase
+//		end
+//	end
 	
-	assign queue_if.outbound_data = outbound_data;
-	assign queue_if.outbound_valid = (outbound_state == 2); // FIXME
+//	assign queue_if.outbound_data = outbound_data;
+//	assign queue_if.outbound_valid = (outbound_state == 2); // FIXME
 
 	// Inbound uses a similar scheme to buffer one word of data
 	reg[3:0]		inbound_state;

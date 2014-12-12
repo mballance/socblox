@@ -41,6 +41,7 @@
 module a23_coprocessor
 (
 input                       i_clk,
+input						i_rstn,
 input                       i_fetch_stall,    // stall all stages of the cpu at the same time
 input       [2:0]           i_copro_opcode1,
 input       [2:0]           i_copro_opcode2,
@@ -98,7 +99,10 @@ assign o_cacheable_area = cacheable_area;
 // Capture an access fault address and status
 // ---------------------------
 always @ ( posedge i_clk )
-    if ( !i_fetch_stall )
+	if ( i_rstn == 0) begin
+		fault_status <= 0;
+		fault_address <= 0;
+	end else if ( !i_fetch_stall )
         begin
         if ( i_fault )
             begin
@@ -117,8 +121,12 @@ always @ ( posedge i_clk )
 // Register Writes
 // ---------------------------
 always @ ( posedge i_clk )
-    if ( !i_fetch_stall )         
-        begin
+	if ( i_rstn == 0) begin
+		cache_control <= 3'b000;
+		cacheable_area <= 32'h0;
+		updateable_area <= 32'h0;
+		disruptive_area <= 32'h0;
+	end else if ( !i_fetch_stall ) begin
         if ( i_copro_operation == 2'd2 )
             case ( i_copro_crn )
                 4'd2: cache_control   <= i_copro_write_data[2:0];
@@ -126,7 +134,7 @@ always @ ( posedge i_clk )
                 4'd4: updateable_area <= i_copro_write_data[31:0];
                 4'd5: disruptive_area <= i_copro_write_data[31:0];
             endcase
-        end
+    end
 
 // Flush the cache
 assign copro15_reg1_write = !i_fetch_stall && i_copro_operation == 2'd2 && i_copro_crn == 4'd1;

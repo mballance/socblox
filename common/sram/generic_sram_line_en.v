@@ -59,11 +59,17 @@ reg [DATA_WIDTH-1:0]   mem  [0:2**ADDRESS_WIDTH-1];
 generate
 if ( INITIALIZE_TO_ZERO ) begin : init0
 integer i;
-initial
-    begin
+	initial begin
     for (i=0;i<2**ADDRESS_WIDTH;i=i+1)
         mem[i] <= 'd0;
     end
+end else begin
+	initial begin
+		integer i;
+		for (i=0;i<2**ADDRESS_WIDTH;i=i+1) begin
+	    	mem[i] <= 'b1;
+	    end
+	end
 end
 endgenerate
 

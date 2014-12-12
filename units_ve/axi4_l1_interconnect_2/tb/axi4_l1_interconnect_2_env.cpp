@@ -21,8 +21,6 @@ void axi4_l1_interconnect_2_env::build() {
 
 	m_m0 = axi4_master_bfm::type_id.create("m_m0", this);
 	m_m1 = axi4_master_bfm::type_id.create("m_m1", this);
-
-	m_sram = generic_sram_byte_en_bfm::type_id.create("m_sram", this);
 }
 
 void axi4_l1_interconnect_2_env::connect() {

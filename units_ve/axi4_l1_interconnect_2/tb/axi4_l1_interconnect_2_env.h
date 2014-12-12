@@ -9,7 +9,6 @@
 #define axi4_l1_interconnect_2_ENV_H_
 #include "svf.h"
 #include "axi4_master_bfm.h"
-#include "generic_sram_byte_en_bfm.h"
 // TODO: Include BFM header files
 
 class axi4_l1_interconnect_2_env : public svf_component {
@@ -28,7 +27,6 @@ class axi4_l1_interconnect_2_env : public svf_component {
 
 		axi4_master_bfm					*m_m0;
 		axi4_master_bfm					*m_m1;
-		generic_sram_byte_en_bfm		*m_sram;
 
 };
 

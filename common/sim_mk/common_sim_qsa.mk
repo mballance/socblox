@@ -13,10 +13,16 @@ CXXFLAGS += -I$(QUESTA_HOME)/include -I$(QUESTA_HOME)/include/systemc
 DPI_LIBS += $(SVF_LIBDIR)/dpi/libsvf_dpi
 DPI_LIBS += $(BUILD_DIR)/libs/tb_dpi
 
+ifneq (,$(QUESTA_HOME))
+# Set path so we use the compiler with Modelsim
+PATH := $(QUESTA_HOME)/bin:$(QUESTA_HOME)/gcc-4.5.0-linux/bin:$(PATH)
+export PATH
+else
 ifneq (,$(MODELSIM_ASE))
 # Set path so we use the compiler with Modelsim
 PATH := $(MODELSIM_ASE)/bin:$(MODELSIM_ASE)/gcc-4.5.0-linux/bin:$(PATH)
 export PATH
+endif
 endif
 
 ifeq ($(DEBUG),true)

@@ -28,7 +28,7 @@ module axi4_generic_byte_en_sram_bridge #(
 	reg[AXI_ID_WIDTH-1:0]			write_id;
 	reg[1:0]						write_burst;
 	reg[3:0]						write_wrap_mask;
-	reg[AXI_DATA_WIDTH-1:0]			write_data;
+//	reg[AXI_DATA_WIDTH-1:0]			write_data;
 	reg[2:0] 						read_state;
 	reg[MEM_ADDR_BITS-1:4]			read_addr;
 	wire[MEM_ADDR_BITS-1:0]			read_addr_w;
@@ -70,9 +70,9 @@ module axi4_generic_byte_en_sram_bridge #(
 			sram_owner_nxt = 0;
 		end else begin
 			if (sram_owner_r == 0 && sram_owner_w == 0) begin
-				if (read_state == 0 && axi_if.ARVALID && axi_if.ARREADY) begin
+				if (read_state == 0 && axi_if.ARVALID) begin
 					sram_owner_nxt = 1;
-				end else if (write_state == 0 && axi_if.AWVALID && axi_if.AWREADY) begin
+				end else if (write_state == 0 && axi_if.AWVALID) begin
 					sram_owner_nxt = 2;
 				end else begin
 					sram_owner_nxt = 0;

@@ -82,6 +82,8 @@ module axi4_svf_master_bfm #(
 	assign master.ARPROT = ARPROT_rs;
 	assign master.ARREGION = ARREGION_rs;
 	
+	
+	
 	task axi4_master_bfm_get_parameters(
 			output int unsigned ADDRESS_WIDTH,
 			output int unsigned DATA_WIDTH,
@@ -111,10 +113,13 @@ module axi4_svf_master_bfm #(
 	// AW state machine
 	reg[2:0]				aw_state;
 	reg[7:0]				write_count;
+	reg[7:0]				write_len;
 	always @(posedge clk) begin
 		if (rstn != 1) begin
 			aw_state <= 0;
 			reset <= 1;
+			write_count <= 0;
+			write_len <= 0;
 		end else begin
 			if (reset == 1) begin
 				axi4_master_bfm_reset();
@@ -133,6 +138,8 @@ module axi4_svf_master_bfm #(
 						AWQOS_rs <= AWQOS_r;
 						AWREGION_rs <= AWREGION_r;
 						AWSIZE_rs <= AWSIZE_r;
+						write_count <= 0;
+						write_len <= AWLEN_r;
 
 						AWVALID_r <= 1;
 						aw_state <= 1;
@@ -150,8 +157,7 @@ module axi4_svf_master_bfm #(
 				// 
 				2: begin
 					if (master.WREADY && master.WVALID) begin
-						if (write_count == AWLEN_r) begin
-							write_count <= 0;
+						if (write_count == write_len) begin
 							aw_state <= 3;
 						end else begin
 							write_count <= write_count + 1;
@@ -171,7 +177,7 @@ module axi4_svf_master_bfm #(
 	
 	assign master.WDATA = (aw_state == 2)?wdata_buf[write_count]:0;
 	assign master.WVALID = (aw_state == 2);
-	assign master.WLAST = (aw_state == 2 && write_count == AWLEN_r);
+	assign master.WLAST = (aw_state == 2 && write_count == write_len);
 	assign master.BREADY = (aw_state == 3);
 	assign master.WSTRB  = 'hf;
 	
@@ -207,10 +213,11 @@ module axi4_svf_master_bfm #(
 
 	// AR state machine
 	reg[2:0]				ar_state;
-	reg[7:0]				read_count;
+	reg[7:0]				read_count = 0;
 	always @(posedge clk) begin
 		if (rstn != 1) begin
 			ar_state <= 0;
+			read_count <= 0;
 		end else begin
 			case (ar_state)
 				0: begin
@@ -240,7 +247,7 @@ module axi4_svf_master_bfm #(
 				// Receive data
 				2: begin
 					if (master.RREADY && master.RVALID) begin
-						rdata_buf[read_count] <= master.RDATA;
+						rdata_buf[read_count] = master.RDATA;
 						if (master.RLAST) begin
 							read_count <= 0;
 							ar_state <= 0;

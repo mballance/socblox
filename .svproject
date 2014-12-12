@@ -12,4 +12,7 @@
 </argFilePaths>
 <sourceCollections/>
 <projectRefs/>
+<templatePaths>
+<templatePath path="${project_loc}/templates"/>
+</templatePaths>
 </svproject>

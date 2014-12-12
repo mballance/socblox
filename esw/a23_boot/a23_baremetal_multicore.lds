@@ -3,8 +3,8 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 
 MEMORY {
-	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 1M
-	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 1M
+	ROM(rx)		: ORIGIN = 0x00000000, LENGTH = 64K
+	RAM(rwx)	: ORIGIN = 0x20000000, LENGTH = 64K
 }
 
 C_STACK_SIZE = 4096;
@@ -91,12 +91,12 @@ SECTIONS {
 		. += 16;
 		
 		__heap_start = .;
-		. += 128k;
+		. += 32k;
 		. = ALIGN(4);
 		__heap_end = .;
 		
 		__stack_start__ = . ;
-		. += 128k;
+		. += 8k;
 		. = ALIGN(4);
 		__stack_end__ = . ;
 	} >RAM

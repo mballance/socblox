@@ -30,9 +30,9 @@ void axi4_l1_interconnect_2_cacheable_smoke::start() {
 	m_env->m_m0->wait_for_reset();
 
 	// First, initialize the memory
-	for (uint32_t i=0; i<1024; i++) {
-		m_env->m_sram->write32(4*i, 0x55000000 + i);
-	}
+//	for (uint32_t i=0; i<1024; i++) {
+//		m_env->m_sram->write32(4*i, 0x55000000 + i);
+//	}
 
 	m_main_m0.init(this, &axi4_l1_interconnect_2_cacheable_smoke::main_m0);
 	m_main_m0.start();
@@ -45,7 +45,9 @@ void axi4_l1_interconnect_2_cacheable_smoke::main_m0() {
 	raise_objection();
 
 	// Uncacheable read
-//	data = m_env->m_m0->read32(0);
+	data = m_env->m_m0->read32(0);
+	fprintf(stdout, "uncached data=0x%08x\n", data);
+	fflush(stdout);
 //	fprintf(stdout, "uncached data=0x%08x\n", data);
 
 	// Uncacheable write
@@ -53,29 +55,34 @@ void axi4_l1_interconnect_2_cacheable_smoke::main_m0() {
 
 	// First, perform a cacheable read
 	m_env->m_m0->set_cache(axi4_master_bfm::CACHE_CACHEABLE);
-	fprintf(stdout, "cached data=0x%08x\n", data);
 
 	m_env->m_m0->read32(0);
+	fprintf(stdout, "cached data=0x%08x\n", data);
+	fflush(stdout);
 
 	// Modify read-back data
+	fprintf(stdout, "--> write32\n"); fflush(stdout);
 	m_env->m_m0->write32(4, 0x55AAEEFF);
-	data = m_env->m_sram->read32(4);
-	fprintf(stdout, "4 direct read-back: 0x%08x\n", data);
+	fprintf(stdout, "<-- write32\n"); fflush(stdout);
+
+//	data = m_env->m_sram->read32(4);
+//	fprintf(stdout, "4 direct read-back: 0x%08x\n", data);
+//	fflush(stdout);
 
 	// Now, invalidate that line from the other master
-	m_env->m_m1->write32(8, 0x55AAEEF1);
-	data = m_env->m_sram->read32(8);
-	fprintf(stdout, "8 direct read-back: 0x%08x\n", data);
+//	m_env->m_m1->write32(8, 0x55AAEEF1);
+//	data = m_env->m_sram->read32(8);
+//	fprintf(stdout, "8 direct read-back: 0x%08x\n", data); fflush(stdout);
 
 	data = m_env->m_m0->read32(8);
-	fprintf(stdout, "8 readback: 0x%08x\n", data);
+	fprintf(stdout, "8 readback: 0x%08x\n", data); fflush(stdout);
 
 	data = m_env->m_m0->read32(4);
-	fprintf(stdout, "4 readback: 0x%08x\n", data);
+	fprintf(stdout, "4 readback: 0x%08x\n", data); fflush(stdout);
 
 	// read-back to ensure the correct data is read
 	data = m_env->m_m0->read32(0);
-	fprintf(stdout, "cache data=0x%08x\n", data);
+	fprintf(stdout, "cache data=0x%08x\n", data); fflush(stdout);
 
 	drop_objection();
 	return;

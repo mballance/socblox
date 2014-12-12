@@ -27,9 +27,6 @@ void a23_dualcore_sys_env::build() {
 	m_core2_tracer = a23_tracer_bfm::type_id.create("m_core2_tracer", this);
 
 //	m_trace_file = fopen("trace.dis", "w");
-	m_trace_file = stdout;
-	m_core1_disasm = new a23_disasm_tracer(m_trace_file, "core0");
-	m_core2_disasm = new a23_disasm_tracer(m_trace_file, "core1");
 
 	m_uart_monitor = new uart_bfm_monitor("# ");
 
@@ -56,12 +53,8 @@ void a23_dualcore_sys_env::connect() {
 	m_m2_mgr->connect(m_m2);
 	 */
 
-	m_core1_tracer->port.connect(m_core1_disasm->port);
-	m_core2_tracer->port.connect(m_core2_disasm->port);
 
 	m_uart->ap.connect(m_uart_monitor->port);
-
-
 }
 
 svf_component_ctor_def(a23_dualcore_sys_env)

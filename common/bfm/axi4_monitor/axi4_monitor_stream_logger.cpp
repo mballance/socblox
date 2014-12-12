@@ -10,7 +10,7 @@
 axi4_monitor_stream_logger::axi4_monitor_stream_logger(
 		const char 			*name,
 		FILE 				*fp,
-		timebase			*tb) :
+		timebase_target_if	*tb) :
 	api_export(this), m_name(name), m_fp(fp), m_timebase(tb) {
 
 	m_write_idx = 0;
@@ -106,7 +106,9 @@ void axi4_monitor_stream_logger::wresp(
 uint64_t axi4_monitor_stream_logger::get_time()
 {
 	if (m_timebase) {
-		return m_timebase->gettime();
+		uint64_t t;
+		m_timebase->gettime(&t);
+		return t;
 	} else {
 		return 0;
 	}

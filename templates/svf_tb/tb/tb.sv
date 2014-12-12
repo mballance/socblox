@@ -1,6 +1,9 @@
 /****************************************************************************
  * ${name}_tb.sv
  ****************************************************************************/
+`ifdef GLS
+`timescale 1 ps/ 1 ps
+`endif
 
 /**
  * Module: ${name}_tb
@@ -18,9 +21,9 @@ module ${name}_tb(input clk);
 	
 	initial begin
 		forever begin
-			#5;
+			#10ns;
 			clk_r <= 1;
-			#5;
+			#10ns;
 			clk_r <= 0;
 		end
 	end

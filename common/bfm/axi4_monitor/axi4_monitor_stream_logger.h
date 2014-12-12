@@ -9,7 +9,7 @@
 #define AXI4_MONITOR_STREAM_LOGGER_H_
 #include "svf.h"
 #include "axi4_monitor_bfm_if.h"
-#include "timebase.h"
+#include "timebase_if.h"
 #include <stdio.h>
 
 class axi4_monitor_stream_logger : public virtual axi4_monitor_bfm_host_if {
@@ -22,11 +22,11 @@ class axi4_monitor_stream_logger : public virtual axi4_monitor_bfm_host_if {
 		axi4_monitor_stream_logger(
 				const char 			*name,
 				FILE 				*fp,
-				timebase 			*tb=0);
+				timebase_target_if	*tb=0);
 
 		virtual ~axi4_monitor_stream_logger();
 
-		void set_timebase(timebase *tb) { m_timebase = tb; }
+		void set_timebase(timebase_target_if *tb) { m_timebase = tb; }
 
 		virtual void ar(
 				uint32_t			araddr,
@@ -72,7 +72,7 @@ class axi4_monitor_stream_logger : public virtual axi4_monitor_bfm_host_if {
 	private:
 		svf_string						m_name;
 		FILE							*m_fp;
-		timebase						*m_timebase;
+		timebase_target_if				*m_timebase;
 
 		uint32_t						m_awaddr;
 		uint32_t						m_awid;

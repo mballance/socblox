@@ -33,7 +33,9 @@ module a23_dualcore_sys #(
 	reg[1:0]			clk_cnt = 0;
 	reg[31:0]			cnt = 0;
 	reg[3:0]			state = 0;
+	reg[31:0]			scratch = 0;
 	reg					rst_n;
+	reg					rst_req = 0;
 	wire				rst_n_1;
 	wire				irq;
 	wire				firq;
@@ -43,8 +45,8 @@ module a23_dualcore_sys #(
 	reg[31:0]			active = 20000000;
 	 */
 `ifdef FPGA
-	reg[31:0]			idle = 20000;
-	reg[31:0]			active = 2000000;
+	reg[31:0]			idle = 200;
+	reg[31:0]			active = 20000000;
 `else
 	reg[31:0]			idle = 200;
 //	reg[31:0]			active = 100000;
@@ -116,7 +118,10 @@ module a23_dualcore_sys #(
 			// Active
 			1: begin
 				rst_n <= 1;
-				if (active != 0 && cnt == active) begin
+				if (rst_req == 1) begin
+					cnt <= 0;
+					state <= 0;
+				end else if (active != 0 && cnt == active) begin
 					cnt <= 0;
 					state <= 0;
 				end else begin
@@ -148,7 +153,7 @@ module a23_dualcore_sys #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
-		) ic2rom ();
+		) ic2rom () /* synthesis keep */;
 
 	/*
 	axi4_monitor #(
@@ -166,7 +171,7 @@ module a23_dualcore_sys #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
-		) ic2ram ();
+		) ic2ram () /* synthesis keep */;
 	
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
@@ -263,7 +268,7 @@ module a23_dualcore_sys #(
 		);
 	
 	axi4_rom #(
-		.MEM_ADDR_BITS      ((20-2) ), 
+		.MEM_ADDR_BITS      ((16-2) ), 
 		.AXI_ADDRESS_WIDTH  (32     ), 
 		.AXI_DATA_WIDTH     (32     ), 
 		.AXI_ID_WIDTH       (5      ), 
@@ -274,7 +279,7 @@ module a23_dualcore_sys #(
 		.s                  (ic2rom.slave      ));
 
 	axi4_sram #(
-		.MEM_ADDR_BITS      ((20-2) ),
+		.MEM_ADDR_BITS      ((16-2) ),
 		.AXI_ADDRESS_WIDTH  (32     ),
 		.AXI_DATA_WIDTH     (32     ),
 		.AXI_ID_WIDTH       (5      )
@@ -445,6 +450,7 @@ module a23_dualcore_sys #(
 		.WB_DWIDTH    (32   )
 		) u_timer (
 		.i_clk        (core_clk         ), 
+		.i_rstn       (rst_n			),
 		.slave        (wbic2timer.slave ), 
 		.o_timer_int  (o_timer_int      ));
 
@@ -531,12 +537,27 @@ module a23_dualcore_sys #(
 	assign led2 = ic2rom.ARADDR[3];
 	assign led3 = ic2rom.ARADDR[2];
 	 */
+	/*
 	assign led0 = write_data[3];
 	assign led1 = write_data[2];
 	assign led2 = write_data[1];
 	assign led3 = write_data[0];
-	/*
 	 */
+//	assign led0 = write_data[19];
+//	assign led1 = write_data[18];
+//	assign led2 = write_data[17];
+//	assign led3 = write_data[16];
+`ifdef FPGA
+	assign led0 = write_data[7];
+	assign led1 = write_data[6];
+	assign led2 = write_data[5];
+	assign led3 = write_data[4];
+`else
+	assign led0 = write_data[3];
+	assign led1 = write_data[2];
+	assign led2 = write_data[1];
+	assign led3 = write_data[0];
+`endif
 
 	/*
 	assign led0 = clk_cnt[16];
@@ -553,6 +574,7 @@ module a23_dualcore_sys #(
 		if (rst_n == 0) begin
 			write_state <= 0;
 			write_data <= 0;
+			rst_req <= 0;
 		end else begin
 			case (write_state)
 				0: begin
@@ -566,7 +588,16 @@ module a23_dualcore_sys #(
 				1: begin
 					// 
 					if (ic2sys.WVALID == 1) begin
-						write_data <= ic2sys.WDATA;
+						if (write_addr[3:2] == 0) begin // 0: LED
+							write_data <= ic2sys.WDATA;
+						end else if (write_addr[3:2] == 1) begin // 4: ACTIVE
+							active <= ic2sys.WDATA;
+						end else if (write_addr[3:2] == 2) begin // 8: IDLE
+							idle <= ic2sys.WDATA;
+						end else if (write_addr[3:2] == 3) begin // C: RESET
+							rst_req <= 1;
+						end
+							
 						write_state <= 2;
 					end
 				end

@@ -123,6 +123,7 @@ module coreinfo_2 #(
 			write_state <= 2'b00;
 			write_id <= 0;
 			write_addr <= 0;
+			rst_n_1 <= 0;
 		end else begin
 			case (write_state) 
 				2'b00: begin // Wait Address state
@@ -140,7 +141,6 @@ module coreinfo_2 #(
 							write_state <= 2;
 						end
 
-						$display("write_addr[1:0] = 'h%0h", write_addr[1:0]);
 						case (write_addr[1:0]) 
 							ADDR_SET_RST: begin
 								if (s.WDATA == CORE1_ID) begin

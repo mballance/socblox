@@ -36,49 +36,55 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module generic_sram_line_en_dualport (
-	address_a,
-	address_b,
-	clock,
-	data_a,
-	data_b,
-	wren_a,
-	wren_b,
-	q_a,
-	q_b);
+module generic_sram_line_en_dualport #(
+		parameter DATA_WIDTH			= 128,
+		parameter ADDRESS_WIDTH			= 7,
+		parameter INITIALIZE_TO_ZERO	= 0
+	) (
+	i_clk,
+	
+	i_write_data_a,
+	i_write_enable_a,
+	i_address_a,
+	o_read_data_a,
+	
+	i_address_b,
+	i_write_data_b,
+	i_write_enable_b,
+	o_read_data_b);
 
-	input	[9:0]  address_a;
-	input	[9:0]  address_b;
-	input	  clock;
-	input	[31:0]  data_a;
-	input	[31:0]  data_b;
-	input	  wren_a;
-	input	  wren_b;
-	output	[31:0]  q_a;
-	output	[31:0]  q_b;
+	input	[ADDRESS_WIDTH-1:0]  i_address_a;
+	input	[ADDRESS_WIDTH-1:0]  i_address_b;
+	input	  i_clk;
+	input	[DATA_WIDTH-1:0]  i_write_data_a;
+	input	[DATA_WIDTH-1:0]  i_write_data_b;
+	input	  i_write_enable_a;
+	input	  i_write_enable_b;
+	output	[DATA_WIDTH-1:0]  o_read_data_a;
+	output	[DATA_WIDTH-1:0]  o_read_data_b;
 `ifndef ALTERA_RESERVED_QIS
 // synopsys translate_off
 `endif
-	tri1	  clock;
-	tri0	  wren_a;
-	tri0	  wren_b;
+	tri1	  i_clk;
+	tri0	  i_write_enable_a;
+	tri0	  i_write_enable_b;
 `ifndef ALTERA_RESERVED_QIS
 // synopsys translate_on
 `endif
 
-	wire [31:0] sub_wire0;
-	wire [31:0] sub_wire1;
-	wire [31:0] q_a = sub_wire0[31:0];
-	wire [31:0] q_b = sub_wire1[31:0];
+	wire [DATA_WIDTH-1:0] sub_wire0;
+	wire [DATA_WIDTH-1:0] sub_wire1;
+	wire [DATA_WIDTH-1:0] o_read_data_a = sub_wire0[DATA_WIDTH-1:0];
+	wire [DATA_WIDTH-1:0] o_read_data_b = sub_wire1[DATA_WIDTH-1:0];
 
 	altsyncram	altsyncram_component (
-				.clock0 (clock),
-				.wren_a (wren_a),
-				.address_b (address_b),
-				.data_b (data_b),
-				.wren_b (wren_b),
-				.address_a (address_a),
-				.data_a (data_a),
+				.clock0 (i_clk),
+				.wren_a (i_write_enable_a),
+				.address_b (i_address_b),
+				.data_b (i_write_data_b),
+				.wren_b (i_write_enable_b),
+				.address_a (i_address_a),
+				.data_a (i_write_data_a),
 				.q_a (sub_wire0),
 				.q_b (sub_wire1),
 				.aclr0 (1'b0),
@@ -104,8 +110,8 @@ module generic_sram_line_en_dualport (
 		altsyncram_component.indata_reg_b = "CLOCK0",
 		altsyncram_component.intended_device_family = "Cyclone IV GX",
 		altsyncram_component.lpm_type = "altsyncram",
-		altsyncram_component.numwords_a = 1024,
-		altsyncram_component.numwords_b = 1024,
+		altsyncram_component.numwords_a = (1 << ADDRESS_WIDTH),
+		altsyncram_component.numwords_b = (1 << ADDRESS_WIDTH),
 		altsyncram_component.operation_mode = "BIDIR_DUAL_PORT",
 		altsyncram_component.outdata_aclr_a = "NONE",
 		altsyncram_component.outdata_aclr_b = "NONE",
@@ -115,10 +121,10 @@ module generic_sram_line_en_dualport (
 		altsyncram_component.read_during_write_mode_mixed_ports = "DONT_CARE",
 		altsyncram_component.read_during_write_mode_port_a = "NEW_DATA_NO_NBE_READ",
 		altsyncram_component.read_during_write_mode_port_b = "NEW_DATA_NO_NBE_READ",
-		altsyncram_component.widthad_a = 10,
-		altsyncram_component.widthad_b = 10,
-		altsyncram_component.width_a = 32,
-		altsyncram_component.width_b = 32,
+		altsyncram_component.widthad_a = ADDRESS_WIDTH,
+		altsyncram_component.widthad_b = ADDRESS_WIDTH,
+		altsyncram_component.width_a = DATA_WIDTH,
+		altsyncram_component.width_b = DATA_WIDTH,
 		altsyncram_component.width_byteena_a = 1,
 		altsyncram_component.width_byteena_b = 1,
 		altsyncram_component.wrcontrol_wraddress_reg_b = "CLOCK0";
@@ -147,7 +153,7 @@ endmodule
 // Retrieval info: PRIVATE: CLRrren NUMERIC "0"
 // Retrieval info: PRIVATE: CLRwraddress NUMERIC "0"
 // Retrieval info: PRIVATE: CLRwren NUMERIC "0"
-// Retrieval info: PRIVATE: Clock NUMERIC "0"
+// Retrieval info: PRIVATE: i_clk NUMERIC "0"
 // Retrieval info: PRIVATE: Clock_A NUMERIC "0"
 // Retrieval info: PRIVATE: Clock_B NUMERIC "0"
 // Retrieval info: PRIVATE: IMPLEMENT_IN_LES NUMERIC "0"
@@ -215,24 +221,24 @@ endmodule
 // Retrieval info: CONSTANT: WIDTH_BYTEENA_A NUMERIC "1"
 // Retrieval info: CONSTANT: WIDTH_BYTEENA_B NUMERIC "1"
 // Retrieval info: CONSTANT: WRCONTROL_WRADDRESS_REG_B STRING "CLOCK0"
-// Retrieval info: USED_PORT: address_a 0 0 10 0 INPUT NODEFVAL "address_a[9..0]"
-// Retrieval info: USED_PORT: address_b 0 0 10 0 INPUT NODEFVAL "address_b[9..0]"
-// Retrieval info: USED_PORT: clock 0 0 0 0 INPUT VCC "clock"
-// Retrieval info: USED_PORT: data_a 0 0 32 0 INPUT NODEFVAL "data_a[31..0]"
-// Retrieval info: USED_PORT: data_b 0 0 32 0 INPUT NODEFVAL "data_b[31..0]"
-// Retrieval info: USED_PORT: q_a 0 0 32 0 OUTPUT NODEFVAL "q_a[31..0]"
-// Retrieval info: USED_PORT: q_b 0 0 32 0 OUTPUT NODEFVAL "q_b[31..0]"
-// Retrieval info: USED_PORT: wren_a 0 0 0 0 INPUT GND "wren_a"
-// Retrieval info: USED_PORT: wren_b 0 0 0 0 INPUT GND "wren_b"
-// Retrieval info: CONNECT: @address_a 0 0 10 0 address_a 0 0 10 0
-// Retrieval info: CONNECT: @address_b 0 0 10 0 address_b 0 0 10 0
-// Retrieval info: CONNECT: @clock0 0 0 0 0 clock 0 0 0 0
-// Retrieval info: CONNECT: @data_a 0 0 32 0 data_a 0 0 32 0
-// Retrieval info: CONNECT: @data_b 0 0 32 0 data_b 0 0 32 0
-// Retrieval info: CONNECT: @wren_a 0 0 0 0 wren_a 0 0 0 0
-// Retrieval info: CONNECT: @wren_b 0 0 0 0 wren_b 0 0 0 0
-// Retrieval info: CONNECT: q_a 0 0 32 0 @q_a 0 0 32 0
-// Retrieval info: CONNECT: q_b 0 0 32 0 @q_b 0 0 32 0
+// Retrieval info: USED_PORT: i_address_a 0 0 10 0 INPUT NODEFVAL "i_address_a[9..0]"
+// Retrieval info: USED_PORT: i_address_b 0 0 10 0 INPUT NODEFVAL "i_address_b[9..0]"
+// Retrieval info: USED_PORT: i_clk 0 0 0 0 INPUT VCC "i_clk"
+// Retrieval info: USED_PORT: i_write_data_a 0 0 32 0 INPUT NODEFVAL "i_write_data_a[31..0]"
+// Retrieval info: USED_PORT: i_write_data_b 0 0 32 0 INPUT NODEFVAL "i_write_data_b[31..0]"
+// Retrieval info: USED_PORT: o_read_data_a 0 0 32 0 OUTPUT NODEFVAL "o_read_data_a[31..0]"
+// Retrieval info: USED_PORT: o_read_data_b 0 0 32 0 OUTPUT NODEFVAL "o_read_data_b[31..0]"
+// Retrieval info: USED_PORT: i_write_enable_a 0 0 0 0 INPUT GND "i_write_enable_a"
+// Retrieval info: USED_PORT: i_write_enable_b 0 0 0 0 INPUT GND "i_write_enable_b"
+// Retrieval info: CONNECT: @i_address_a 0 0 10 0 i_address_a 0 0 10 0
+// Retrieval info: CONNECT: @i_address_b 0 0 10 0 i_address_b 0 0 10 0
+// Retrieval info: CONNECT: @clock0 0 0 0 0 i_clk 0 0 0 0
+// Retrieval info: CONNECT: @i_write_data_a 0 0 32 0 i_write_data_a 0 0 32 0
+// Retrieval info: CONNECT: @i_write_data_b 0 0 32 0 i_write_data_b 0 0 32 0
+// Retrieval info: CONNECT: @i_write_enable_a 0 0 0 0 i_write_enable_a 0 0 0 0
+// Retrieval info: CONNECT: @i_write_enable_b 0 0 0 0 i_write_enable_b 0 0 0 0
+// Retrieval info: CONNECT: o_read_data_a 0 0 32 0 @o_read_data_a 0 0 32 0
+// Retrieval info: CONNECT: o_read_data_b 0 0 32 0 @o_read_data_b 0 0 32 0
 // Retrieval info: GEN_FILE: TYPE_NORMAL generic_sram_line_en_dualport.v TRUE
 // Retrieval info: GEN_FILE: TYPE_NORMAL generic_sram_line_en_dualport.inc FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL generic_sram_line_en_dualport.cmp FALSE

@@ -24,6 +24,7 @@ MK_INCLUDES += $(SIM_DIR)/../tests/defs_rules.mk
 UNIT_VE=${name}
 TB=$(UNIT_VE)_tb
 
+# SYNTH_UNITS = 
 
 
 BFMS += SVF_AXI4_SRAM SVF_AXI4_ROM UART_BFM COMMON_SVF

@@ -80,7 +80,7 @@ void axi4_master_bfm::write(
 			0  				// AWREGION
 			);
 
-	m_aw_id = ((m_aw_id + 1) % (1 << ID_WIDTH));
+//	m_aw_id = ((m_aw_id + 1) % (1 << ID_WIDTH));
 
 	m_bresp_sem.get(); // Wait for acknowledge of the AW phase
 
@@ -122,7 +122,7 @@ void axi4_master_bfm::read(
 			0					// region
 			);
 
-	m_ar_id = ((m_ar_id + 1) % (1 << ID_WIDTH));
+//	m_ar_id = ((m_ar_id + 1) % (1 << ID_WIDTH));
 
 	m_rresp_sem.get();
 

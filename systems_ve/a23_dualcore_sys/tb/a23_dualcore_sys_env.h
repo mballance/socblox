@@ -44,8 +44,6 @@ class a23_dualcore_sys_env : public svf_component {
 		a23_tracer_bfm				*m_core2_tracer;
 
 		FILE						*m_trace_file;
-		a23_disasm_tracer			*m_core1_disasm;
-		a23_disasm_tracer			*m_core2_disasm;
 		timebase					*m_timebase;
 
 		bidi_message_queue_direct_bfm		*m_msg_queue_0;

@@ -39,6 +39,9 @@ class a23_dualcore_sys_test_base : public svf_test {
 		axi4_monitor_stream_logger		*m_ic2ram_logger;
 		axi4_monitor_stream_logger		*m_core2ic_logger;
 
+		a23_disasm_tracer			*m_core1_disasm;
+		a23_disasm_tracer			*m_core2_disasm;
+
 };
 
 #endif /* A23_DUALCORE_TEST_BASE_H_ */

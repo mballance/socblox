@@ -29,7 +29,7 @@ $ENV{SOCBLOX}=$SOCBLOX;
 
 if (! -f "${SOCBLOX}/common/common_defs.mk") {
   print "[ERROR] runtest must be executed in the 'synth' directory\n";
-  print "Working directory is: ${SIM_DIR}\n";
+  print "Working directory is: ${SYNTH_DIR}\n";
   exit 1
 }
 
@@ -45,8 +45,12 @@ $device="cyclonev";
 # Global PID list
 @pid_list;
 
-$run_root=getcwd();
-$run_root .= "/rundir";
+if ($ENV{RUNDIR} eq "") {
+  $run_root=getcwd();
+  $run_root .= "/rundir";
+} else {
+  $run_root=$ENV{RUNDIR};
+}
 
 # Figure out maxpar first
 if (-f "/proc/cpuinfo") {
@@ -79,8 +83,16 @@ for ($i=0; $i <= $#ARGV; $i++) {
   }
 }
 
+
+$project=basename(dirname($SYNTH_DIR));
+$run_root="${run_root}/${project}";
 print "run_root=$run_root\n";
 $ENV{RUN_ROOT}=$run_root;
+
+if (! -d $run_root) {
+	print "run_root=$run_root\n";
+	system("mkdir -p $run_root");
+}
 
 if ($builddir eq "") {
   $builddir=$ENV{RUN_ROOT};
@@ -94,15 +106,16 @@ if ($quiet eq "") {
 $SIG{'INT'} = 'cleanup';
 
 system("make",
+		"-C", "${run_root}",
        	"-f" ,
-       	"$SIM_DIR/scripts/Makefile",
+       	"$SYNTH_DIR/scripts/Makefile",
                     	"SIM=${sim}",
                     	"SEED=${seed}",
 #                    	"-quiet", "$quiet", 
                     	"TESTNAME=${test}", 
                     	"INTERACTIVE=${interactive}",
                     	"DEBUG=${debug}",
-                    	"run"
+                    	"img"
                     	);
 run_test($clean,$run_root,$test,$count,$quiet,$max_par,$start);
 

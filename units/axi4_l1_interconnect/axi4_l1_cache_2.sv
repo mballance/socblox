@@ -97,7 +97,9 @@ module axi4_l1_cache_2 #(
 		ST_WR_ACK,
 		ST_FILL_AR,       // 15
 		ST_FILL_RDATA,
-		ST_FILL_STALL
+		ST_FILL_STALL,
+		ST_INIT_TAG_1,
+		ST_INIT_TAG_2
 	} rw_state_e;
 	
 	rw_state_e			rw_state;
@@ -142,13 +144,14 @@ module axi4_l1_cache_2 #(
 	wire          					snoop_tag_valid_way[CACHE_WAYS-1:0];
 	wire          					snoop_tag_valid_wdata_way[CACHE_WAYS-1:0];
 	wire							snoop_data_wenable_way[CACHE_WAYS-1:0];
-	reg  [CACHE_LINE_WIDTH-1:0]		snoop_data_wdata;
+	reg  [CACHE_LINE_WIDTH-1:0]		snoop_data_wdata = 0;
 	wire [CACHE_LINE_WIDTH-1:0]		snoop_data_rdata_way[CACHE_WAYS-1:0];
 		
 	reg								snoop_hit 		= 0;
 	reg  [$clog2(CACHE_WAYS)-1:0]	snoop_hit_way 	= 0;
 	reg [31:TAG_ADDR32_LSB]			snoop_tag;
 	reg [CACHE_ADDR_WIDTH-1:0]		snoop_tag_data_address;
+//	reg [$clog2(CACHE_ADDR_WIDTH)-1:0]	init_cnt;
 	
 	wire [CACHE_LINE_WIDTH/8-1:0]	snoop_data_byteen;
 	
@@ -158,11 +161,17 @@ module axi4_l1_cache_2 #(
 	// Read/Write state machine
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
-			rw_state <= ST_WAIT_REQ;
+			rw_state <= ST_INIT_TAG_1;
 			rw_addr <= 0;
 			rw_offset <= 0;
 			read_count <= 4'b0000;
 			arvalid <= 0;
+			tag_data_address <= 0;
+			tag_wdata <= 0;
+			id <= 0;
+			data_byte_enable <= 0;
+			way_sel_write <= 0;
+			data_wdata <= 0;
 			/*
 			read_length <= 4'b0000;
 			read_burst <= 0;
@@ -204,13 +213,18 @@ module axi4_l1_cache_2 #(
 							end
 						end
 					end else if (in.AWVALID && in.AWREADY) begin
-						rw_state <= ST_CHECK_WR_HIT_1;
-						tag_data_address <= in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
-						tag <= in.AWADDR[$bits(in.AWADDR)-1:TAG_ADDR32_LSB];
-						word_index <= in.AWADDR[WORD_SEL_MSB:WORD_SEL_LSB];
-						rw_offset <= in.AWADDR[WORD_SEL_MSB:WORD_SEL_LSB]; // word_index
-						rw_addr <= {in.AWADDR[$bits(in.AWADDR)-1:TAG_ADDR32_LSB], in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB]};
-						id <= in.AWID;
+						if (in.AWCACHE[1]) begin
+							rw_state <= ST_CHECK_WR_HIT_1;
+							tag_data_address <= in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
+							tag <= in.AWADDR[$bits(in.AWADDR)-1:TAG_ADDR32_LSB];
+							word_index <= in.AWADDR[WORD_SEL_MSB:WORD_SEL_LSB];
+							rw_offset <= in.AWADDR[WORD_SEL_MSB:WORD_SEL_LSB]; // word_index
+							rw_addr <= {in.AWADDR[$bits(in.AWADDR)-1:TAG_ADDR32_LSB], in.AWADDR[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB]};
+							id <= in.AWID;
+						end else begin
+							// Uncached write
+							rw_state <= ST_UNCACHED_WR_1;
+						end
 					end
 				end
 				
@@ -349,15 +363,30 @@ module axi4_l1_cache_2 #(
 						rw_state <= ST_WAIT_REQ;
 					end
 				end
+				
+				ST_INIT_TAG_1: begin
+					rw_state <= ST_INIT_TAG_2;
+				end
+				
+				ST_INIT_TAG_2: begin
+					if (tag_data_address == {CACHE_ADDR_WIDTH{1'b1}}) begin
+						rw_state <= ST_WAIT_REQ;
+					end else begin
+						tag_data_address <= tag_data_address + 1;
+						rw_state <= ST_INIT_TAG_1;
+					end
+				end
 			endcase
 		end
 	end
 
 	// Control for way write control
 	generate
-		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin
+		genvar i;
+		for (i=0; i<CACHE_WAYS; i=i+1) begin : g_tag_wenable_way
 			assign tag_wenable_way[i] = 
-				((rw_state == ST_FILL_RDATA && read_count == 3) && way_sel_write == i);
+				(((rw_state == ST_FILL_RDATA && read_count == 3) && way_sel_write == i) ||
+					(rw_state == ST_INIT_TAG_1 || rw_state == ST_INIT_TAG_2));
 			
 			assign data_wenable_way[i] = 
 				(((read_count == 4) && way_sel_write == i) ||
@@ -389,6 +418,7 @@ module axi4_l1_cache_2 #(
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
 			snoop_gen_state <= SG_WAIT_REQ;
+			snoop_gen_addr_r <= 0;
 		end else begin
 			case (snoop_gen_state) 
 				SG_WAIT_REQ: begin
@@ -407,7 +437,7 @@ module axi4_l1_cache_2 #(
 	end
 	
 	
-	reg[31:0] snoop_addr_r;
+//	reg[31:0] snoop_addr_r;
 	
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
@@ -418,7 +448,7 @@ module axi4_l1_cache_2 #(
 					if (i_snoop_addr_valid) begin
 						snoop_tag_data_address <= i_snoop_addr[CACHE_ADDR32_MSB:CACHE_ADDR32_LSB];
 						snoop_tag <= i_snoop_addr[$bits(i_snoop_addr)-1:TAG_ADDR32_LSB];
-						snoop_addr_r <= i_snoop_addr;
+//						snoop_addr_r <= i_snoop_addr;
 						snoop_state <= SS_CHECK_HIT_1;
 					end
 				end
@@ -442,7 +472,7 @@ module axi4_l1_cache_2 #(
 	
 	// Control for snoop way write control
 	generate
-		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin
+		for (i=0; i<CACHE_WAYS; i=i+1) begin : g_snoop_tag_wenable_way
 			assign snoop_tag_wenable_way[i] = 
 				((snoop_state == SS_CHECK_HIT_2) && snoop_hit && (snoop_hit_way == i));
 		end
@@ -519,12 +549,12 @@ module axi4_l1_cache_2 #(
 	always @* begin
 		hit = 0;
 		hit_way = 0;
-		for (int i=0; i<CACHE_WAYS; i=i+1) begin
-			if (tag_valid_way[i] && tag_rdata_way[i] == tag) begin
-				hit = 1;
-				hit_way = i;
-			end
-		end
+//		for (int i=0; i<CACHE_WAYS; i=i+1) begin
+//			if (tag_valid_way[i] && tag_rdata_way[i] == tag) begin
+//				hit = 1;
+//				hit_way = i;
+//			end
+//		end
 	end
 	
 	always @* begin
@@ -556,11 +586,11 @@ module axi4_l1_cache_2 #(
 	end
 	
 	generate
-		for (genvar i=0; i<CACHE_WAYS; i=i+1) begin : rams
+		for (i=0; i<CACHE_WAYS; i=i+1) begin : g_rams
 
 			generic_sram_line_en_dualport #(
 					.DATA_WIDTH                 ( TAG_WIDTH             ),
-					.INITIALIZE_TO_ZERO         ( 1                     ),
+					.INITIALIZE_TO_ZERO         ( 0                     ),
 					.ADDRESS_WIDTH              ( CACHE_ADDR_WIDTH      )
 				) u_tag (
 					.i_clk                      ( clk_i                 							),

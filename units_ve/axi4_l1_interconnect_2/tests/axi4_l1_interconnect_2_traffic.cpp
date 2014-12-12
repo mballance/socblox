@@ -38,9 +38,9 @@ void axi4_l1_interconnect_2_traffic::main() {
 	m_env->m_m0->wait_for_reset();
 
 	// First, initialize the memory
-	for (uint32_t i=0; i<128; i++) {
-		m_env->m_sram->write32(4*i, 0x55000000+i+1);
-	}
+//	for (uint32_t i=0; i<128; i++) {
+//		m_env->m_sram->write32(4*i, 0x55000000+i+1);
+//	}
 
 	m_env->m_m0->set_cache(axi4_master_bfm::CACHE_CACHEABLE);
 	m_env->m_m1->set_cache(axi4_master_bfm::CACHE_CACHEABLE);
@@ -69,7 +69,7 @@ void axi4_l1_interconnect_2_traffic::main() {
 		m_env->m_m0->write32(4*word, exp_data);
 
 		// Double-check that the data made it to the ram
-		data = m_env->m_sram->read32(4*word);
+//		data = m_env->m_sram->read32(4*word);
 		if (exp_data != data) {
 			fprintf(stdout, "Error: 0x%08x - expect ram data 0x%08x receive 0x%08x\n", 4*word, exp_data, data);
 		}
@@ -91,7 +91,7 @@ void axi4_l1_interconnect_2_traffic::main() {
 		m_env->m_m1->write32(4*word, exp_data);
 
 		// Double-check that the data made it to the ram
-		data = m_env->m_sram->read32(4*word);
+//		data = m_env->m_sram->read32(4*word);
 		if (exp_data != data) {
 			fprintf(stdout, "Error: 0x%08x - expect ram data 0x%08x receive 0x%08x\n", 4*word, exp_data, data);
 		}

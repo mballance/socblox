@@ -53,13 +53,7 @@ input                       i_irq,              // Interrupt request, active hig
 input                       i_firq,             // Fast Interrupt request, active high
 
 // Wishbone Master I/F
-axi4_if.master				master,
-
-// Outputs to the L1 interconnect and snoop unit
-output						o_cache_enable,
-output						o_cache_flush,
-output [31:0]				o_cacheable_area
-
+axi4_if.master				master
 );
 
 // rst is more useful to us.
@@ -152,10 +146,6 @@ wire     [31:0]           iabt_fault_address;
 wire     [31:0]           dabt_fault_address;
 
 wire                      adex;
-
-assign o_cache_enable = cache_enable;
-assign o_cacheable_area = cacheable_area;
-assign o_cache_flush = cache_flush;
 
 
 // data abort has priority
@@ -338,6 +328,7 @@ a23_execute u_execute (
 
 a23_coprocessor u_coprocessor (
     .i_clk                              ( i_clk                             ),
+    .i_rstn								( i_rstn							),
     
     .i_fetch_stall                      ( fetch_stall                       ),
     .i_copro_opcode1                    ( copro_opcode1                     ),

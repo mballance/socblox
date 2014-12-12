@@ -1,6 +1,10 @@
 /****************************************************************************
  * a23_dualcore_sys_tb.sv
  ****************************************************************************/
+ 
+`ifdef GLS
+`timescale 1 ps/ 1 ps
+`endif
 
 /**
  * Module: a23_dualcore_sys_tb
@@ -22,9 +26,9 @@ module a23_dualcore_sys_tb(input clk);
 	
 	initial begin
 		forever begin
-			#5ns;
+			#10ns;
 			clk_r <= 1;
-			#5ns;
+			#10ns;
 			clk_r <= 0;
 		end
 	end
@@ -63,7 +67,11 @@ module a23_dualcore_sys_tb(input clk);
 	
 	uart_if u_uart_if ();
 
+`ifdef GLS
+	a23_dualcore_sys_top_w #(
+`else
 	a23_dualcore_sys #(
+`endif
 			.CLK_PERIOD(CLK_PERIOD),
 			.UART_BAUD(UART_BAUD)
 			) u_a23_sys (
@@ -106,7 +114,8 @@ module a23_dualcore_sys_tb(input clk);
 		.u           (u_uart_if.dce)
 		);
 		
-	
+
+`ifndef GLS
 	bind a23_tracer a23_tracer_bfm u_tracer_bfm (
 			.i_clk                    (i_clk                   ), 
 			.i_fetch_stall            (i_fetch_stall           ), 
@@ -139,8 +148,17 @@ module a23_dualcore_sys_tb(input clk);
 			.rst_n(rst_n),
 			.monitor(monitor)
 			);
-	/*
-			 */
+`else
+	// Stub instances of modules that exist in non-GLS mode
+	
+	axi4_svf_rom #(
+		.DATA_WIDTH     (8), 
+		.ADDRESS_WIDTH  (1)
+		) u_default_rom (
+		.i_clk          (clk        ), 
+		.i_address      (i_address  ), 
+		.o_read_data    (o_data     ));
+`endif	
 	
 endmodule
 

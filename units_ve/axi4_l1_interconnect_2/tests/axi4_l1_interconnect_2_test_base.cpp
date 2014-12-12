@@ -35,9 +35,6 @@ void axi4_l1_interconnect_2_test_base::connect()
 	axi4_master_bfm_dpi_mgr::connect(TB_ROOT + ".u_m0", m_env->m_m0->bfm_port);
 	axi4_master_bfm_dpi_mgr::connect(TB_ROOT + ".u_m1", m_env->m_m1->bfm_port);
 
-	generic_sram_byte_en_dpi_mgr::connect(TB_ROOT + ".u_mem.ram_w.ram", m_env->m_sram->bfm_port);
-	GENERIC_SRAM_BYTE_EN_BFM_H_
-
 
 	// TODO: connect BFMs
 }
