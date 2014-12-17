@@ -309,6 +309,9 @@ always @( posedge i_clk )
 // Register Reads
 // ========================================================
 always @( posedge i_clk )
+	if (i_rstn == 0) begin
+		wb_rdata32 <= 0;
+	end else begin
     if ( wb_start_read )
         case ( i_wb_adr[11:0] )
             AMBER_TM_TIMER0_LOAD: wb_rdata32 <= {16'd0, timer0_load_reg};
@@ -339,6 +342,7 @@ always @( posedge i_clk )
             default:               wb_rdata32 <= 32'h66778899;
             
         endcase
+	end
 
 
 

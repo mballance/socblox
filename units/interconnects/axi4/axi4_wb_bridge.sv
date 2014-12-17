@@ -22,16 +22,16 @@ module axi4_wb_bridge #(
 
 	// Simple bridging logic 
 
-	reg									last_access_write;
-	reg[2:0]							access_state;
-	reg[WB_ADDRESS_WIDTH-1:0]			WB_ADR_r;
-	reg									WB_WE_r;
-	reg[WB_DATA_WIDTH/8-1:0]			WB_SEL_r;
-	reg[WB_DATA_WIDTH-1:0]				WB_DATA_W_r;
-	reg									AXI_DATA_LAST_r;
-	reg[3:0]							AXI_LEN_r;
-	reg[AXI4_DATA_WIDTH-1:0]			AXI_DAT_R_r;
-	reg[AXI4_ID_WIDTH-1:0]				AXI_ID_r;
+	reg									last_access_write = 0;
+	reg[2:0]							access_state = 0;
+	reg[WB_ADDRESS_WIDTH-1:0]			WB_ADR_r = 0;
+	reg									WB_WE_r = 0;
+	reg[WB_DATA_WIDTH/8-1:0]			WB_SEL_r = 0;
+	reg[WB_DATA_WIDTH-1:0]				WB_DATA_W_r = 0;
+	reg									AXI_DATA_LAST_r = 0;
+	reg[3:0]							AXI_LEN_r = 0;
+	reg[AXI4_DATA_WIDTH-1:0]			AXI_DAT_R_r = 0;
+	reg[AXI4_ID_WIDTH-1:0]				AXI_ID_r = 0;
 	
 	assign axi_i.BRESP = 2'b00;
 	assign axi_i.RRESP = 2'b00;
@@ -42,6 +42,14 @@ module axi4_wb_bridge #(
 	always @(posedge axi_clk) begin
 		if (rstn == 0) begin
 			access_state <= 0;
+			WB_ADR_r <= 0;
+			WB_WE_r <= 0;
+			WB_SEL_r <= 0;
+			WB_DATA_W_r <= 0;
+			AXI_DATA_LAST_r <= 0;
+			AXI_LEN_r <= 0;
+			AXI_DAT_R_r <= 0;
+			AXI_ID_r <= 0;
 		end else begin
 			case (access_state) 
 				0: begin

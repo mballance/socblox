@@ -94,7 +94,7 @@ module axi4_interconnect_7x6 #(
 		return (6);
 	endfunction
 	
-	bit[3:0]									write_req_state[N_MASTERS-1:0];
+	reg[3:0]									write_req_state[N_MASTERS-1:0];
 	wire[AXI4_ADDRESS_WIDTH-1:0]				AWADDR[N_MASTERS-1:0];
 	wire[AXI4_ID_WIDTH-1:0]						AWID[N_MASTERS-1:0];
 	wire[7:0]									AWLEN[N_MASTERS-1:0];
@@ -170,8 +170,8 @@ module axi4_interconnect_7x6 #(
 	wire										WLAST[N_MASTERS-1:0];
 	wire										WVALID[N_MASTERS-1:0];
 	wire										WREADY[N_MASTERS-1:0];
-	bit											write_request_busy[N_MASTERS-1:0];
-	bit[N_SLAVEID_BITS:0]						write_selected_slave[N_MASTERS-1:0];
+	reg											write_request_busy[N_MASTERS-1:0];
+	reg[N_SLAVEID_BITS:0]						write_selected_slave[N_MASTERS-1:0];
 
 	wire[N_MASTERS-1:0]							aw_req[N_SLAVES:0];
 	wire										aw_master_gnt[N_SLAVES:0];
@@ -225,7 +225,7 @@ module axi4_interconnect_7x6 #(
 	wire[1:0]									SRRESP_p[N_SLAVES:0];
 	wire										SRLAST_p[N_SLAVES:0];
 	wire										SRVALID_p[N_SLAVES:0];
-	wire										SRREADY_p[N_SLAVES:0];
+//	wire										SRREADY_p[N_SLAVES:0];
 	
 	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		SRID_r[N_SLAVES:0];
 	reg[AXI4_DATA_WIDTH-1:0]					SRDATA_r[N_SLAVES:0];
@@ -574,7 +574,7 @@ module axi4_interconnect_7x6 #(
 	
 
 // Read request state machine
-	bit[3:0]									read_req_state[N_MASTERS-1:0];
+	reg[3:0]									read_req_state[N_MASTERS-1:0];
 	reg[N_SLAVEID_BITS:0]						read_selected_slave[N_MASTERS-1:0];
 	wire[N_MASTERS-1:0]							ar_req[N_SLAVES:0];
 	wire										ar_master_gnt[N_SLAVES:0];
@@ -851,6 +851,7 @@ module axi4_interconnect_7x6 #(
 				if (rstn == 0) begin
 					write_req_state[m_aw_i] <= 'b00;
 					write_selected_slave[m_aw_i] <= NO_SLAVE;
+					write_request_busy[m_aw_i] <= 0;
 					R_AWADDR_i[m_aw_i] <= 0;
 					R_AWADDR[m_aw_i] <= 0;
 					R_AWBURST[m_aw_i] <= 0;
@@ -1381,6 +1382,7 @@ module axi4_interconnect_7x6 #(
 			always @(posedge clk) begin
 				if (rstn != 1) begin
 					write_state <= 0;
+					write_id <= 0;
 				end else begin
 					case (write_state)
 						2'b00: begin
@@ -1416,12 +1418,14 @@ module axi4_interconnect_7x6 #(
 			assign sdflt.RDATA = 0;
 			assign sdflt.RLAST = (read_state == 1 && read_count == read_length);
 			assign sdflt.RID = (read_state == 1)?read_id:0;
+			assign sdflt.RRESP = 0;
 	
 			always @(posedge clk) begin
 				if (rstn != 1) begin
 					read_state <= 0;
 					read_count <= 0;
 					read_length <= 0;
+					read_id <= 0;
 				end else begin
 					case (read_state)
 						0: begin
@@ -1449,6 +1453,73 @@ module axi4_interconnect_7x6 #(
 
 endmodule
 
+module axi4_interconnect_7x6_arbiter_2 #(
+		parameter int			N_REQ=2
+		) (
+		input						clk,
+		input						rstn,
+		input[N_REQ-1:0]			req,
+		output						gnt,
+		output[$clog2(N_REQ)-1:0]	gnt_id
+		);
+	
+	reg state;
+	
+	reg [N_REQ-1:0]	gnt_o;
+	reg [N_REQ-1:0]	last_gnt;
+//	reg [$clog2(N_REQ)-1:0] gnt_id_o;
+	reg						gnt_r = 0;
+	reg [((N_REQ>1)?($clog2(N_REQ)-1):0):0] gnt_id_r = 0;
+	reg [((N_REQ>1)?($clog2(N_REQ)-1):0):0] gnt_id_next;
+	
+	assign gnt = gnt_r; // (gnt_id_r != {N_REQ{1'b1}}); // |gnt_o;
+	assign gnt_id = gnt_id_r;
+
+	always @* begin
+		static reg[N_REQ-1:0] req_mask = (gnt_id_r == N_REQ-1)?0:(1 << (gnt_id_r+1));
+		gnt_id_next = 0;
+		for (int i=0; i<N_REQ; i=i+1) begin
+			if (req & req_mask) begin
+				gnt_id_next = gnt_id_r+i;
+				break;
+			end else begin
+				if (req_mask[N_REQ-1]) begin
+					req_mask = 1;
+				end else begin
+					req_mask = (N_REQ>1)?{req_mask[N_REQ-2:0], 1'b0}:0;
+				end
+			end
+		end
+	end
+	
+	always @(posedge clk) begin
+		if (rstn == 0) begin
+			state <= 0;
+			last_gnt <= 0;
+			gnt_r <= 0;
+			gnt_id_r <= 0;
+		end else begin
+			case (state) 
+				0: begin
+					if (|req) begin
+						state <= 1;
+						gnt_r <= 1;
+						gnt_id_r <= gnt_id_next;
+					end
+				end
+				
+				1: begin
+					if ((req & (1 << gnt_id_r)) == 0) begin
+						state <= 0;
+						gnt_r <= 0;
+					end
+				end
+			endcase
+		end
+	end
+
+endmodule
+
 module axi4_interconnect_7x6_arbiter #(
 		parameter int			N_REQ=2
 		) (
@@ -1459,7 +1530,7 @@ module axi4_interconnect_7x6_arbiter #(
 		output[$clog2(N_REQ)-1:0]	gnt_id
 		);
 	
-	bit state;
+	reg state;
 	
 	reg [N_REQ-1:0]	gnt_o;
 	reg [N_REQ-1:0]	last_gnt;
@@ -1551,7 +1622,7 @@ module axi4_interconnect_7x6_arbiter #(
 		end
 	end
 
-	function bit[$clog2(N_REQ)-1:0] gnt2id(bit[N_REQ-1:0] gnt);
+	function reg[$clog2(N_REQ)-1:0] gnt2id(reg[N_REQ-1:0] gnt);
 		automatic int i;
 //		static reg[$clog2(N_REQ)-1:0] result;
 		reg[$clog2(N_REQ)-1:0] result;

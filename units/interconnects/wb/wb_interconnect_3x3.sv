@@ -207,7 +207,7 @@ module wb_interconnect_3x3 #(
  */
 
 // Read request state machine
-	bit[3:0]									read_req_state[N_MASTERS-1:0];
+	reg[3:0]									read_req_state[N_MASTERS-1:0];
 	reg[N_SLAVEID_BITS:0]						read_selected_slave[N_MASTERS-1:0];
 
 	/*
@@ -460,7 +460,7 @@ module wb_interconnect_3x3_arbiter #(
 		output[$clog2(N_REQ)-1:0]	gnt_id
 		);
 	
-	bit state;
+	reg state;
 	
 	reg [N_REQ-1:0]	gnt_o;
 	reg [N_REQ-1:0]	last_gnt;
@@ -552,7 +552,7 @@ module wb_interconnect_3x3_arbiter #(
 		end
 	end
 
-	function bit[$clog2(N_REQ)-1:0] gnt2id(bit[N_REQ-1:0] gnt);
+	function reg[$clog2(N_REQ)-1:0] gnt2id(reg[N_REQ-1:0] gnt);
 		automatic int i;
 		reg[$clog2(N_REQ)-1:0] result;
 		

@@ -57,17 +57,17 @@ module axi4_l1_cache_2 #(
 	localparam WORD_SEL_MSB      = WORD_SEL_WIDTH + 2 - 1;                      // = 3
 	localparam WORD_SEL_LSB      =                  2;                          // = 2
 	
-	reg [CACHE_ADDR_WIDTH-1:0]				tag_data_address;
-	reg [31:TAG_ADDR32_LSB]					tag;
-	reg [(WORD_SEL_MSB-WORD_SEL_LSB):0]		word_index;
-	reg[AXI4_ADDRESS_WIDTH-1:4]				rw_addr;
+	reg [CACHE_ADDR_WIDTH-1:0]				tag_data_address = 0;
+	reg [31:TAG_ADDR32_LSB]					tag = 0;
+	reg [(WORD_SEL_MSB-WORD_SEL_LSB):0]		word_index = 0;
+	reg[AXI4_ADDRESS_WIDTH-1:4]				rw_addr = 0;
 	wire[AXI4_ADDRESS_WIDTH-1:0]			rw_addr_w;
-	reg[1:0]								rw_offset;
-	reg[2:0]								read_count;
-	reg[$bits(in.ARID)-1:0]					id;
-	reg[1:0]								way_sel_write;
-	reg[1:0]								way_sel_rand;
-	reg[1:0]								way_sel;
+	reg[1:0]								rw_offset = 0;
+	reg[2:0]								read_count = 0;
+	reg[$bits(in.ARID)-1:0]					id = 0;
+	reg[1:0]								way_sel_write = 0;
+	reg[1:0]								way_sel_rand = 0;
+	reg[1:0]								way_sel = 0;
 	
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
@@ -79,7 +79,7 @@ module axi4_l1_cache_2 #(
 	
 	assign rw_addr_w = {rw_addr, rw_offset, 2'b0};
 
-	typedef enum {
+	typedef enum reg[4:0] {
 		ST_WAIT_REQ,
 		ST_CHECK_RD_HIT_1,
 		ST_CHECK_RD_HIT_2,
@@ -99,11 +99,11 @@ module axi4_l1_cache_2 #(
 		ST_FILL_RDATA,
 		ST_FILL_STALL,
 		ST_INIT_TAG_1,
-		ST_INIT_TAG_2
+		ST_INIT_TAG_2     // 19
 	} rw_state_e;
 	
-	rw_state_e			rw_state;
-	reg					arvalid;
+	rw_state_e			rw_state = ST_INIT_TAG_1;
+	reg					arvalid = 0;
 	
 `ifndef UNDEFINED
 	wire ar_passthrough = (rw_state == ST_WAIT_REQ && !in.ARCACHE[1]);
@@ -122,14 +122,14 @@ module axi4_l1_cache_2 #(
 `endif
 
 	wire 							tag_wenable_way[CACHE_WAYS-1:0];
-	reg [TAG_WIDTH-1:0]				tag_wdata;
-	reg								tag_valid;
+	reg [TAG_WIDTH-1:0]				tag_wdata = 0;
+	reg								tag_valid = 0;
 	wire [TAG_WIDTH-2:0]			tag_rdata_way[CACHE_WAYS-1:0];
 	wire          					tag_valid_way[CACHE_WAYS-1:0];
 	wire          					tag_valid_wdata_way[CACHE_WAYS-1:0];
 	wire							data_wenable_way[CACHE_WAYS-1:0];
-	reg  [CACHE_LINE_WIDTH/8-1:0]	data_byte_enable;
-	reg  [CACHE_LINE_WIDTH-1:0]		data_wdata;
+	reg  [CACHE_LINE_WIDTH/8-1:0]	data_byte_enable = 0;
+	reg  [CACHE_LINE_WIDTH-1:0]		data_wdata = 0;
 	wire [CACHE_LINE_WIDTH-1:0]		data_rdata_way[CACHE_WAYS-1:0];
 		
 	reg								hit 		= 0;
@@ -138,7 +138,7 @@ module axi4_l1_cache_2 #(
 	reg  [AXI4_DATA_WIDTH-1:0]		stall_rdata = 0;
 	
 	wire 							snoop_tag_wenable_way[CACHE_WAYS-1:0];
-	reg [TAG_WIDTH-1:0]				snoop_tag_wdata;
+//	reg [TAG_WIDTH-1:0]				snoop_tag_wdata;
 	wire							snoop_tag_valid_wdata;
 	wire [TAG_WIDTH-2:0]			snoop_tag_rdata_way[CACHE_WAYS-1:0];
 	wire          					snoop_tag_valid_way[CACHE_WAYS-1:0];
@@ -149,8 +149,8 @@ module axi4_l1_cache_2 #(
 		
 	reg								snoop_hit 		= 0;
 	reg  [$clog2(CACHE_WAYS)-1:0]	snoop_hit_way 	= 0;
-	reg [31:TAG_ADDR32_LSB]			snoop_tag;
-	reg [CACHE_ADDR_WIDTH-1:0]		snoop_tag_data_address;
+	reg [31:TAG_ADDR32_LSB]			snoop_tag = 0;
+	reg [CACHE_ADDR_WIDTH-1:0]		snoop_tag_data_address = 0;
 //	reg [$clog2(CACHE_ADDR_WIDTH)-1:0]	init_cnt;
 	
 	wire [CACHE_LINE_WIDTH/8-1:0]	snoop_data_byteen;
@@ -168,10 +168,14 @@ module axi4_l1_cache_2 #(
 			arvalid <= 0;
 			tag_data_address <= 0;
 			tag_wdata <= 0;
+			tag <= 0;
+			tag_valid <= 0;
+			word_index <= 0;
 			id <= 0;
 			data_byte_enable <= 0;
 			way_sel_write <= 0;
 			data_wdata <= 0;
+			stall_rdata <= 0;
 			/*
 			read_length <= 4'b0000;
 			read_burst <= 0;
@@ -391,25 +395,27 @@ module axi4_l1_cache_2 #(
 			assign data_wenable_way[i] = 
 				(((read_count == 4) && way_sel_write == i) ||
 				 (rw_state == ST_WR_ACK && way_sel_write == i));
+			
+			assign snoop_data_wenable_way[i] = 0;
 		end
 	endgenerate
 	
-	typedef enum {
+	typedef enum reg[1:0] {
 		SS_WAIT_REQ,
 		SS_CHECK_HIT_1,
 		SS_CHECK_HIT_2
 	} snoop_state_e;
 	
-	snoop_state_e			snoop_state;
+	snoop_state_e			snoop_state = SS_WAIT_REQ;
 	
 	// Snoop address generation
-	typedef enum {
+	typedef enum reg [0:0] {
 		SG_WAIT_REQ,
 		SG_WAIT_ACK
 	} snoop_gen_state_e;
 	
-	reg[31:0]				snoop_gen_addr_r;
-	snoop_gen_state_e		snoop_gen_state;
+	reg[31:0]				snoop_gen_addr_r = 0;
+	snoop_gen_state_e		snoop_gen_state = SG_WAIT_REQ;
 	
 	assign o_snoop_addr = snoop_gen_addr_r;
 	assign o_snoop_addr_valid = (in.BVALID && in.BREADY);
@@ -442,6 +448,8 @@ module axi4_l1_cache_2 #(
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
 			snoop_state <= SS_WAIT_REQ;
+			snoop_tag_data_address <= 0;
+			snoop_tag <= 0;
 		end else begin
 			case (snoop_state)
 				SS_WAIT_REQ: begin
@@ -568,7 +576,7 @@ module axi4_l1_cache_2 #(
 	end
 
 	assign hit_data = 
-		(rw_state == ST_FILL_STALL)?stall_rdata:
+		(rw_state == ST_FILL_STALL || rw_state == ST_INIT_TAG_1 || rw_state == ST_INIT_TAG_2)?stall_rdata:
 		(word_index == 0)?data_rdata_way[hit_way][31:0]:
 		(word_index == 1)?data_rdata_way[hit_way][63:32]:
 		(word_index == 2)?data_rdata_way[hit_way][95:64]:

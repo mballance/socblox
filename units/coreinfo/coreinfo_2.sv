@@ -37,26 +37,34 @@ module coreinfo_2 #(
 	reg[31:0]				core_id;
 	reg[$bits(s.ARID)-1:0]		arid;
 
-	always @(posedge clk_i) begin
-		if (arid == CORE0_AXI_ID) begin
-			core_id <= CORE0_ID;
-		end else if (arid == CORE1_AXI_ID) begin
-			core_id <= CORE1_ID;
+	always @* begin
+		if (rst_n == 0) begin
+			core_id = {32{1'b1}};
 		end else begin
-			core_id <= {32{1'b1}};
+		if (arid == CORE0_AXI_ID) begin
+			core_id = CORE0_ID;
+		end else if (arid == CORE1_AXI_ID) begin
+			core_id = CORE1_ID;
+		end else begin
+			core_id = {32{1'b1}};
+		end
 		end
 	end
 
-	reg[1:0] 						read_state;
-	reg[9:0]						read_addr;
-	reg[AXI_ID_WIDTH-1:0]			read_id;
-    reg[3:0]						read_count;
-    reg[3:0]						read_length;
+	reg[1:0] 						read_state = 0;
+	reg[9:0]						read_addr = 0;
+	reg[AXI_ID_WIDTH-1:0]			read_id = 0;
+    reg[3:0]						read_count = 0;
+    reg[3:0]						read_length = 0;
 
 	always @(posedge clk_i) begin
 		if (rst_n == 0) begin
 			read_state <= 2'b00;
 			read_addr <= {10{1'b0}};
+			read_id <= 0;
+			read_count <= 0;
+			read_length <= 0;
+			arid <= 0;
 		end else begin
 			case (read_state)
 				2'b00: begin // Wait address state
@@ -116,7 +124,6 @@ module coreinfo_2 #(
     reg[2:0] 						write_state;
     reg[1:0]						write_addr;
     reg[AXI_ID_WIDTH-1:0]			write_id;
-    reg[31:0]						write_data;    
    
    	always @(posedge clk_i) begin
 		if (!rst_n) begin

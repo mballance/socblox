@@ -1,6 +1,6 @@
 /****************************************************************************
  * a23_dualcore_sys.sv
- ****************************************************************************/
+ ***************************************************************************/
  
 module dummy_slave(axi4_if.slave slave);
 endmodule
@@ -34,7 +34,7 @@ module a23_dualcore_sys #(
 	reg[31:0]			cnt = 0;
 	reg[3:0]			state = 0;
 	reg[31:0]			scratch = 0;
-	reg					rst_n;
+	reg					rst_n = 0;
 	reg					rst_req = 0;
 	wire				rst_n_1;
 	wire				irq;
@@ -456,6 +456,7 @@ module a23_dualcore_sys #(
 
 	interrupt_controller u_itc (
 		.i_clk         (core_clk          ), 
+		.i_rstn        (rst_n             ),
 		.slave         (wbic2intc.slave   ), 
 		.o_irq         (irq               ), 
 		.o_firq        (firq              ), 

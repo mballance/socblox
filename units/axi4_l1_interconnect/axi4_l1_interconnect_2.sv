@@ -39,7 +39,13 @@ module axi4_l1_interconnect_2 #(
 	// synopsys translate_off
 	initial begin
 		if ($bits(out.ARID) != $bits(m0.ARID)+1) begin
-			$display("Error: bit-width problem");
+			$display("Error: %m bit-width problem - expect %0d receive %0d", AXI4_ID_WIDTH, $bits(out.ARID));
+		end
+		if ($bits(m0.ARID) != AXI4_ID_WIDTH) begin
+			$display("Error: %m m0.ARID bit-width problem - expect %0d receive %0d", AXI4_ID_WIDTH, $bits(m0.ARID));
+		end
+		if ($bits(m1.ARID) != AXI4_ID_WIDTH) begin
+			$display("Error: %m m1.ARID bit-width problem - expect %0d receive %0d", AXI4_ID_WIDTH, $bits(m1.ARID));
 		end
 	end
 	// synopsys translate_on

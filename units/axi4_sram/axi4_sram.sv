@@ -21,6 +21,10 @@ module axi4_sram #(
 	// synopsys translate_off
 	initial begin
 		$display("SRAM path %m");
+		if ($bits(s.ARID) != AXI_ID_WIDTH) begin
+			$display("SRAM %m: expect %0d ID bits ; receive %0d", AXI_ID_WIDTH, $bits(s.ARID));
+			$finish();
+		end
 	end
 	// synopsys translate_on
 	

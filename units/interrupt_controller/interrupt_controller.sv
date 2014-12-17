@@ -43,6 +43,7 @@
 
 module interrupt_controller(
 input                       i_clk,
+input						i_rstn,
 
 wb_if.slave					slave,
 
@@ -149,6 +150,14 @@ assign o_wb_dat    = wb_rdata32;
 assign raw_interrupts = {i_interrupts, softint_reg};
 
 always @(posedge i_clk) begin
+	if (i_rstn == 0) begin
+		irq0_interrupts <= 0;
+		firq0_interrupts <= 0;
+		irq1_interrupts <= 0;
+		firq1_interrupts <= 0;
+		o_irq <= 0;
+		o_firq <= 0;
+	end else begin
 	irq0_interrupts  <= raw_interrupts & irq0_enable_reg;
 	firq0_interrupts <= raw_interrupts & firq0_enable_reg;
 	irq1_interrupts  <= raw_interrupts & irq1_enable_reg;
@@ -156,12 +165,20 @@ always @(posedge i_clk) begin
 	
 	o_irq <= (|irq0_interrupts) | (|irq1_interrupts);
 	o_firq <= (|firq0_interrupts) | (|firq1_interrupts);
+	end
 end
 
 // ========================================================
 // Register Writes
 // ========================================================
 always @( posedge i_clk )
+	if (i_rstn == 0) begin
+		irq0_enable_reg <= 0;
+		firq0_enable_reg <= 0;
+		softint_reg <= 0;
+		irq1_enable_reg <= 0;
+		firq1_enable_reg <= 0;
+	end else begin
     if ( wb_start_write )
         case ( i_wb_adr[11:2] )
             IC_IRQ0_ENABLESET:  irq0_enable_reg  <=  irq0_enable_reg  | ( i_wb_dat);
@@ -178,12 +195,16 @@ always @( posedge i_clk )
             IC_FIRQ1_ENABLECLR: firq1_enable_reg <=  firq1_enable_reg & (~i_wb_dat);
 
         endcase
+	end
 
 
 // ========================================================
 // Register Reads
 // ========================================================
 always @( posedge i_clk )
+	if (i_rstn == 0) begin
+		wb_rdata32 <= 0;
+	end else begin
     if ( wb_start_read )
         case ( i_wb_adr[11:2] )
 
@@ -207,6 +228,7 @@ always @( posedge i_clk )
             default:                    wb_rdata32 <= 32'h22334455;
 
         endcase
+	end
 
 
 

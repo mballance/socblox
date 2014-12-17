@@ -26,7 +26,6 @@ class axi4_l1_mem_subsys_env : public svf_component {
 
 	public:
 		axi4_master_bfm					*m_m0;
-		axi4_master_bfm					*m_m1;
 		timebase						*m_timebase;
 
 };

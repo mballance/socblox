@@ -76,7 +76,7 @@ ${B_SLAVE_ASSIGN}
  */
 
 // Read request state machine
-	bit[3:0]									read_req_state[N_MASTERS-1:0];
+	reg[3:0]									read_req_state[N_MASTERS-1:0];
 	reg[N_SLAVEID_BITS:0]						read_selected_slave[N_MASTERS-1:0];
 
 	/*
@@ -269,11 +269,11 @@ module ${NAME}_arbiter #(
 		output[$clog2(N_REQ)-1:0]	gnt_id
 		);
 	
-	bit state;
+	reg state;
 	
-	reg [N_REQ-1:0]	gnt_o;
-	reg [N_REQ-1:0]	last_gnt;
-	reg [$clog2(N_REQ)-1:0] gnt_id_o;
+	reg [N_REQ-1:0]	gnt_o = 0;
+	reg [N_REQ-1:0]	last_gnt = 0;
+	reg [$clog2(N_REQ)-1:0] gnt_id_o = 0;
 	assign gnt = |gnt_o;
 	assign gnt_id = gnt_id_o;
 	
@@ -361,7 +361,7 @@ module ${NAME}_arbiter #(
 		end
 	end
 
-	function bit[$clog2(N_REQ)-1:0] gnt2id(bit[N_REQ-1:0] gnt);
+	function reg[$clog2(N_REQ)-1:0] gnt2id(reg[N_REQ-1:0] gnt);
 		automatic int i;
 		reg[$clog2(N_REQ)-1:0] result;
 		

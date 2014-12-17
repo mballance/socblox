@@ -12,10 +12,19 @@ CXXFLAGS += -I$(QUESTA_HOME)/include -I$(QUESTA_HOME)/include/systemc
 DPI_LIBS += $(SVF_LIBDIR)/dpi/libsvf_dpi
 DPI_LIBS += $(BUILD_DIR)/libs/tb_dpi
 
+ifneq (,$(QUESTA_HOME))
+# Set path so we use the compiler with Modelsim
+PATH := $(QUESTA_HOME)/bin:$(QUESTA_HOME)/gcc-4.5.0-linux/bin:$(PATH)
+export PATH
+FULL_QUESTA := 1
+else
+FULL_QUESTA := 0
 ifneq (,$(MODELSIM_ASE))
 # Set path so we use the compiler with Modelsim
 PATH := $(MODELSIM_ASE)/bin:$(MODELSIM_ASE)/gcc-4.5.0-linux/bin:$(PATH)
 export PATH
+else
+endif
 endif
 
 ifeq ($(DEBUG),true)
@@ -44,6 +53,9 @@ vlog_build : $(SYNTH_DEPS)
 	vlog -sv \
 		$(QS_VLOG_ARGS) \
 		$(VLOG_ARGS)
+	if test $(FULL_QUESTA) -eq 1; then \
+		vopt $(TOP_MODULE) +designfile -o $(TOP_MODULE)_opt ; \
+	fi
 
 build : vlog_build $(EXE_TARGETS) $(LIB_TARGETS) $(TESTBENCH_OBJS) target_build
 
@@ -64,6 +76,7 @@ $(BUILD_DIR)/libs/tb_dpi.so : $(TESTBENCH_OBJS) $(BFM_LIBS) $(LIBSVF)
 #endif
 
 run :
+	echo "FULL_QUESTA=$(FULL_QUESTA) SIM_TOP=$(SIM_TOP)"
 	echo $(DOFILE_COMMANDS) > run.do
 	echo "onbreak {puts "ONBREAK"}" >> run.do
 	echo "run $(TIMEOUT)" >> run.do
@@ -71,7 +84,13 @@ run :
 	vmap work ${BUILD_DIR}/work
 	echo "BUILD_DIR=$(BUILD_DIR)"
 	echo "LD_LIBRARY_PATH=$(LD_LIBRARY_PATH)"
-	vsim -c -do run.do -voptargs="+acc+$(TOP_MODULE)+3 -debugdb" $(TOP_MODULE) \
+	if test $(FULL_QUESTA) -eq 1; then \
+	vsim -c -do run.do $(TOP_MODULE)_opt -qwavedb=+signal \
 		+TESTNAME=$(TESTNAME) -f sim.f \
-		$(foreach dpi,$(DPI_LIBS),-sv_lib $(dpi))
+		$(foreach dpi,$(DPI_LIBS),-sv_lib $(dpi)); \
+	else \
+	vsim -c -do run.do $(TOP_MODULE) \
+		+TESTNAME=$(TESTNAME) -f sim.f \
+		$(foreach dpi,$(DPI_LIBS),-sv_lib $(dpi)); \
+	fi
 

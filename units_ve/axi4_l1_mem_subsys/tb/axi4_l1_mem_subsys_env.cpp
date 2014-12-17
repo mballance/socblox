@@ -19,7 +19,6 @@ axi4_l1_mem_subsys_env::~axi4_l1_mem_subsys_env() {
 void axi4_l1_mem_subsys_env::build() {
 	// TODO: instantiate BFMs
 	m_m0 = axi4_master_bfm::type_id.create("m_m0", this);
-	m_m1 = axi4_master_bfm::type_id.create("m_m1", this);
 	m_timebase = timebase::type_id.create("m_timebase", this);
 }
 

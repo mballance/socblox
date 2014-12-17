@@ -11,7 +11,7 @@ UNIT_VE=a23_dualcore_sys
 #* TODO: Uncomment to enable target build
 TARGET_MAKEFILE := $(SCRIPTS_DIR)/target.mk
 
-TIMEOUT = 3ms
+TIMEOUT = 8ms
 # TIMEOUT = 10ms
 # TIMEOUT = 5ms
 

@@ -61,7 +61,7 @@ run :
 	echo $(DOFILE_COMMANDS) > run.do
 	echo "run $(TIMEOUT); quit -f" >> run.do
 	vmap work ${BUILD_DIR}/work
-	vsim -c -do run.do -voptargs="+acc" $(TOP_MODULE) \
+	vsim -c -do run.do -voptargs="+acc -xprop,mode=pass" $(TOP_MODULE) \
 		+TESTNAME=$(TESTNAME) -f sim.f \
 		$(foreach dpi,$(DPI_LIBS),-sv_lib $(dpi))
 

@@ -36,7 +36,6 @@ void axi4_l1_mem_subsys_test_base::connect()
 	timebase_dpi_mgr::connect(TB_ROOT + ".u_timebase", m_env->m_timebase->bfm_port);
 
 	axi4_master_bfm_dpi_mgr::connect(TB_ROOT + ".u_m0", m_env->m_m0->bfm_port);
-	axi4_master_bfm_dpi_mgr::connect(TB_ROOT + ".u_m1", m_env->m_m1->bfm_port);
 }
 
 void axi4_l1_mem_subsys_test_base::start()

@@ -1,8 +1,13 @@
 /****************************************************************************
  * axi4_l1_mem_subsys_tb.sv
  ****************************************************************************/
+ 
+`ifdef FPGA
+`timescale 1 ps/ 1 ps
+`else
 `ifdef GLS
 `timescale 1 ps/ 1 ps
+`endif
 `endif
 
 /**
@@ -15,15 +20,9 @@ module axi4_l1_mem_subsys_tb(input clk);
 	reg[15:0]			rst_cnt = 0;
 	reg					rstn = 0;
 	
-`ifdef GLS
-localparam AXI4_ADDRESS_WIDTH = 20;
+localparam AXI4_ADDRESS_WIDTH = 32;
 localparam AXI4_DATA_WIDTH = 32;
 localparam AXI4_ID_WIDTH = 2;
-`else
-localparam AXI4_ADDRESS_WIDTH = 20;
-localparam AXI4_DATA_WIDTH = 32;
-localparam AXI4_ID_WIDTH = 4;
-`endif
 	
 `ifndef VERILATOR
 	reg clk_r = 0;
@@ -31,9 +30,9 @@ localparam AXI4_ID_WIDTH = 4;
 	
 	initial begin
 		forever begin
-			#10ns;
+			#20ns;
 			clk_r <= 1;
-			#10ns;
+			#20ns;
 			clk_r <= 0;
 		end
 	end
@@ -67,12 +66,6 @@ localparam AXI4_ID_WIDTH = 4;
 			.AXI4_ID_WIDTH       (AXI4_ID_WIDTH      )
 		) bfm02ic ();
 	
-	axi4_if #(
-			.AXI4_ADDRESS_WIDTH  (AXI4_ADDRESS_WIDTH ), 
-			.AXI4_DATA_WIDTH     (AXI4_DATA_WIDTH    ), 
-			.AXI4_ID_WIDTH       (AXI4_ID_WIDTH      )
-		) bfm12ic ();
-	
 	axi4_svf_master_bfm #(
 			.AXI4_ADDRESS_WIDTH     (AXI4_ADDRESS_WIDTH    ), 
 			.AXI4_DATA_WIDTH        (AXI4_DATA_WIDTH       ), 
@@ -83,34 +76,14 @@ localparam AXI4_ID_WIDTH = 4;
 			.rstn                   (rstn                  ), 
 			.master                 (bfm02ic.master        ));
 	
-	axi4_svf_master_bfm #(
-			.AXI4_ADDRESS_WIDTH     (AXI4_ADDRESS_WIDTH    ), 
-			.AXI4_DATA_WIDTH        (AXI4_DATA_WIDTH       ), 
-			.AXI4_ID_WIDTH          (AXI4_ID_WIDTH         ), 
-			.AXI4_MAX_BURST_LENGTH  (16 )
-		) u_m1 (
-			.clk                    (clk                   ), 
-			.rstn                   (rstn                  ), 
-			.master                 (bfm12ic.master        ));
-	
-	axi4_monitor_bfm #(
-			.AXI4_ADDRESS_WIDTH	(AXI4_ADDRESS_WIDTH		),
-			.AXI4_DATA_WIDTH	(AXI4_DATA_WIDTH		),
-			.AXI4_ID_WIDTH		(AXI4_ID_WIDTH			)
-		) u_bfm02ic_monitor (
-			.clk				(clk					),
-			.rst_n				(rstn					),
-			.monitor			(bfm02ic.monitor		));	
-	
-	axi4_monitor_bfm #(
-			.AXI4_ADDRESS_WIDTH	(AXI4_ADDRESS_WIDTH		),
-			.AXI4_DATA_WIDTH	(AXI4_DATA_WIDTH		),
-			.AXI4_ID_WIDTH		(AXI4_ID_WIDTH			)
-		) u_bfm12ic_monitor (
-			.clk				(clk					),
-			.rst_n				(rstn					),
-			.monitor			(bfm12ic.monitor		));	
-	
+//	axi4_monitor_bfm #(
+//			.AXI4_ADDRESS_WIDTH	(AXI4_ADDRESS_WIDTH		),
+//			.AXI4_DATA_WIDTH	(AXI4_DATA_WIDTH		),
+//			.AXI4_ID_WIDTH		(AXI4_ID_WIDTH			)
+//		) u_bfm02ic_monitor (
+//			.clk				(clk					),
+//			.rst_n				(rstn					),
+//			.monitor			(bfm02ic.monitor		));	
 	
 `ifdef GLS
 	axi4_l1_mem_subsystem_top_w #(
@@ -123,8 +96,7 @@ localparam AXI4_ID_WIDTH = 4;
 	) u_subsys (
 		.clk_i(clk),
 		.rst_n(rstn),
-		.m0(bfm02ic.slave),
-		.m1(bfm12ic.slave)
+		.m0(bfm02ic.slave)
 	);
 	
 	timebase u_timebase();
