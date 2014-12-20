@@ -105,10 +105,12 @@ if ($quiet eq "") {
 
 $SIG{'INT'} = 'cleanup';
 
+@mkfiles = glob("$SYNTH_DIR/scripts/*.mk");
+
 system("make",
 		"-C", "${run_root}",
        	"-f" ,
-       	"$SYNTH_DIR/scripts/Makefile",
+       	"$mkfiles[0]",
                     	"SIM=${sim}",
                     	"SEED=${seed}",
 #                    	"-quiet", "$quiet", 

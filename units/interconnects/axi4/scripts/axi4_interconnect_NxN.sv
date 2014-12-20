@@ -863,8 +863,9 @@ module ${NAME}_arbiter_2 #(
 	assign gnt = gnt_r; // (gnt_id_r != {N_REQ{1'b1}}); // |gnt_o;
 	assign gnt_id = gnt_id_r;
 
+	reg[N_REQ-1:0] req_mask;
 	always @* begin
-		static reg[N_REQ-1:0] req_mask = (gnt_id_r == N_REQ-1)?0:(1 << (gnt_id_r+1));
+		req_mask = (gnt_id_r == N_REQ-1)?0:(1 << (gnt_id_r+1));
 		gnt_id_next = 0;
 		for (int i=0; i<N_REQ; i=i+1) begin
 			if (req & req_mask) begin

@@ -29,6 +29,7 @@ extern "C" void low_level_init()
 	// Page 4 - 0x20000000-0x27FFFFFFF
 	asm(
 			"mov	r0, #0x00000011\n"
+//			"mov	r0, #0x00000000\n"
 			"mcr	15, 0, r0, cr3, cr0, 0\n"
 			"mov	r0, #1\n"
 //			"mov	r0, #0\n"
@@ -49,6 +50,12 @@ int main(int argc, char **argv) {
 	uint32_t core = *((volatile uint32_t *)0xF1000004);
 	uth_thread_t producer_t, consumer_t, stub_t;
 
+//		while (true) {
+//			*((volatile uint32_t *)0x80000000) = (c_val >> 9);
+//			c_val++;
+//		}
+
+
 	if (core == 0) {
 		// Release core 1
 		*((volatile uint32_t *)0xF100000C) = 1;
@@ -56,8 +63,14 @@ int main(int argc, char **argv) {
 		while (true) {}
 	} else {
 		// Write out something interesting
-		for (uint32_t i=0; i<4; i++) {
-			*((volatile uint32_t *)0x80000000) = i;
+		uint32_t cnt = 0, last = 0;
+		while (true) {
+//		for (uint32_t i=0; i<4; i++) {
+			if (last != (cnt >> 9)) {
+				last = (cnt >> 9);
+				*((volatile uint32_t *)0x80000000) = last;
+			}
+			cnt++;
 		}
 
 		// Reset the board

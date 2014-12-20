@@ -46,7 +46,8 @@ module a23_dualcore_sys #(
 	 */
 `ifdef FPGA
 	reg[31:0]			idle = 200;
-	reg[31:0]			active = 20000000;
+//	reg[31:0]			active = 20000000;
+	reg[31:0]			active = 0;
 `else
 	reg[31:0]			idle = 200;
 //	reg[31:0]			active = 100000;
@@ -83,8 +84,8 @@ module a23_dualcore_sys #(
 	wire	core_clk;
 	reg		core_clk_r = 0;
 	
-	assign core_clk = core_clk_r;
-//	assign core_clk = clk_i;
+//	assign core_clk = core_clk_r;
+	assign core_clk = clk_i;
 	
 	
 	always @(posedge clk_i) begin
@@ -253,6 +254,8 @@ module a23_dualcore_sys #(
 		.SLAVE6_ADDR_LIMIT   (AXI_MSGQUEUE_0_LIMIT),
 		.SLAVE7_ADDR_BASE    (AXI_MSGQUEUE_1_BASE),
 		.SLAVE7_ADDR_LIMIT   (AXI_MSGQUEUE_1_LIMIT)
+//		.SLAVE8_ADDR_BASE    (HPS_BASE),
+//		.SLAVE8_ADDR_LIMIT   (HPS_LIMIT)
 		) u_ic1 (
 		.clk                 (core_clk           ), 
 		.rstn                (rst_n              ), 

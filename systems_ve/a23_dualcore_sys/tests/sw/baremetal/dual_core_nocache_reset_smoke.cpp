@@ -53,6 +53,12 @@ int main(int argc, char **argv) {
 	// Disable watchdog-reset
 	*((volatile uint32_t *)0x80000004) = 0;
 
+		while (true) {
+		for (uint32_t i=0; i<65536; i++) {
+			*((volatile uint32_t *)0x80000000) = (i >> 9);
+		}
+		}
+
 	if (core == 0) {
 		// Release core 1
 		*((volatile uint32_t *)0xF100000C) = 1;
