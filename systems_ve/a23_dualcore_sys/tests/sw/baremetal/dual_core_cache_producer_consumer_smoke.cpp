@@ -46,29 +46,61 @@ static volatile bool		v_ack = false;
 
 volatile uint32_t c_val=0;
 
-#define FAST
+#undef  FAST
 
 int main(int argc, char **argv) {
 	uint32_t core = *((volatile uint32_t *)0xF1000004);
 	uth_thread_t producer_t, consumer_t, stub_t;
 
-//		while (true) {
-//			*((volatile uint32_t *)0x80000000) = (c_val >> 9);
-//			c_val++;
-//		}
-
+	uth_mutex_init(&m_req);
+	uth_mutex_init(&m_ack);
 
 	if (core == 0) {
 		// Release core 1
 		*((volatile uint32_t *)0xF100000C) = 1;
 
-		while (true) {}
+		while (true) {
+			// Send a value to core1
+//			uth_mutex_lock(&m_req);
+			while (!uth_thread_int_mutex_trylock(&m_req)) { }
+			v_req = true;
+			c_val++;
+//			uth_mutex_unlock(&m_req);
+			uth_thread_int_mutex_unlock(&m_req);
+
+			// Wait for acknowledgment
+			while (true) {
+//				uth_mutex_lock(&m_ack);
+				while (!uth_thread_int_mutex_trylock(&m_ack)) { }
+				if (v_ack) {
+					v_ack = false;
+//					uth_mutex_unlock(&m_ack);
+					uth_thread_int_mutex_unlock(&m_ack);
+					break;
+				}
+//				uth_mutex_unlock(&m_ack);
+				uth_thread_int_mutex_unlock(&m_ack);
+			}
+		}
 	} else {
 		// Write out something interesting
-		uint32_t cnt = 0, last = 0;
+		uint32_t cnt, last = 0;
 		while (true) {
-//		for (uint32_t i=0; i<4; i++) {
+			while (true) {
+				while (!uth_thread_int_mutex_trylock(&m_req)) { }
+//				uth_mutex_lock(&m_req);
+				if (v_req) {
+					cnt = c_val;
+					v_req = false;
+//					uth_mutex_unlock(&m_req);
+					uth_thread_int_mutex_unlock(&m_req);
+					break;
+				}
+//				uth_mutex_unlock(&m_req);
+				uth_thread_int_mutex_unlock(&m_req);
+			}
 #ifdef FAST
+
 			if (last != (cnt >> 12)) {
 				last = (cnt >> 12);
 #else
@@ -77,7 +109,13 @@ int main(int argc, char **argv) {
 #endif
 				*((volatile uint32_t *)0x80000000) = last;
 			}
-			cnt++;
+
+			// Notify that we've received the value
+//			uth_mutex_lock(&m_ack);
+			while (!uth_thread_int_mutex_trylock(&m_ack)) { }
+			v_ack = true;
+//			uth_mutex_unlock(&m_ack);
+			uth_thread_int_mutex_unlock(&m_ack);
 		}
 
 		// Reset the board

@@ -43,7 +43,8 @@
 module generic_sram_byte_en
 #(
 parameter DATA_WIDTH    = 128,
-parameter ADDRESS_WIDTH = 7
+parameter ADDRESS_WIDTH = 7,
+parameter READ_DATA_REGISTERED = 1
 )
 
 (
@@ -52,31 +53,48 @@ input      [DATA_WIDTH-1:0]     i_write_data,
 input                           i_write_enable,
 input      [ADDRESS_WIDTH-1:0]  i_address,
 input      [DATA_WIDTH/8-1:0]   i_byte_enable,
-output reg [DATA_WIDTH-1:0]     o_read_data
+output     [DATA_WIDTH-1:0]     o_read_data
     );                                                     
 
 reg [DATA_WIDTH-1:0]   mem  [0:2**ADDRESS_WIDTH-1];
+reg [DATA_WIDTH-1:0]	read_data_r;
+reg [ADDRESS_WIDTH-1:0]		address_r;
+reg [DATA_WIDTH-1:0]		write_data_r;
+reg 						write_enable_r;
+reg [DATA_WIDTH/8-1:0]		byte_enable_r;
 integer i;
 
-always @(posedge i_clk)
-    begin
+generate
+	if (READ_DATA_REGISTERED) begin
+		assign o_read_data = read_data_r;
+	end else begin
+		assign o_read_data = mem[address_r];
+	end
+endgenerate
+
+always @(posedge i_clk) begin
     // read
-    o_read_data <= i_write_enable ? {DATA_WIDTH{1'd0}} : mem[i_address];
+    address_r 		<= i_address;
+    write_data_r 	<= i_write_data;
+    write_enable_r	<= i_write_enable;
+    byte_enable_r	<= i_byte_enable;
+    
+    read_data_r <= mem[address_r];
 
     // write
-    if (i_write_enable)
-        for (i=0;i<DATA_WIDTH/8;i=i+1)
-            begin
-            mem[i_address][i*8+0] <= i_byte_enable[i] ? i_write_data[i*8+0] : mem[i_address][i*8+0] ;
-            mem[i_address][i*8+1] <= i_byte_enable[i] ? i_write_data[i*8+1] : mem[i_address][i*8+1] ;
-            mem[i_address][i*8+2] <= i_byte_enable[i] ? i_write_data[i*8+2] : mem[i_address][i*8+2] ;
-            mem[i_address][i*8+3] <= i_byte_enable[i] ? i_write_data[i*8+3] : mem[i_address][i*8+3] ;
-            mem[i_address][i*8+4] <= i_byte_enable[i] ? i_write_data[i*8+4] : mem[i_address][i*8+4] ;
-            mem[i_address][i*8+5] <= i_byte_enable[i] ? i_write_data[i*8+5] : mem[i_address][i*8+5] ;
-            mem[i_address][i*8+6] <= i_byte_enable[i] ? i_write_data[i*8+6] : mem[i_address][i*8+6] ;
-            mem[i_address][i*8+7] <= i_byte_enable[i] ? i_write_data[i*8+7] : mem[i_address][i*8+7] ;
-            end                                                 
+    if (write_enable_r) begin
+        for (i=0;i<DATA_WIDTH/8;i=i+1) begin
+            mem[i_address][i*8+0] = byte_enable_r[i] ? write_data_r[i*8+0] : mem[address_r][i*8+0] ;
+            mem[i_address][i*8+1] = byte_enable_r[i] ? write_data_r[i*8+1] : mem[address_r][i*8+1] ;
+            mem[i_address][i*8+2] = byte_enable_r[i] ? write_data_r[i*8+2] : mem[address_r][i*8+2] ;
+            mem[i_address][i*8+3] = byte_enable_r[i] ? write_data_r[i*8+3] : mem[address_r][i*8+3] ;
+            mem[i_address][i*8+4] = byte_enable_r[i] ? write_data_r[i*8+4] : mem[address_r][i*8+4] ;
+            mem[i_address][i*8+5] = byte_enable_r[i] ? write_data_r[i*8+5] : mem[address_r][i*8+5] ;
+            mem[i_address][i*8+6] = byte_enable_r[i] ? write_data_r[i*8+6] : mem[address_r][i*8+6] ;
+            mem[i_address][i*8+7] = byte_enable_r[i] ? write_data_r[i*8+7] : mem[address_r][i*8+7] ;
+		end              
     end
+end
     
     
 

@@ -11,18 +11,18 @@ UNIT_VE=a23_dualcore_sys
 #* TODO: Uncomment to enable target build
 TARGET_MAKEFILE := $(SCRIPTS_DIR)/target.mk
 
-TIMEOUT = 8ms
+TIMEOUT = 2ms
 # TIMEOUT = 10ms
 # TIMEOUT = 5ms
 
 BFMS += COMMON_SVF TIMEBASE 
-BFMS += UART_BFM
+BFMS += UART_BFM AXI4_MONITOR_BFM
 
 COMMON_BFM_DIR ?= $(COMMON_SIM_MK_DIR)/bfm
 COMMON_SVF_DIR ?= $(COMMON_SIM_MK_DIR)/svf
 
 # BFM_UNIT_DIRS := $(shell echo $(BFMS) | tr '[:upper:]' '[:lower:]')
-BFM_UNIT_DIRS  = uart timebase
+BFM_UNIT_DIRS  = uart timebase axi4_monitor
 MK_INCLUDES += $(foreach dir,$(BFM_UNIT_DIRS), $(COMMON_BFM_DIR)/$(dir)/defs_rules.mk)
 
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/../svf/svf_defs.mk

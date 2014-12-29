@@ -1,6 +1,8 @@
 /****************************************************************************
  * axi4_a23_dual.sv
  ****************************************************************************/
+ 
+`include "axi4_if_macros.svh"
 
 /**
  * Module: axi4_a23_dual
@@ -29,6 +31,8 @@ module axi4_a23_dual #(
 		.AXI4_DATA_WIDTH     (32    ), 
 		.AXI4_ID_WIDTH       (AXI4_ID_WIDTH-1    )
 		) core02ic ();
+	
+//	`AXI4_IF_CONNECT_MONITOR_IF2IF(c0mon, core02ic);
 	
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 

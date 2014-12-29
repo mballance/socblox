@@ -1,9 +1,8 @@
 /****************************************************************************
  * a23_dualcore_sys.sv
  ***************************************************************************/
- 
-module dummy_slave(axi4_if.slave slave);
-endmodule
+
+`include "axi4_if_macros.svh"
 
 // `define SMALL
 // `define MICRO
@@ -132,14 +131,12 @@ module a23_dualcore_sys #(
 		endcase
 	end
 	
-//	assign rst_n = (state != 0);
-
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (4  )
 		) core2ic ();
-	
+
 	axi4_monitor #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
@@ -154,7 +151,7 @@ module a23_dualcore_sys #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
-		) ic2rom () /* synthesis keep */;
+		) ic2rom ();
 
 	/*
 	axi4_monitor #(
@@ -172,7 +169,7 @@ module a23_dualcore_sys #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
 		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
-		) ic2ram () /* synthesis keep */;
+		) ic2ram ();
 	
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
@@ -180,8 +177,6 @@ module a23_dualcore_sys #(
 		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
 		) ic2gbl ();
 
-	/*
-		 */
 	axi4_monitor #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
@@ -232,7 +227,10 @@ module a23_dualcore_sys #(
 		.i_firq_0  (firq ), 
 		.i_irq_1   (irq  ), 
 		.i_firq_1  (firq ), 
-		.master    (core2ic.master   ));
+		.master    (core2ic.master   )
+	);
+	
+	
 
 	axi4_interconnect_1x8 #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 

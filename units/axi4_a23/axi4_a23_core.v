@@ -332,6 +332,7 @@ a23_execute u_execute (
 
 a23_coprocessor u_coprocessor (
     .i_clk                              ( i_clk                             ),
+    .i_rstn								( i_rstn							),
     
     .i_fetch_stall                      ( fetch_stall                       ),
     .i_copro_opcode1                    ( copro_opcode1                     ),

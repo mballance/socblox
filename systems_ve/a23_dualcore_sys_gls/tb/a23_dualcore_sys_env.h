@@ -10,6 +10,7 @@
 #include "svf.h"
 #include "uart_bfm.h"
 #include "uart_bfm_monitor.h"
+#include "axi4_monitor_bfm.h"
 #include "timebase.h"
 
 class a23_dualcore_sys_env : public svf_component {
@@ -29,6 +30,9 @@ class a23_dualcore_sys_env : public svf_component {
 		uart_bfm					*m_uart;
 
 		uart_bfm_monitor					*m_uart_monitor;
+
+
+		axi4_monitor_bfm			*m_c0mon;
 
 		timebase					*m_timebase;
 

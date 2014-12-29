@@ -7,9 +7,13 @@
 
 +define+GLS
 
++incdir+${COMMON_RTL}/axi4
+${COMMON_RTL}/axi4/axi4_if.sv
+
 ${COMMON_RTL}/uart/uart_if.sv
 ${COMMON_BFM}/uart/uart_bfm.sv
 
+${COMMON_BFM}/axi4_monitor/axi4_monitor_bfm.sv
 
 ${COMMON_BFM}/timebase/timebase.sv
 // ${COMMON_BFM}/axi4_monitor/axi4_monitor_bfm.sv

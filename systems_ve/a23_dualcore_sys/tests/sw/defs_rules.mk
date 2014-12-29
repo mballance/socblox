@@ -15,7 +15,8 @@ BAREMETAL_TESTS_1 := smoke thread_primitives msg_queue_smoke \
   single_core_start_smoke
   
 BAREMETAL_TESTS := dual_core_start_smoke single_core_start_smoke \
-	dual_core_nocache_reset_smoke dual_core_cache_reset_smoke
+	dual_core_nocache_reset_smoke dual_core_cache_reset_smoke \
+	dual_core_cache_producer_consumer_smoke
 
 # UEX_TESTS := uex_simple_thread
 EXTS=.bin .mem .hex .elf .dat

@@ -126,7 +126,7 @@ module coreinfo_2 #(
     reg[AXI_ID_WIDTH-1:0]			write_id;
    
    	always @(posedge clk_i) begin
-		if (!rst_n) begin
+		if (rst_n == 0) begin
 			write_state <= 2'b00;
 			write_id <= 0;
 			write_addr <= 0;

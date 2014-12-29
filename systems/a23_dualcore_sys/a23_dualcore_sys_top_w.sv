@@ -1,6 +1,7 @@
 /****************************************************************************
  * a23_dualcore_sys_top_w.sv
  ****************************************************************************/
+`include "axi4_if_macros.svh"
 
 /**
  * Module: a23_dualcore_sys_top_w
@@ -20,7 +21,8 @@ module a23_dualcore_sys_top_w #(
 		output			led1,
 		output			led2,
 		output			led3,
-		uart_if.dte		uart_dte		
+		uart_if.dte				uart_dte,
+//		axi4_if.monitor_master	c0mon
 		);
 
 	a23_dualcore_sys_top u_top (
@@ -32,7 +34,8 @@ module a23_dualcore_sys_top_w #(
 		.led0(led0),
 		.led1(led1),
 		.led2(led2),
-		.led3(led3)
+		.led3(led3) //,
+//		`AXI4_IF_PORTMAP(c0mon, c0mon)
 		);
 
 endmodule

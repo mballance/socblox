@@ -1,6 +1,7 @@
 
 // -f ${SOCBLOX}/common/rtl/common_rtl.f
 // +define+AXI4_SVF_ROM_NAME=axi4_rom
++incdir+${COMMON_RTL}/axi4
 ${SOCBLOX}/common/bfm/axi4_rom/axi4_svf_rom.sv
 // +define+AXI4_SVF_SRAM_NAME=axi4_sram
 ${SOCBLOX}/common/bfm/axi4_svf_sram/axi4_svf_sram.sv

@@ -286,7 +286,7 @@ assign master.AWLOCK = i_exclusive;
 	
 	assign read_ack = (read_state == 2 && master.RVALID && master.RREADY);
 	assign write_ack = (write_state == 3 && master.BREADY && master.BVALID);
-	assign o_stall_cache = 0;
+//	assign o_stall_cache = 0;
 	
 	assign ack_wb =
 		( core_read_request && read_ack) ||

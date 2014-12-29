@@ -39,7 +39,8 @@
 module generic_sram_line_en #(
 		parameter reg[7:0] DATA_WIDTH = 8'd128,
 		parameter reg[7:0] ADDRESS_WIDTH = 8'd7,
-		parameter reg INITIALIZE_TO_ZERO = 0
+		parameter reg INITIALIZE_TO_ZERO = 0,
+		parameter READ_DATA_REGISTERED  = 1
 		) (
 	input						i_clk,
 	input[ADDRESS_WIDTH-1:0]	i_address,
@@ -83,7 +84,7 @@ module generic_sram_line_en #(
 		altsyncram_component.numwords_a = (1 << ADDRESS_WIDTH),
 		altsyncram_component.operation_mode = "SINGLE_PORT",
 		altsyncram_component.outdata_aclr_a = "NONE",
-		altsyncram_component.outdata_reg_a = "CLOCK0",
+		altsyncram_component.outdata_reg_a = (READ_DATA_REGISTERED)?"CLOCK0":"UNREGISTERED",
 		altsyncram_component.power_up_uninitialized = "FALSE",
 		altsyncram_component.read_during_write_mode_port_a = "NEW_DATA_NO_NBE_READ",
 		altsyncram_component.widthad_a = ADDRESS_WIDTH,

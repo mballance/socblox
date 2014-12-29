@@ -226,6 +226,50 @@ interface axi4_if #(
 			input RVALID,
 			input RREADY);
 			
+		modport monitor_master(
+				output AWID,
+				output AWADDR,
+				output AWLEN,
+				output AWSIZE,
+				output AWBURST,
+				output AWLOCK,
+				output AWCACHE,
+				output AWPROT,
+				output AWQOS,
+				output AWREGION,
+				output AWVALID,
+				output AWREADY,
+			
+				output WDATA,
+				output WSTRB,
+				output WLAST,
+				output WVALID,
+				output WREADY,
+
+				output BID,
+				output BRESP,
+				output BVALID,
+				output BREADY,
+		
+				output ARID,
+				output ARADDR,
+				output ARLEN,
+				output ARSIZE,
+				output ARBURST,
+				output ARLOCK,
+				output ARCACHE,
+				output ARPROT,
+				output ARQOS,
+				output ARREGION,
+				output ARVALID,
+				output ARREADY,
+			
+				output RID,
+				output RDATA,
+				output RRESP,
+				output RLAST,
+				output RVALID,
+				output RREADY);
 
 
 endinterface

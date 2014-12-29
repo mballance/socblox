@@ -44,6 +44,51 @@
 			input 							prefix``_RVALID, \
 			output 							prefix``_RREADY
 
+`define AXI4_IF_MONITOR_PORTS(prefix, AXI4_ADDRESS_WIDTH, AXI4_DATA_WIDTH, AXI4_ID_WIDTH) \
+			output[AXI4_ID_WIDTH-1:0] 		prefix``_AWID, \
+			output[AXI4_ADDRESS_WIDTH-1:0]	prefix``_AWADDR, \
+			output[7:0]						prefix``_AWLEN, \
+			output[2:0]						prefix``_AWSIZE, \
+			output[1:0]						prefix``_AWBURST, \
+			output							prefix``_AWLOCK, \
+			output[3:0]						prefix``_AWCACHE, \
+			output[2:0]						prefix``_AWPROT, \
+			output[3:0]						prefix``_AWQOS, \
+			output[3:0]						prefix``_AWREGION, \
+			output 							prefix``_AWVALID, \
+			output							prefix``_AWREADY, \
+			\
+			output[AXI4_DATA_WIDTH-1:0]		prefix``_WDATA,   \
+			output[(AXI4_DATA_WIDTH/8)-1:0]	prefix``_WSTRB,   \
+			output 							prefix``_WLAST,   \
+			output 							prefix``_WVALID,  \
+			output 							prefix``_WREADY,  \
+			\
+			output[AXI4_ID_WIDTH-1:0]		prefix``_BID,    \
+			output[1:0]						prefix``_BRESP,  \
+			output 							prefix``_BVALID, \
+			output 							prefix``_BREADY, \
+			\
+			output[AXI4_ID_WIDTH-1:0]		prefix``_ARID, \
+			output[AXI4_ADDRESS_WIDTH-1:0]	prefix``_ARADDR, \
+			output[7:0]						prefix``_ARLEN, \
+			output[2:0]						prefix``_ARSIZE, \
+			output[1:0]						prefix``_ARBURST, \
+			output 							prefix``_ARLOCK, \
+			output[3:0]						prefix``_ARCACHE, \
+			output[2:0]						prefix``_ARPROT, \
+			output[3:0]						prefix``_ARQOS, \
+			output[3:0]						prefix``_ARREGION, \
+			output 							prefix``_ARVALID, \
+			output 							prefix``_ARREADY, \
+			\
+			output[AXI4_ID_WIDTH-1:0]		prefix``_RID, \
+			output[AXI4_DATA_WIDTH-1:0]		prefix``_RDATA, \
+			output[1:0]						prefix``_RRESP, \
+			output 							prefix``_RLAST, \
+			output 							prefix``_RVALID, \
+			output 							prefix``_RREADY
+			
 `define AXI4_IF_SLAVE_PORTS(prefix, AXI4_ADDRESS_WIDTH, AXI4_DATA_WIDTH, AXI4_ID_WIDTH) \
 			input[AXI4_ID_WIDTH-1:0] 		prefix``_AWID, \
 			input[AXI4_ADDRESS_WIDTH-1:0]	prefix``_AWADDR, \
@@ -88,7 +133,97 @@
 			output 							prefix``_RLAST, \
 			output 							prefix``_RVALID, \
 			input 							prefix``_RREADY
-			
+
+`define AXI4_IF_CONNECT_MONITOR_PORTS2IF(prefix, ifc) \
+	assign prefix``_AWID = ifc .AWID; \
+	assign prefix``_AWADDR = ifc .AWADDR; \
+	assign prefix``_AWLEN = ifc .AWLEN; \
+	assign prefix``_AWSIZE = ifc .AWSIZE; \
+	assign prefix``_AWBURST = ifc .AWBURST; \
+	assign prefix``_AWLOCK = ifc .AWLOCK; \
+	assign prefix``_AWCACHE = ifc .AWCACHE; \
+	assign prefix``_AWPROT = ifc .AWPROT; \
+	assign prefix``_AWQOS = ifc .AWQOS; \
+	assign prefix``_AWREGION = ifc .AWREGION; \
+	assign prefix``_AWVALID = ifc .AWVALID; \
+	assign prefix``_AWREADY = ifc .AWREADY; \
+	\
+	assign prefix``_WDATA = ifc .WDATA; \
+	assign prefix``_WSTRB = ifc .WSTRB; \
+	assign prefix``_WLAST = ifc .WLAST; \
+	assign prefix``_WVALID = ifc .WVALID; \
+	assign prefix``_WREADY = ifc .WREADY; \
+	\
+	assign prefix``_BID = ifc .BID; \
+	assign prefix``_BRESP = ifc .BRESP; \
+	assign prefix``_BVALID = ifc .BVALID; \
+	assign prefix``_BREADY = ifc .BREADY; \
+	\
+	assign prefix``_ARID = ifc .ARID; \
+	assign prefix``_ARADDR = ifc .ARADDR; \
+	assign prefix``_ARLEN = ifc .ARLEN; \
+	assign prefix``_ARSIZE = ifc .ARSIZE; \
+	assign prefix``_ARBURST = ifc .ARBURST; \
+	assign prefix``_ARLOCK = ifc .ARLOCK; \
+	assign prefix``_ARCACHE = ifc .ARCACHE; \
+	assign prefix``_ARPROT = ifc .ARPROT; \
+	assign prefix``_ARQOS = ifc .ARQOS; \
+	assign prefix``_ARREGION = ifc .ARREGION; \
+	assign prefix``_ARVALID = ifc .ARVALID; \
+	assign prefix``_ARREADY = ifc .ARREADY; \
+	\
+	assign prefix``_RID = ifc .RID; \
+	assign prefix``_RDATA = ifc .RDATA; \
+	assign prefix``_RRESP = ifc .RRESP; \
+	assign prefix``_RLAST = ifc .RLAST; \
+	assign prefix``_RVALID = ifc .RVALID; \
+	assign prefix``_RREADY = ifc .RREADY
+	
+`define AXI4_IF_CONNECT_MONITOR_IF2IF(dest, src) \
+	assign dest .AWID = src .AWID; \
+	assign dest .AWADDR = src .AWADDR; \
+	assign dest .AWLEN = src .AWLEN; \
+	assign dest .AWSIZE = src .AWSIZE; \
+	assign dest .AWBURST = src .AWBURST; \
+	assign dest .AWLOCK = src .AWLOCK; \
+	assign dest .AWCACHE = src .AWCACHE; \
+	assign dest .AWPROT = src .AWPROT; \
+	assign dest .AWQOS = src .AWQOS; \
+	assign dest .AWREGION = src .AWREGION; \
+	assign dest .AWVALID = src .AWVALID; \
+	assign dest .AWREADY = src .AWREADY; \
+	\
+	assign dest .WDATA = src .WDATA; \
+	assign dest .WSTRB = src .WSTRB; \
+	assign dest .WLAST = src .WLAST; \
+	assign dest .WVALID = src .WVALID; \
+	assign dest .WREADY = src .WREADY; \
+	\
+	assign dest .BID = src .BID; \
+	assign dest .BRESP = src .BRESP; \
+	assign dest .BVALID = src .BVALID; \
+	assign dest .BREADY = src .BREADY; \
+	\
+	assign dest .ARID = src .ARID; \
+	assign dest .ARADDR = src .ARADDR; \
+	assign dest .ARLEN = src .ARLEN; \
+	assign dest .ARSIZE = src .ARSIZE; \
+	assign dest .ARBURST = src .ARBURST; \
+	assign dest .ARLOCK = src .ARLOCK; \
+	assign dest .ARCACHE = src .ARCACHE; \
+	assign dest .ARPROT = src .ARPROT; \
+	assign dest .ARQOS = src .ARQOS; \
+	assign dest .ARREGION = src .ARREGION; \
+	assign dest .ARVALID = src .ARVALID; \
+	assign dest .ARREADY = src .ARREADY; \
+	\
+	assign dest .RID = src .RID; \
+	assign dest .RDATA = src .RDATA; \
+	assign dest .RRESP = src .RRESP; \
+	assign dest .RLAST = src .RLAST; \
+	assign dest .RVALID = src .RVALID; \
+	assign dest .RREADY = src .RREADY	
+	
 
 `define AXI4_IF_CONNECT_SLAVE_PORTS2IF(prefix, ifc) \
 	assign ifc .AWID = prefix``_AWID; \
@@ -134,7 +269,7 @@
 	assign prefix``_RLAST = ifc .RLAST; \
 	assign prefix``_RVALID = ifc .RVALID; \
 	assign ifc .RREADY = prefix``_RREADY
-
+	
 `define AXI4_IF_STUB_SLAVE_IF(ifc) \
 	assign ifc .AWID = 0; \
 	assign ifc .AWADDR = 0; \

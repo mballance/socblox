@@ -1,6 +1,7 @@
 /****************************************************************************
  * a23_dualcore_sys_tb.sv
  ****************************************************************************/
+`include "axi4_if_macros.svh"
  
 `ifdef GLS
 `timescale 1 ps/ 1 ps
@@ -66,6 +67,32 @@ module a23_dualcore_sys_tb(input clk);
 	reg sw1, sw2, sw3, sw4;
 	
 	uart_if u_uart_if ();
+	
+	axi4_if #(
+		.AXI4_ADDRESS_WIDTH  (32 ), 
+		.AXI4_DATA_WIDTH     (32    ), 
+		.AXI4_ID_WIDTH       (4      )
+		) c0mon_if ();
+
+	reg rst_n = 0;
+	
+	initial begin
+		rst_n <= 0;
+		repeat (5) begin
+			@(posedge clk);
+		end
+		rst_n <= 1;
+	end
+	
+	axi4_monitor_bfm #(
+		.AXI4_ADDRESS_WIDTH  (32 ), 
+		.AXI4_DATA_WIDTH     (32    ), 
+		.AXI4_ID_WIDTH       (4      )
+		) u_c0mon (
+			.clk(clk),
+			.rst_n(rst_n),
+			.monitor(c0mon_if.monitor)
+		);
 
 `ifdef GLS
 	a23_dualcore_sys_top_w #(
@@ -84,7 +111,8 @@ module a23_dualcore_sys_tb(input clk);
 			.led1(led1),
 			.led2(led2),
 			.led3(led3),
-			.uart_dte(u_uart_if.dte)
+			.uart_dte(u_uart_if.dte),
+			.c0mon(c0mon_if.monitor_master)
 			);
 	
 	wire[3:0] led = {led0, led1, led2, led3};

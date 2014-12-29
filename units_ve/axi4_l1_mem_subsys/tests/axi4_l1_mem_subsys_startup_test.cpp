@@ -46,6 +46,28 @@ void axi4_l1_mem_subsys_startup_test::m0_thread() {
 	uint32_t  data;
 	uint32_t  delay;
 
+	// First, write data to the memory
+	for (uint32_t i=0; i<64; i++) {
+		m_env->m_m0->write32(4*i, i+1);
+	}
+
+	// Now, read back uncached
+	for (uint32_t i=0; i<64; i++) {
+		data = m_env->m_m0->read32(4*i);
+		fprintf(stdout, "READ: 0x%08x = 0x%08x\n", 4*i, data);
+		fflush(stdout);
+	}
+
+	// Now, launch a fill on the last word of line 0, followed by the first word of line 1
+	m_env->m_m0->set_cache(axi4_master_bfm::CACHE_CACHEABLE);
+	data = m_env->m_m0->read32(0x0c);
+	fprintf(stdout, "CACHE READ: 0x0c = 0x%08x\n", data);
+	data = m_env->m_m0->read32(0x10);
+	fprintf(stdout, "CACHE READ: 0x10 = 0x%08x\n", data);
+
+	drop_objection();
+	return;
+
 	for (uint32_t i=0; i<1000; i++) {
 		rnw = (rand() & 1);
 //		rnw = 0;

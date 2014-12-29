@@ -433,6 +433,7 @@ ${R_SLAVE_ASSIGN}
 				if (rstn == 0) begin
 					write_response_state[b_state_i] <= 0;
 					write_response_selected_master[b_state_i] <= NO_MASTER;
+					R_SBVALID[b_state_i] <= 0;
 				end else begin
 					case (write_response_state[b_state_i])
 						0: begin
@@ -499,7 +500,7 @@ ${R_SLAVE_ASSIGN}
 	generate
 		genvar m_ar_i;
 		for (m_ar_i=0; m_ar_i<N_MASTERS; m_ar_i++) begin : m_ar
-			assign ARREADY[m_ar_i] = (rstn != 0 && read_req_state[m_ar_i] == 0);
+			assign ARREADY[m_ar_i] = (rstn == 1 && read_req_state[m_ar_i] == 0);
 			always @(posedge clk) begin
 				if (rstn == 0) begin
 					read_req_state[m_ar_i] <= 'b00;
@@ -665,6 +666,10 @@ ${R_SLAVE_ASSIGN}
 				if (rstn == 0) begin
 					read_response_state[r_state_i] <= 0;
 					read_response_selected_master[r_state_i] <= NO_MASTER;
+					SRID_r[r_state_i] <= 0;
+					SRDATA_r[r_state_i] <= 0;
+					SRRESP_r[r_state_i] <= 0;
+					SRLAST_r[r_state_i] <= 0;
 				end else begin
 					case (read_response_state[r_state_i])
 						0: begin
@@ -768,7 +773,7 @@ ${R_SLAVE_ASSIGN}
 			assign sdflt.BID = (write_state == 2)?write_id:0;
 
 			always @(posedge clk) begin
-				if (rstn != 1) begin
+				if (rstn == 0) begin
 					write_state <= 0;
 					write_id <= 0;
 				end else begin
@@ -809,7 +814,7 @@ ${R_SLAVE_ASSIGN}
 			assign sdflt.RRESP = 0;
 	
 			always @(posedge clk) begin
-				if (rstn != 1) begin
+				if (rstn == 0) begin
 					read_state <= 0;
 					read_count <= 0;
 					read_length <= 0;

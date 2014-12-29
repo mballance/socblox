@@ -42,54 +42,77 @@
 module generic_sram_line_en_dualport #(
 	parameter DATA_WIDTH            = 128,
 	parameter ADDRESS_WIDTH         = 7,
-	parameter INITIALIZE_TO_ZERO    = 0
+	parameter INITIALIZE_TO_ZERO    = 0,
+	parameter READ_DATA_REGISTERED  = 1
 	) (
 		input                           i_clk,
 
 		input      [DATA_WIDTH-1:0]     i_write_data_a,
 		input                           i_write_enable_a,
 		input      [ADDRESS_WIDTH-1:0]  i_address_a,
-		output reg [DATA_WIDTH-1:0]     o_read_data_a,
+		output     [DATA_WIDTH-1:0]     o_read_data_a,
 
 		input      [DATA_WIDTH-1:0]     i_write_data_b,
 		input                           i_write_enable_b,
 		input      [ADDRESS_WIDTH-1:0]  i_address_b,
-		output reg [DATA_WIDTH-1:0]     o_read_data_b
+		output     [DATA_WIDTH-1:0]     o_read_data_b
 	);                                                     
 
 reg [DATA_WIDTH-1:0]   mem  [0:2**ADDRESS_WIDTH-1];
+reg [ADDRESS_WIDTH-1:0]		address_a_r, address_b_r;
+reg 						write_enable_a_r, write_enable_b_r;
+reg [DATA_WIDTH-1:0]		write_data_a_r, write_data_b_r;
+reg [DATA_WIDTH-1:0]		read_data_a_r, read_data_b_r;
 
 generate
-if ( INITIALIZE_TO_ZERO ) begin : init0
-integer i;
-initial
-    begin
-    for (i=0;i<2**ADDRESS_WIDTH;i=i+1)
-        mem[i] <= 'd0;
-    end
-end
+	if ( INITIALIZE_TO_ZERO ) begin : init0
+		integer i;
+		initial
+		begin
+			for (i=0;i<2**ADDRESS_WIDTH;i=i+1)
+				mem[i] = 'd0;
+		end
+	end
+endgenerate
+
+generate
+	if (READ_DATA_REGISTERED) begin
+		assign o_read_data_a = read_data_a_r;
+		assign o_read_data_b = read_data_b_r;
+	end else begin
+		assign o_read_data_a = mem[address_a_r];
+		assign o_read_data_b = mem[address_b_r];
+	end
 endgenerate
 
 
 // Port A
 always @(posedge i_clk) begin
     // read
-	o_read_data_a <= i_write_enable_a ? {DATA_WIDTH{1'd0}} : mem[i_address_a];
+	address_a_r <= i_address_a;
+	write_enable_a_r <= i_write_enable_a;
+	write_data_a_r <= i_write_data_a;
+	
+	read_data_a_r <= mem[address_a_r];
 
     // write
-	if (i_write_enable_a) begin
-        mem[i_address_a] <= i_write_data_a;
+	if (write_enable_a_r) begin
+        mem[address_a_r] = write_data_a_r;
 	end
 end
     
 // Port B
 always @(posedge i_clk) begin
     // read
-	o_read_data_b <= i_write_enable_b ? {DATA_WIDTH{1'd0}} : mem[i_address_b];
+	address_b_r <= i_address_b;
+	write_enable_b_r <= i_write_enable_b;
+	write_data_b_r <= i_write_data_b;
+	
+	read_data_b_r <= mem[address_b_r];
 
     // write
-	if (i_write_enable_b) begin
-        mem[i_address_b] <= i_write_data_b;
+	if (write_enable_b_r) begin
+        mem[address_b_r] = write_data_b_r;
 	end
 end
     

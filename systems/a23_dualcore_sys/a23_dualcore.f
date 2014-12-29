@@ -1,4 +1,5 @@
 
++incdir+${COMMON_RTL}/axi4
 ${COMMON_RTL}/axi4/axi4_if.sv
 ${COMMON_RTL}/axi4/axi4_monitor.sv
 ${COMMON_RTL}/wb/wb_if.sv

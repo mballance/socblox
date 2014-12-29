@@ -158,10 +158,10 @@ always @(posedge i_clk) begin
 		o_irq <= 0;
 		o_firq <= 0;
 	end else begin
-	irq0_interrupts  <= raw_interrupts & irq0_enable_reg;
-	firq0_interrupts <= raw_interrupts & firq0_enable_reg;
-	irq1_interrupts  <= raw_interrupts & irq1_enable_reg;
-	firq1_interrupts <= raw_interrupts & firq1_enable_reg;
+	irq0_interrupts  <= {15'b0,raw_interrupts} & irq0_enable_reg;
+	firq0_interrupts <= {15'b0,raw_interrupts} & firq0_enable_reg;
+	irq1_interrupts  <= {15'b0,raw_interrupts} & irq1_enable_reg;
+	firq1_interrupts <= {15'b0,raw_interrupts} & firq1_enable_reg;
 	
 	o_irq <= (|irq0_interrupts) | (|irq1_interrupts);
 	o_firq <= (|firq0_interrupts) | (|firq1_interrupts);

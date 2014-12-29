@@ -43,7 +43,8 @@ module generic_sram_line_en
 #(
 parameter DATA_WIDTH            = 128,
 parameter ADDRESS_WIDTH         = 7,
-parameter INITIALIZE_TO_ZERO    = 0
+parameter INITIALIZE_TO_ZERO    = 0,
+parameter READ_DATA_REGISTERED  = 1
 )
 
 (
@@ -51,38 +52,52 @@ input                           i_clk,
 input      [DATA_WIDTH-1:0]     i_write_data,
 input                           i_write_enable,
 input      [ADDRESS_WIDTH-1:0]  i_address,
-output reg [DATA_WIDTH-1:0]     o_read_data
+output     [DATA_WIDTH-1:0]     o_read_data
 );                                                     
 
 reg [DATA_WIDTH-1:0]   mem  [0:2**ADDRESS_WIDTH-1];
+reg [ADDRESS_WIDTH-1:0]			address_r;
+reg 							write_enable_r;
+reg [DATA_WIDTH-1:0]			write_data_r;
+reg [DATA_WIDTH-1:0]			read_data_r;
 
 generate
 if ( INITIALIZE_TO_ZERO ) begin : init0
 integer i;
 	initial begin
     for (i=0;i<2**ADDRESS_WIDTH;i=i+1)
-        mem[i] <= 'd0;
+        mem[i] = 'd0;
     end
 end else begin
 	initial begin
 		integer i;
 		for (i=0;i<2**ADDRESS_WIDTH;i=i+1) begin
-	    	mem[i] <= 'b1;
+	    	mem[i] = 'b1;
 	    end
 	end
+end
+	
+if (READ_DATA_REGISTERED) begin
+	assign o_read_data = read_data_r;
+end else begin
+	assign o_read_data = mem[address_r];
 end
 endgenerate
 
     
-always @(posedge i_clk)
-    begin
+always @(posedge i_clk) begin
     // read
-    o_read_data <= i_write_enable ? {DATA_WIDTH{1'd0}} : mem[i_address];
+   	address_r <= i_address;
+   	
+    read_data_r <= mem[address_r];
+    write_enable_r <= i_write_enable;
+    write_data_r <= i_write_data;
 
     // write
-    if (i_write_enable)
-        mem[i_address] <= i_write_data;
+    if (write_enable_r) begin
+        mem[address_r] = write_data_r;
     end
+end
     
     
 

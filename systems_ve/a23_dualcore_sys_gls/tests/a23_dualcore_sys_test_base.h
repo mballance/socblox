@@ -9,6 +9,7 @@
 #define A23_DUALCORE_TEST_BASE_H_
 #include "svf.h"
 #include "a23_dualcore_sys_env.h"
+#include "axi4_monitor_stream_logger.h"
 
 class a23_dualcore_sys_test_base : public svf_test {
 	svf_test_ctor_decl(a23_dualcore_sys_test_base)
@@ -27,6 +28,8 @@ class a23_dualcore_sys_test_base : public svf_test {
 	protected:
 
 		a23_dualcore_sys_env		*m_env;
+
+		axi4_monitor_stream_logger		*m_c0mon_logger;
 
 };
 

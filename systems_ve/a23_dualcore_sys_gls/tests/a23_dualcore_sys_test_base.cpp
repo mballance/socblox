@@ -20,6 +20,8 @@ void a23_dualcore_sys_test_base::build()
 {
 
 	m_env = a23_dualcore_sys_env::type_id.create("m_env", this);
+
+	m_c0mon_logger = new axi4_monitor_stream_logger("c0mon", stdout, 0);
 }
 
 void a23_dualcore_sys_test_base::connect()
@@ -35,7 +37,12 @@ void a23_dualcore_sys_test_base::connect()
 	string TB_ROOT(TB_ROOT_c);
 	string D_ROOT(TB_ROOT + ".u_a23_sys");
 
+	axi4_monitor_bfm_dpi_mgr::connect(TB_ROOT + ".u_c0mon", m_env->m_c0mon->bfm_port);
+
 	timebase_dpi_mgr::connect(TB_ROOT + ".u_time", m_env->m_timebase->bfm_port);
+
+	m_env->m_c0mon->ap.connect(m_c0mon_logger->api_export);
+	m_c0mon_logger->set_timebase(m_env->m_timebase->bfm_port.consumes());
 
 }
 

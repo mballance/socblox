@@ -23,6 +23,8 @@ void a23_dualcore_sys_env::build() {
 
 	m_timebase = new timebase("m_timebase", this);
 
+	m_c0mon = axi4_monitor_bfm::type_id.create("m_c0mon", this);
+
 }
 
 void a23_dualcore_sys_env::connect() {

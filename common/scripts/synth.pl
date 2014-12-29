@@ -97,6 +97,8 @@ if (! -d $run_root) {
 if ($builddir eq "") {
   $builddir=$ENV{RUN_ROOT};
 }
+
+$builddir = $builddir . "/synth";
 $ENV{BUILD_DIR}=$builddir;
 
 if ($quiet eq "") {
@@ -107,8 +109,10 @@ $SIG{'INT'} = 'cleanup';
 
 @mkfiles = glob("$SYNTH_DIR/scripts/*.mk");
 
+system("mkdir -p ${builddir}") && die;
+
 system("make",
-		"-C", "${run_root}",
+		"-C", "${builddir}",
        	"-f" ,
        	"$mkfiles[0]",
                     	"SIM=${sim}",
