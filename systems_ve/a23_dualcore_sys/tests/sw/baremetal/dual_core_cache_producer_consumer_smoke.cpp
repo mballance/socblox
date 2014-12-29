@@ -46,7 +46,7 @@ static volatile bool		v_ack = false;
 
 volatile uint32_t c_val=0;
 
-#undef  FAST
+#define FAST
 
 int main(int argc, char **argv) {
 	uint32_t core = *((volatile uint32_t *)0xF1000004);

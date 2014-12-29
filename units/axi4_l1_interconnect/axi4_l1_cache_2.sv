@@ -422,7 +422,8 @@ module axi4_l1_cache_2 #(
 	typedef enum reg[1:0] {
 		SS_WAIT_REQ,
 		SS_CHECK_HIT_1,
-		SS_CHECK_HIT_2
+		SS_CHECK_HIT_2,
+		SS_CHECK_HIT_3
 	} snoop_state_e;
 	
 	snoop_state_e			snoop_state = SS_WAIT_REQ;
@@ -490,6 +491,10 @@ module axi4_l1_cache_2 #(
 //					end else begin
 //						$display("%t %m: snoop miss on 'h%0h", $time, snoop_tag_data_address);
 //					end
+					snoop_state <= SS_CHECK_HIT_3;
+				end
+				
+				SS_CHECK_HIT_3: begin
 					snoop_state <= SS_WAIT_REQ;
 				end
 					
@@ -502,7 +507,7 @@ module axi4_l1_cache_2 #(
 		genvar snoop_tag_wenable_way_i;
 		for (snoop_tag_wenable_way_i=0; snoop_tag_wenable_way_i<CACHE_WAYS; snoop_tag_wenable_way_i=snoop_tag_wenable_way_i+1) begin : g_snoop_tag_wenable_way
 			assign snoop_tag_wenable_way[snoop_tag_wenable_way_i] = 
-				((snoop_state == SS_CHECK_HIT_2) && snoop_hit && (snoop_hit_way == snoop_tag_wenable_way_i));
+				((snoop_state == SS_CHECK_HIT_3) && snoop_hit && (snoop_hit_way == snoop_tag_wenable_way_i));
 		end
 	endgenerate
 	
@@ -622,16 +627,17 @@ module axi4_l1_cache_2 #(
 		(word_index == 2)?data_rdata_way[hit_way][95:64]:
 		data_rdata_way[hit_way][127:96];
 	
-//	always @* begin
-//		snoop_hit = 0;
-//		snoop_hit_way = 0;
-//		for (int i=0; i<CACHE_WAYS; i=i+1) begin
-//			if (snoop_tag_valid_way[i] && snoop_tag_rdata_way[i] == snoop_tag) begin
-//				snoop_hit = 1;
-//				snoop_hit_way = i;
-//			end
-//		end
-//	end
+	always @* begin
+		snoop_hit = 0;
+		snoop_hit_way = 0;
+		for (int i=0; i<CACHE_WAYS; i=i+1) begin
+			if (snoop_tag_valid_way[i] && snoop_tag_rdata_way[i] == snoop_tag) begin
+				snoop_hit = 1;
+				snoop_hit_way = i;
+				break;
+			end
+		end
+	end
 	
 	generate
 		genvar ram_i;
