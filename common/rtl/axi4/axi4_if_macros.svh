@@ -390,4 +390,82 @@
 	. prefix``_RVALID(ifc .RVALID), \
 	. prefix``_RREADY(ifc .RREADY)
 
+`define AXI4_IF_PORTMAP_LOWER(prefix, ifc) \
+	. prefix``_awid (ifc .AWID), \
+	. prefix``_awaddr(ifc .AWADDR), \
+	. prefix``_awlen(ifc .AWLEN), \
+	. prefix``_awsize(ifc .AWSIZE), \
+	. prefix``_awburst(ifc .AWBURST), \
+	. prefix``_awlock(ifc .AWLOCK), \
+	. prefix``_awcache(ifc .AWCACHE), \
+	. prefix``_awprot(ifc .AWPROT), \
+	. prefix``_awqos(ifc .AWQOS), \
+	. prefix``_awregion(ifc .AWREGION), \
+	. prefix``_awvalid(ifc .AWVALID), \
+	. prefix``_awready(ifc .AWREADY), \
+	. prefix``_wdata(ifc .WDATA), \
+	. prefix``_wstrb(ifc .WSTRB), \
+	. prefix``_wlast(ifc .WLAST), \
+	. prefix``_wvalid(ifc .WVALID), \
+	. prefix``_wready(ifc .WREADY), \
+	. prefix``_bid(ifc .BID), \
+	. prefix``_bresp(ifc .BRESP), \
+	. prefix``_bvalid(ifc .BVALID), \
+	. prefix``_bready(ifc .BREADY), \
+	. prefix``_arid(ifc .ARID), \
+	. prefix``_araddr(ifc .ARADDR), \
+	. prefix``_arlen(ifc .ARLEN), \
+	. prefix``_arsize(ifc .ARSIZE), \
+	. prefix``_arburst(ifc .ARBURST), \
+	. prefix``_arlock(ifc .ARLOCK), \
+	. prefix``_arcache(ifc .ARCACHE), \
+	. prefix``_arprot(ifc .ARPROT), \
+	. prefix``_arqos(ifc .ARQOS), \
+	. prefix``_arregion(ifc .ARREGION), \
+	. prefix``_arvalid(ifc .ARVALID), \
+	. prefix``_arready(ifc .ARREADY), \
+	. prefix``_rid(ifc .RID), \
+	. prefix``_rdata(ifc .RDATA), \
+	. prefix``_rresp(ifc .RRESP), \
+	. prefix``_rlast(ifc .RLAST), \
+	. prefix``_rvalid(ifc .RVALID), \
+	. prefix``_rready(ifc .RREADY)	
+
+`define AXI4_IF_PORTMAP_LOWER_NO_REGION_QOS(prefix, ifc) \
+	. prefix``_awid (ifc .AWID), \
+	. prefix``_awaddr(ifc .AWADDR), \
+	. prefix``_awlen(ifc .AWLEN), \
+	. prefix``_awsize(ifc .AWSIZE), \
+	. prefix``_awburst(ifc .AWBURST), \
+	. prefix``_awlock(ifc .AWLOCK), \
+	. prefix``_awcache(ifc .AWCACHE), \
+	. prefix``_awprot(ifc .AWPROT), \
+	. prefix``_awvalid(ifc .AWVALID), \
+	. prefix``_awready(ifc .AWREADY), \
+	. prefix``_wdata(ifc .WDATA), \
+	. prefix``_wstrb(ifc .WSTRB), \
+	. prefix``_wlast(ifc .WLAST), \
+	. prefix``_wvalid(ifc .WVALID), \
+	. prefix``_wready(ifc .WREADY), \
+	. prefix``_bid(ifc .BID), \
+	. prefix``_bresp(ifc .BRESP), \
+	. prefix``_bvalid(ifc .BVALID), \
+	. prefix``_bready(ifc .BREADY), \
+	. prefix``_arid(ifc .ARID), \
+	. prefix``_araddr(ifc .ARADDR), \
+	. prefix``_arlen(ifc .ARLEN), \
+	. prefix``_arsize(ifc .ARSIZE), \
+	. prefix``_arburst(ifc .ARBURST), \
+	. prefix``_arlock(ifc .ARLOCK), \
+	. prefix``_arcache(ifc .ARCACHE), \
+	. prefix``_arprot(ifc .ARPROT), \
+	. prefix``_arvalid(ifc .ARVALID), \
+	. prefix``_arready(ifc .ARREADY), \
+	. prefix``_rid(ifc .RID), \
+	. prefix``_rdata(ifc .RDATA), \
+	. prefix``_rresp(ifc .RRESP), \
+	. prefix``_rlast(ifc .RLAST), \
+	. prefix``_rvalid(ifc .RVALID), \
+	. prefix``_rready(ifc .RREADY)	
+
 	

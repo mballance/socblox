@@ -153,18 +153,6 @@ module a23_dualcore_sys #(
 		.AXI4_ID_WIDTH       (IC_SLAVE_ID_WIDTH)
 		) ic2rom ();
 
-	/*
-	axi4_monitor #(
-		.AXI4_ADDRESS_WIDTH  (32 ), 
-		.AXI4_DATA_WIDTH     (32 ), 
-		.AXI4_ID_WIDTH       (4  )
-		) ic2rom_monitor(
-			.clk(core_clk),
-			.rst_n(rst_n),
-			.monitor(ic2rom.monitor)
-		);
-		 */
-
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (32 ), 
 		.AXI4_DATA_WIDTH     (32 ), 
@@ -252,8 +240,6 @@ module a23_dualcore_sys #(
 		.SLAVE6_ADDR_LIMIT   (AXI_MSGQUEUE_0_LIMIT),
 		.SLAVE7_ADDR_BASE    (AXI_MSGQUEUE_1_BASE),
 		.SLAVE7_ADDR_LIMIT   (AXI_MSGQUEUE_1_LIMIT)
-//		.SLAVE8_ADDR_BASE    (HPS_BASE),
-//		.SLAVE8_ADDR_LIMIT   (HPS_LIMIT)
 		) u_ic1 (
 		.clk                 (core_clk           ), 
 		.rstn                (rst_n              ), 

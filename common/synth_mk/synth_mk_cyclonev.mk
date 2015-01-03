@@ -10,7 +10,7 @@ else
 
 sim : $(TOP_MODULE).qpf $(TOP_MODULE).map $(TOP_MODULE).fit $(TOP_MODULE).sim
 
-img : $(TOP_MODULE).qpf $(TOP_MODULE).map $(TOP_MODULE).fit $(TOP_MODULE).asm
+img : $(TOP_MODULE).qpf $(TOP_MODULE).map $(TOP_MODULE).fit $(TOP_MODULE).sof $(TOP_MODULE).rbf
 
 #vpath %.f $(SYNTH_SCRIPTS_DIR)
 #		-f $(SCRIPTS_DIR)/$(TOP_MODULE)_altera.f \
@@ -48,8 +48,12 @@ img : $(TOP_MODULE).qpf $(TOP_MODULE).map $(TOP_MODULE).fit $(TOP_MODULE).asm
 	quartus_sta $(subst .fit,,$(*))
 	touch $@
 	
-%.asm : %.fit	
+%.sof : %.fit	
 	quartus_asm $(subst .fit,,$(*))
-	touch $@
+	cp output/$(subst .fit,,$(*)).sof $@
+	
+%.rbf : %.sof
+	quartus_cpf -c $^ $@
+
 	
 endif
