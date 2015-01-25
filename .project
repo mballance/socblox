@@ -40,6 +40,16 @@
 			<type>2</type>
 			<locationURI>$%7BSYSTEMC%7D</locationURI>
 		</link>
+		<link>
+			<name>hwlib</name>
+			<type>2</type>
+			<locationURI>$%7BSOCEDS_ROOT%7D/ip/altera/hps/altera_hps/hwlib</locationURI>
+		</link>
+		<link>
+			<name>fpgamgr/uboot</name>
+			<type>2</type>
+			<locationURI>$%7BUBOOT%7D</locationURI>
+		</link>
 	</linkedResources>
 	<variableList>
 		<variable>

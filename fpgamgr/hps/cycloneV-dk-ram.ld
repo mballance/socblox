@@ -26,7 +26,8 @@ MEMORY
 {
   boot_rom (rx) : ORIGIN = 0xfffd0000, LENGTH = 64K
   oc_ram (rwx) : ORIGIN = 0xffff0000, LENGTH = 64K
-  ram (rwx) : ORIGIN = 0x008000, LENGTH = 128K
+/*  ram (rwx) : ORIGIN = 0x008000, LENGTH = 256k */
+  ram (rwx) : ORIGIN = 0x008000, LENGTH = 100M
 }
 
 /* These force the linker to search for particular symbols from
