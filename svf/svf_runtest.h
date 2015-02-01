@@ -7,8 +7,11 @@
 
 #ifndef SVF_RUNTEST_H_
 #define SVF_RUNTEST_H_
+class svf_test;
 
 void svf_runtest(const char *testname=0);
+
+void svf_runtest(svf_test *test);
 
 
 

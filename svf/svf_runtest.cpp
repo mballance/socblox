@@ -10,8 +10,7 @@
 #include "svf_test.h"
 #include <stdio.h>
 
-void svf_runtest(const char *testname)
-{
+void svf_runtest(const char *testname) {
 	svf_factory *f = svf_factory::get_default();
 	svf_string testname_opt;
 
@@ -34,6 +33,10 @@ void svf_runtest(const char *testname)
 		return;
 	}
 
+	svf_runtest(test);
+}
+
+void svf_runtest(svf_test *test) {
 	test->elaborate();
 	test->run();
 }

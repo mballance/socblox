@@ -34,6 +34,10 @@ class uth_coop_thread_mgr: public virtual uth_thread_mgr {
 		virtual void yield();
 
 	private:
+
+		virtual void yield(bool curr_ended=false);
+
+
 		static void scheduler_main(void *ud);
 
 		void scheduler_main();
@@ -41,6 +45,8 @@ class uth_coop_thread_mgr: public virtual uth_thread_mgr {
 		void unlink_thread(uth_thread_t **list, uth_thread_t *thread);
 
 		void append_thread(uth_thread_t **list, uth_thread_t *thread);
+
+		uth_thread_t *next_thread();
 
 	private:
 		uth_thread_t					m_main_thread;

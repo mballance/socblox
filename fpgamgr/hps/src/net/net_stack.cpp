@@ -6,6 +6,7 @@
  */
 
 #include "net_stack.h"
+#include <string.h>
 
 #define PROT_IP		0x0800		/* IP protocol			*/
 #define PROT_ARP	0x0806		/* IP ARP protocol		*/
@@ -39,6 +40,7 @@ net_packet *net_stack::recv() {
 				break;
 
 			case PROT_ARP:
+				arp_pkt(frm);
 				break;
 
 			case PROT_RARP:
@@ -85,5 +87,44 @@ void net_stack::release_pkt(net_packet *pkt) {
 	m_pkt_alloc = pkt;
 }
 
+void net_stack::arp_pkt(ul_netdrv_frame_t *pkt) {
+	arp_hdr_max_t arp_pkt;
 
+	for (uint32_t i=0; i<pkt->sz; i++) {
+		if (i && !(i % 8)) {
+			printf("\n");
+		}
+		printf("%02x ", pkt->data[i]);
+	}
+	printf("\n");
+
+	memcpy(&arp_pkt, &pkt->data[sizeof(eth_hdr_t)], sizeof(arp_hdr_max_t));
+
+	printf("\n");
+	for (uint32_t i=0; i<sizeof(arp_pkt); i++) {
+		if (i && !(i % 8)) {
+			printf("\n");
+		}
+		printf("%02x ", ((uint8_t *)&arp_pkt)[i]);
+	}
+	printf("\n");
+
+	arp_pkt.ar_hrd = ntohs(arp_pkt.ar_hrd);
+	arp_pkt.ar_pro = ntohs(arp_pkt.ar_pro);
+	arp_pkt.ar_op  = ntohs(arp_pkt.ar_op);
+
+	uint32_t t = arp_pkt.ar_op;
+
+	switch (arp_pkt.ar_op) {
+		case ARPOP_REQUEST: {
+
+			} break;
+
+		case RARPOP_REPLY:
+			// Response to one of our requests
+			break;
+	}
+
+	printf("ar_op=0x%08x\n", t);
+}
 

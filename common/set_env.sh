@@ -17,4 +17,3 @@ export COMMON_DIR=$SOCBLOX/common
 export COMMON_RTL=$COMMON_DIR/rtl
 export SYSTEMS=$SOCBLOX/systems
 
-

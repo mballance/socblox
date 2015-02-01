@@ -57,6 +57,10 @@ int main(int argc, char **argv) {
 //			c_val++;
 //		}
 
+	for (int i=0; i<4; i++) {
+		printf("Hello World!\n");
+	}
+
 
 	if (core == 0) {
 		// Release core 1

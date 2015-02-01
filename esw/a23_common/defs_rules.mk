@@ -15,6 +15,7 @@ A23_CFLAGS += -Os -march=armv2a -mno-thumb-interwork -ffreestanding
 A23_LDFLAGS += -Bstatic --fix-v4bx
 A23_LIBGCC:=$(shell $(A23_CC) -mno-thumb-interwork -print-libgcc-file-name)
 A23_LIBC:=$(dir $(A23_LIBGCC))/../../../../arm-none-eabi/lib/libc.a
+A23_LIBCXX:=$(dir $(A23_LIBGCC))/../../../../arm-none-eabi/lib/libstdc++.a
 
 
 else

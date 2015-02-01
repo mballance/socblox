@@ -11,9 +11,9 @@ UNIT_VE=a23_dualcore_sys
 #* TODO: Uncomment to enable target build
 TARGET_MAKEFILE := $(SCRIPTS_DIR)/target.mk
 
-TIMEOUT = 16ms
-# TIMEOUT = 10ms
-# TIMEOUT = 5ms
+# TIMEOUT = 16ms
+# TIMEOUT = 80ms
+TIMEOUT = 5ms
 
 BFMS += COMMON_SVF TIMEBASE A23_TRACER
 BFMS += BIDI_MESSAGE_QUEUE_DIRECT_BFM

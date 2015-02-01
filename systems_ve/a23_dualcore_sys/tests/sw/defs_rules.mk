@@ -6,6 +6,8 @@ include $(SOCBLOX)/units/wb_uart/sw/defs_rules.mk
 ifneq (1,$(RULES))
 
 SRC_DIRS += $(TESTS_SW_DIR) $(TESTS_SW_DIR)/baremetal
+SRC_DIRS += $(TESTS_SW_DIR)/svf $(TESTS_SW_DIR)/svf/env
+SRC_DIRS += $(TESTS_SW_DIR)/svf/tests
 
 # EXE_TARGETS += smoke.mem smoke.hex smoke.elf smoke.dat
 
@@ -17,12 +19,20 @@ BAREMETAL_TESTS_1 := smoke thread_primitives msg_queue_smoke \
 BAREMETAL_TESTS := dual_core_start_smoke single_core_start_smoke \
 	dual_core_nocache_reset_smoke dual_core_cache_reset_smoke \
 	dual_core_cache_producer_consumer_smoke
+	
+SVF_TESTS := svf_basics
+SVF_ENV_SRCS := $(notdir $(wildcard $(TESTS_SW_DIR)/svf/env/*.cpp))
+SVF_ENV_OBJS := $(SVF_ENV_SRCS:.cpp=.o)
+SVF_TESTS_SRCS := $(notdir $(wildcard $(TESTS_SW_DIR)/svf/tests/*.cpp))
+SVF_TESTS_OBJS := $(SVF_TESTS_SRCS:.cpp=.o)
 
 # UEX_TESTS := uex_simple_thread
 EXTS=.bin .mem .hex .elf .dat
 
 EXE_TARGETS += $(foreach e, $(EXTS), $(foreach t, $(BAREMETAL_TESTS), baremetal/$(t)$(e)))
 EXE_TARGETS += $(foreach e, $(EXTS), $(foreach t, $(UEX_TESTS), uex/$(t)$(e)))
+EXE_TARGETS += $(foreach e, $(EXTS), $(foreach t, $(SVF_TESTS), svf/$(t)$(e)))
+# EXE_TARGETS += svf/svf_basics.o
 
 else
 
@@ -96,6 +106,28 @@ uex/%.elf : uex/%.o \
 	$(LD) $(LDFLAGS) -o $@ \
 		-T $(SOCBLOX)/esw/a23_uex_hal/a23_uex_hal.lds $^ \
 		$(LIBCPP) $(LIBC) $(LIBGCC)
+		
+#		$(foreach o,$(SVF_OBJS),svf/$o)
+
+svf/%.elf : svf/%.o \
+	$(foreach o,$(SVF_ENV_OBJS),svf/env/$o) \
+	$(foreach o,$(SVF_TESTS_OBJS),svf/tests/$o) \
+	$(SVF_OBJDIR)/a23_startup_multicore.o \
+	$(SVF_OBJDIR)/io_stubs.o \
+	$(SVF_OBJDIR)/uex_thread_primitives.o \
+	$(SVF_OBJDIR)/a23_cpp_support.o \
+	$(SVF_OBJDIR)/a23_memory.o \
+	$(SVF_LIBDIR)/libbidi_message_queue_drv.a \
+	$(SVF_LIBDIR)/libbidi_message_queue_drv_uth.a \
+	$(LIBSVF_UTH_AR) \
+	$(UTH_COOP_THREAD_MGR_SLIB) \
+	$(UTH_SLIB) \
+	$(UTH_A23_SLIB)
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(LD) $(LDFLAGS) -o $@ \
+		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal_multicore.lds $^ \
+		$(LIBC) $(LIBGCC) $(LIBCXX)
+	
 	
 #uex/%.o : %.cpp
 #	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi

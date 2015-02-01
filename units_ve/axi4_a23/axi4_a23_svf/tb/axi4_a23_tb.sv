@@ -15,6 +15,7 @@ module axi4_a23_tb(
 
 	reg 		rstn = 0;
 	reg[15:0]	rstn_cnt = 0;
+	
 
 	/** 
 	 * SV DPI method of launching a test 

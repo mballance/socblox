@@ -103,6 +103,9 @@ int uth_mutex_unlock(
 
 int uth_cond_init(uth_cond_t *cond)
 {
+	cond->cond = 0;
+	cond->cond_wait_list = 0;
+
 	return 0;
 }
 
@@ -150,6 +153,7 @@ int uth_cond_broadcast(uth_cond_t *cond)
 	uth_thread_t *unblock;
 
 	while ((unblock = cond->cond_wait_list)) {
+		printf("unblock=%p thread_mgr=%p\n", unblock, unblock->thread_mgr);
 		cond->cond_wait_list = cond->cond_wait_list->cond_wait_next;
 		unblock->thread_mgr->unblock_thread(unblock);
 	}

@@ -24,17 +24,13 @@ bidi_message_queue_drv_uth::~bidi_message_queue_drv_uth() {
 // Wait for inbound data to be available
 void bidi_message_queue_drv_uth::wait_inbound()
 {
-	fprintf(stderr, "--> wait_inbound\n");
 	uth_thread_yield();
-	fprintf(stderr, "<-- wait_inbound\n");
 }
 
 // Wait for space in the outbound queue to be available
 void bidi_message_queue_drv_uth::wait_outbound()
 {
-	fprintf(stderr, "--> wait_outbound\n");
 	uth_thread_yield();
-	fprintf(stderr, "<-- wait_outbound\n");
 }
 
 void bidi_message_queue_drv_uth::inbound_lock()
@@ -61,7 +57,9 @@ void bidi_message_queue_drv_uth::outbound_unlock()
 uint32_t bidi_message_queue_drv_uth::read32(uint32_t *addr)
 {
 	volatile uint32_t *addr_v = addr;
-	return (*addr_v);
+	uint32_t ret = (*addr_v);
+//	fprintf(stderr, "read32: 0x%p 0x%08x\n", addr, ret);
+	return ret;
 }
 
 void bidi_message_queue_drv_uth::write32(uint32_t *addr, uint32_t data)

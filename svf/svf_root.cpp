@@ -35,9 +35,7 @@ void svf_root::run()
 //	start();
 
 	// Wait for all objections to be dropped
-	fprintf(stdout, "--> run::wait_all_dropped\n");
 	m_objection.wait_all_dropped();
-	fprintf(stdout, "<-- run::wait_all_dropped\n");
 
 	do_shutdown(this);
 }
@@ -69,7 +67,7 @@ svf_cmdline &svf_root::cmdline()
 void svf_root::do_build(svf_component *level)
 {
 	int entry_size = level->m_children.size();
-	fprintf(stdout, "do_build: level=%p %s entry_size=%d\n", level, level->get_name().c_str(), entry_size);
+//	fprintf(stdout, "do_build: level=%p %s entry_size=%d\n", level, level->get_name().c_str(), entry_size);
 	for (int i=0; i<entry_size; i++) {
 		do_build(level->m_children.at(i));
 	}

@@ -56,7 +56,7 @@ vpath %.cpp $(SRC_DIRS)
 vpath %.S $(SRC_DIRS)
 vpath %.c $(SRC_DIRS)
 
-.phony: all build run 
+.phony: all build run target_build
 
 all :
 	echo "Error: Specify target of build or run
@@ -68,7 +68,6 @@ target_build :
 	if test "x$(TARGET_MAKEFILE)" != "x"; then \
 		$(MAKE) -f $(TARGET_MAKEFILE) build; \
 	fi
-	touch $@
 
 QS_VLOG_ARGS += $(SOCBLOX)/svf/dpi/svf_pkg.sv
 VL_VLOG_ARGS += $(SOCBLOX)/svf/sc/svf_pkg.sv

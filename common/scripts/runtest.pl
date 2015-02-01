@@ -19,6 +19,14 @@ $SOCBLOX=dirname($COMMON_DIR);
 $SIM_DIR=getcwd();
 $ENV{SIM_DIR}=$SIM_DIR;
 
+# common variables with set_env.sh
+$ENV{SOCBLOX} = "$SOCBLOX";
+$ENV{UNITS} = "$SOCBLOX/units";
+$ENV{COMMON_DIR} = "$SOCBLOX/common";
+$ENV{COMMON_RTL} = "$SOCBLOX/common/rtl";
+$ENV{SYSTEMS} = "$SOCBLOX/systems";
+
+
 if (! -d $SOCBLOX) {
 	print "ERROR: Failed to locate SOCBLOX directory\n";
 	exit 1;

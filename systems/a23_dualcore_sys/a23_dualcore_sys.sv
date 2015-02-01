@@ -453,7 +453,7 @@ module a23_dualcore_sys #(
 
 	wb_uart #(
 		.WB_DWIDTH   (32	  	   ), 
-		.CLK_PERIOD  (2*CLK_PERIOD ), 
+		.CLK_PERIOD  (CLK_PERIOD ), 
 		.UART_BAUD   (UART_BAUD    )
 		) u_uart (
 		.i_clk       (core_clk      	),

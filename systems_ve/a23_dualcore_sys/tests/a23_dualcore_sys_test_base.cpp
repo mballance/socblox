@@ -33,6 +33,7 @@ void a23_dualcore_sys_test_base::build()
 	FILE *m_trace_file = stdout;
 	m_core1_disasm = new a23_disasm_tracer(m_trace_file, "core0");
 	m_core2_disasm = new a23_disasm_tracer(m_trace_file, "core1");
+
 }
 
 void a23_dualcore_sys_test_base::connect()

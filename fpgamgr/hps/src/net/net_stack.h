@@ -9,6 +9,7 @@
 #define NET_STACK_H_
 #include "ul_netdrv_if.h"
 #include "net_packet.h"
+#include "net_hdr.h"
 
 class net_stack {
 
@@ -25,6 +26,10 @@ class net_stack {
 		virtual net_packet *alloc_pkt();
 
 		virtual void release_pkt(net_packet *pkt);
+
+	protected:
+
+		virtual void arp_pkt(ul_netdrv_frame_t *pkt);
 
 	private:
 
