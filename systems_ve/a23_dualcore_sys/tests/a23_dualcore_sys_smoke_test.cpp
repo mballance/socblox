@@ -28,14 +28,14 @@ void a23_dualcore_sys_smoke_test::connect()
 
 void a23_dualcore_sys_smoke_test::start()
 {
-	svf_string target_exe;
-	if (!cmdline().valueplusarg("TARGET_EXE=", target_exe)) {
-
-	}
-
-	svf_elf_loader loader(m_env->m_mem_mgr);
-
-	int ret = loader.load(target_exe.c_str());
+//	svf_string target_exe;
+//	if (!cmdline().valueplusarg("TARGET_EXE=", target_exe)) {
+//
+//	}
+//
+//	svf_elf_loader loader(m_env->m_mem_mgr);
+//
+//	int ret = loader.load(target_exe.c_str());
 
 	raise_objection();
 }
@@ -47,7 +47,7 @@ void a23_dualcore_sys_smoke_test::mem_access(
 {
 
 //	fprintf(stdout, "MEM_ACCESS: 0x%08x\n", addr);
-	if (!is_write && addr <= 0x30000000) {
+	if (!is_write && addr <= 0x30000000 && addr >= 0x20000000) {
 		uint32_t mem_data = m_env->m_mem_mgr->read32(addr);
 
 		if (mem_data != data) {
@@ -71,16 +71,16 @@ void a23_dualcore_sys_smoke_test::execute(
 		uint32_t			op
 		)
 {
-	uint32_t mem_data = m_env->m_mem_mgr->read32(addr);
-
-	if (addr == 0x178) {
-		fprintf(stdout, "DABT\n");
-	}
-
-	if (mem_data != op) {
-		fprintf(stdout, "Error: %0lld Execute 0x%08x: Expected=0x%08x Actual=0x%08x\n",
-				m_env->m_timebase->gettime(), addr, mem_data, op);
-	}
+//	uint32_t mem_data = m_env->m_mem_mgr->read32(addr);
+//
+//	if (addr == 0x178) {
+//		fprintf(stdout, "DABT\n");
+//	}
+//
+//	if (mem_data != op) {
+//		fprintf(stdout, "Error: %0lld Execute 0x%08x: Expected=0x%08x Actual=0x%08x\n",
+//				m_env->m_timebase->gettime(), addr, mem_data, op);
+//	}
 }
 
 void a23_dualcore_sys_smoke_test::regchange(

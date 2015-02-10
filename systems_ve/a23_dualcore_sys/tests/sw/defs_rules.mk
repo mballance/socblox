@@ -32,7 +32,16 @@ EXTS=.bin .mem .hex .elf .dat
 EXE_TARGETS += $(foreach e, $(EXTS), $(foreach t, $(BAREMETAL_TESTS), baremetal/$(t)$(e)))
 EXE_TARGETS += $(foreach e, $(EXTS), $(foreach t, $(UEX_TESTS), uex/$(t)$(e)))
 EXE_TARGETS += $(foreach e, $(EXTS), $(foreach t, $(SVF_TESTS), svf/$(t)$(e)))
+
+EXE_TARGETS += preloader/a23_preloader.mem
+EXE_TARGETS += preloader/a23_preloader.elf
+# EXE_TARGETS += preloader/a23_preloader.o
+# EXE_TARGETS += a23_preloader.o
+# EXE_TARGETS += print
+# EXE_TARGETS += preloader/a23_preloader.elf
 # EXE_TARGETS += svf/svf_basics.o
+
+vpath %.elf preloader
 
 else
 
@@ -50,7 +59,9 @@ $(SVF_OBJDIR)/%.o : %.c
 
 %.mem : %.elf
 	$(OBJCOPY) $^ -O verilog $@
-#	perl `which objcopy_verilog_filter.pl` $@
+	
+preloader/%.mem : preloader/%.elf
+	$(OBJCOPY) $^ -O verilog $@
 
 %.bin : %.elf
 	$(OBJCOPY) $^ -O binary $@
@@ -62,14 +73,6 @@ $(SVF_OBJDIR)/%.o : %.c
 	perl $(SOCBLOX)/common/scripts/objcopy_ihex2quartus_filter.pl \
 		$^ $@
 
-# LIBC := /usr1/src/newlib/arm-none-eabi/newlib/libc.a		
-# LIBC := /usr1/src/newlib_O2/arm-none-eabi/newlib/libc/libc.a		
-# LIBC := /usr1/src/libc_O2.a
-# LIBC := /usr1/src/libc.a
-# LIBC := /usr1/src/newlib_gOs/inst/arm-none-eabi/lib/libc.a		
-
-#	$(SVF_OBJDIR)/a23_simple_startup.o \
-	
 baremetal/%.elf : baremetal/%.o \
 	$(SVF_OBJDIR)/a23_startup_multicore.o \
 	$(SVF_OBJDIR)/io_stubs.o \
@@ -89,16 +92,13 @@ baremetal/%.elf : baremetal/%.o \
 		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal_multicore.lds $^ \
 		$(LIBC) $(LIBGCC)
 	
-	# $(LIBCPP)	
-#		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal.lds $^ 
-
 baremetal/%.o : %.cpp
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(CXX) -o $@ -c $(CXXFLAGS) $^ 
 	
-#	$(SVF_OBJDIR)/a23_dualcore_low_level_init.o \
-	$(SVF_OBJDIR)/a23_cpp_support.o \
-	$(SVF_OBJDIR)/a23_memory.o 
+preloader/%.o : %.cpp
+	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(CXX) -o $@ -c $(CXXFLAGS) $^ 
 	
 uex/%.elf : uex/%.o \
 	$(SVF_OBJDIR)/a23_uex_boot.o 
@@ -107,12 +107,11 @@ uex/%.elf : uex/%.o \
 		-T $(SOCBLOX)/esw/a23_uex_hal/a23_uex_hal.lds $^ \
 		$(LIBCPP) $(LIBC) $(LIBGCC)
 		
-#		$(foreach o,$(SVF_OBJS),svf/$o)
-
+		
 svf/%.elf : svf/%.o \
+	$(SVF_OBJDIR)/a23_preloader_app_crt0.o \
 	$(foreach o,$(SVF_ENV_OBJS),svf/env/$o) \
 	$(foreach o,$(SVF_TESTS_OBJS),svf/tests/$o) \
-	$(SVF_OBJDIR)/a23_startup_multicore.o \
 	$(SVF_OBJDIR)/io_stubs.o \
 	$(SVF_OBJDIR)/uex_thread_primitives.o \
 	$(SVF_OBJDIR)/a23_cpp_support.o \
@@ -124,8 +123,8 @@ svf/%.elf : svf/%.o \
 	$(UTH_SLIB) \
 	$(UTH_A23_SLIB)
 	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
-	$(LD) $(LDFLAGS) -o $@ \
-		-T $(SOCBLOX)/esw/a23_boot/a23_baremetal_multicore.lds $^ \
+	$(LD) $(LDFLAGS) -o $@ $^ \
+		-T $(SYSTEMS)/a23_dualcore_sys/sw/preloader_app/a23_preloader_app.lds \
 		$(LIBC) $(LIBGCC) $(LIBCXX)
 	
 	

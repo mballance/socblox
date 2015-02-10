@@ -15,6 +15,12 @@ class svf_bridge_msg {
 
 		inline void set_next(svf_bridge_msg *next) { m_next = next; }
 
+		void write32(uint32_t data);
+
+		void set_data(uint32_t off, uint32_t data);
+
+		void ensure_space(uint32_t sz);
+
 	private:
 
 		uint32_t				*m_data;

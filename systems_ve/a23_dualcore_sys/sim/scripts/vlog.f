@@ -12,7 +12,8 @@ ${COMMON_BFM}/uart/uart_bfm.sv
 ${COMMON_BFM}/bidi_message_queue_direct_bfm/bidi_message_queue.sv
 
 ${COMMON_BFM}/generic_sram_byte_en/generic_sram_byte_en.sv
-${COMMON_BFM}/generic_rom/generic_rom.sv
+${COMMON_BFM}/../sram/generic_rom.v
+// ${COMMON_BFM}/generic_rom/generic_rom.sv
 ${COMMON_BFM}/../sram/generic_sram_line_en_dualport.v
 ${COMMON_BFM}/../sram/generic_sram_byte_en_dualport.v
 ${COMMON_BFM}/timebase/timebase.sv

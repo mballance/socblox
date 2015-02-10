@@ -2,7 +2,6 @@
 #define INCLUDED_SVF_H
 #include "svf_cmdline.h"
 #include "svf_component.h"
-#include "svf_bfm.h"
 #include "svf_test.h"
 #include "svf_test_ctor.h"
 #include "svf_thread.h"

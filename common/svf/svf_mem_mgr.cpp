@@ -36,6 +36,12 @@ void svf_mem_mgr::add_region(
 	m_regions.push_back(region);
 }
 
+void svf_mem_mgr::write(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		write8(addr+i, data[i]);
+	}
+}
+
 void svf_mem_mgr::write8(uint64_t addr, uint8_t data)
 {
 	svf_mem_mgr_region *r = find(addr, addr+1);
@@ -75,8 +81,13 @@ void svf_mem_mgr::write32(uint64_t addr, uint32_t data)
 	}
 }
 
-uint8_t svf_mem_mgr::read8(uint64_t addr)
-{
+void svf_mem_mgr::read(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		data[i] = read8(addr+i);
+	}
+}
+
+uint8_t svf_mem_mgr::read8(uint64_t addr) {
 	uint8_t ret = 0xFF;
 	svf_mem_mgr_region *r = find(addr, addr+1);
 

@@ -29,3 +29,6 @@ extern "C" int __aeabi_atexit(
 extern "C" void __cxa_pure_virtual() {
 	while(1);
 }
+
+void *__dso_handle = (void *)0;
+

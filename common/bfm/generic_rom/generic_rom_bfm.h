@@ -24,10 +24,12 @@ class generic_rom_bfm : public svf_component, public virtual svf_mem_if {
 
 		virtual ~generic_rom_bfm();
 
+		virtual void write(uint64_t addr, uint8_t *data, uint32_t sz);
 		virtual void write32(uint64_t addr, uint32_t data);
 		virtual void write16(uint64_t addr, uint16_t data);
 		virtual void write8(uint64_t addr, uint8_t data);
 
+		virtual void read(uint64_t addr, uint8_t *data, uint32_t sz);
 		virtual uint32_t read32(uint64_t addr);
 		virtual uint16_t read16(uint64_t addr);
 		virtual uint8_t read8(uint64_t addr);

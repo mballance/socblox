@@ -49,9 +49,9 @@ void a23_dualcore_sys_test_base::connect()
 	string TB_ROOT(TB_ROOT_c);
 	string D_ROOT(TB_ROOT + ".u_a23_sys");
 
-	generic_rom_dpi_mgr::connect(D_ROOT + ".u_rom.u_rom", m_env->m_bootrom->bfm_port);
+//	generic_rom_dpi_mgr::connect(D_ROOT + ".u_rom.u_rom", m_env->m_bootrom->bfm_port);
 	generic_sram_byte_en_dpi_mgr::connect(D_ROOT + ".u_ram.ram_w.ram", m_env->m_sram->bfm_port);
-	generic_sram_byte_en_dpi_mgr::connect(D_ROOT + ".u_gbl.ram_w.ram", m_env->m_gbl->bfm_port);
+	generic_sram_byte_en_dpi_mgr::connect(D_ROOT + ".u_ddr.ram_w.ram", m_env->m_ddr->bfm_port);
 	uart_bfm_dpi_mgr::connect(TB_ROOT + ".u_uart_bfm", m_env->m_uart->bfm_port);
 
 
@@ -104,11 +104,11 @@ void a23_dualcore_sys_test_base::connect()
 	m_ic2ram_logger->set_timebase(m_env->m_timebase->bfm_port.consumes());
 	m_core2ic_logger->set_timebase(m_env->m_timebase->bfm_port.consumes());
 
-	/*
 	bidi_message_queue_direct_bfm_dpi_mgr::connect(
 			D_ROOT + ".u_msg_queue_1",
 			m_env->m_msg_queue_1->bfm_port);
-			*/
+	/*
+		*/
 }
 
 void a23_dualcore_sys_test_base::shutdown()

@@ -121,7 +121,7 @@ for ($i=0; $i <= $#ARGV; $i++) {
       printhelp();
       exit 1;
     }
-  } elsif ($arg =~ /^+/) {
+  } elsif ($arg =~ /^\+/) {
   	$plusargs = $plusargs . " " . $arg;
   } else {
     if ($arg eq "build") {
@@ -163,6 +163,8 @@ if ($builddir eq "") {
 # TODO: platform too?
 $builddir = $builddir . "/" . $sim;
 $ENV{BUILD_DIR}=$builddir;
+
+print "cmd=$cmd\n";
 
 if ($cmd eq "build") {
   build();

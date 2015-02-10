@@ -58,6 +58,11 @@ output reg [DATA_WIDTH-1:0]     o_read_data
 reg [DATA_WIDTH-1:0]   mem  [(2**ADDRESS_WIDTH)-1:0];
 integer i;
 localparam OFFSET_HIGH_BIT = (ADDRESS_WIDTH + $clog2(DATA_WIDTH) - 1);
+localparam OFFSET_LOW_BIT = ($clog2(DATA_WIDTH/8));
+
+initial begin
+	$display("SRAM: OFFSET_HIGH_BIT: %0d OFFSET_LOW_BIT: %0d", OFFSET_HIGH_BIT, OFFSET_LOW_BIT);
+end
 
 always @(posedge i_clk)
     begin
@@ -82,10 +87,10 @@ always @(posedge i_clk)
     task generic_sram_byte_en_write8(
     	longint unsigned	offset,
     	int unsigned 		data);
-    	automatic bit[DATA_WIDTH-1:0] tmp = mem[offset >> 2];
-    	tmp &= ~('hff << offset[2:0]);
-    	tmp |= (data << offset[2:0]);
-    	mem[offset] = tmp;
+    	automatic bit[DATA_WIDTH-1:0] tmp = mem[offset[OFFSET_HIGH_BIT:OFFSET_LOW_BIT]];
+    	tmp &= ~('hff << 8*offset[OFFSET_LOW_BIT-1:0]);
+    	tmp |= (data << 8*offset[OFFSET_LOW_BIT-1:0]);
+    	mem[offset[OFFSET_HIGH_BIT:OFFSET_LOW_BIT]] = tmp;
     endtask
     export "DPI-C" task generic_sram_byte_en_write8;
     

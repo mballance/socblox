@@ -14,7 +14,8 @@
  */
 module a23_dualcore_sys #(
 		parameter int CLK_PERIOD = 10,
-		parameter int UART_BAUD = 7372800
+		parameter int UART_BAUD = 7372800,
+		parameter INIT_FILE="rom.hex"
 		) (
 		input			clk_i,
 		input			sw1,
@@ -56,12 +57,6 @@ module a23_dualcore_sys #(
 	
 //	assign core_clk = clk_cnt[4];
 
-`ifdef FPGA	
-	localparam INIT_FILE = "rom.hex";
-`else	
-	localparam INIT_FILE = "";
-`endif
-	
 	localparam WB_PERIPH_ADDR_BASE  = 'hF000_0000;
 	localparam WB_PERIPH_ADDR_LIMIT = 'hF000_FFFF;
 	
@@ -226,16 +221,16 @@ module a23_dualcore_sys #(
 		.AXI4_ID_WIDTH       (4      ), 
 		.SLAVE0_ADDR_BASE    ('h0000_0000  ), // ROM
 		.SLAVE0_ADDR_LIMIT   ('h000F_FFFF  ),
-		.SLAVE1_ADDR_BASE    ('h2000_0000  ), // RAM
-		.SLAVE1_ADDR_LIMIT   ('h200F_FFFF  ),
+		.SLAVE1_ADDR_BASE    ('h0200_0000  ), // RAM
+		.SLAVE1_ADDR_LIMIT   ('h020F_FFFF  ),
 		.SLAVE2_ADDR_BASE    ('h8000_0000  ),
 		.SLAVE2_ADDR_LIMIT   ('h8FFF_FFFF  ),
 		.SLAVE3_ADDR_BASE    (WB_PERIPH_ADDR_BASE ),
 		.SLAVE3_ADDR_LIMIT   (WB_PERIPH_ADDR_LIMIT),
 		.SLAVE4_ADDR_BASE    (AXI_COREINFO_ADDR_BASE),
 		.SLAVE4_ADDR_LIMIT   (AXI_COREINFO_ADDR_LIMIT),
-		.SLAVE5_ADDR_BASE    ('h3000_0000  ),
-		.SLAVE5_ADDR_LIMIT   ('h3000_FFFF  ),
+		.SLAVE5_ADDR_BASE    ('h0300_0000  ),
+		.SLAVE5_ADDR_LIMIT   ('h0303_FFFF  ),
 		.SLAVE6_ADDR_BASE    (AXI_MSGQUEUE_0_BASE),
 		.SLAVE6_ADDR_LIMIT   (AXI_MSGQUEUE_0_LIMIT),
 		.SLAVE7_ADDR_BASE    (AXI_MSGQUEUE_1_BASE),
@@ -276,11 +271,11 @@ module a23_dualcore_sys #(
 		.s                  (ic2ram.slave    ));
 	
 	axi4_sram #(
-		.MEM_ADDR_BITS      (12     ),
+		.MEM_ADDR_BITS      ((18-2) ),
 		.AXI_ADDRESS_WIDTH  (32     ),
 		.AXI_DATA_WIDTH     (32     ),
 		.AXI_ID_WIDTH       (5      )
-		) u_gbl (
+		) u_ddr (
 		.ACLK               (core_clk        ), 
 		.ARESETn            (rst_n           ), 
 		.s                  (ic2gbl.slave    ));
@@ -338,7 +333,7 @@ module a23_dualcore_sys #(
 	wire irq_queue_0;
 	
 	bidi_message_queue #(
-		.QUEUE_ADDR_BITS  (8)
+		.QUEUE_ADDR_BITS  (10)
 		) u_msg_queue_0	 (
 		.clk              (core_clk          ), 
 		.rst_n            (rst_n             ), 

@@ -123,11 +123,14 @@ class svf_elf_loader {
 
 		int load(const char *path);
 
+		inline uint32_t get_entry() const { return m_entry; }
+
 	private:
 
 	private:
 		svf_mem_if					*m_mem_if;
 		map<string, uint32_t>		m_symtab;
+		uint32_t					m_entry;
 		bool						m_debug;
 };
 

@@ -26,11 +26,15 @@ class svf_mem_mgr : public virtual svf_mem_if {
 				uint64_t		base,
 				uint64_t		limit);
 
+		virtual void write(uint64_t addr, uint8_t *data, uint32_t sz);
+
 		virtual void write8(uint64_t addr, uint8_t data);
 
 		virtual void write16(uint64_t addr, uint16_t data);
 
 		virtual void write32(uint64_t addr, uint32_t data);
+
+		virtual void read(uint64_t addr, uint8_t *data, uint32_t sz);
 
 		virtual uint8_t read8(uint64_t addr);
 

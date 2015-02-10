@@ -24,6 +24,8 @@ void bidi_message_queue_direct_bfm::start()
 		return;
 	}
 	bfm_port->get_queue_sz(&m_queue_sz);
+	fprintf(stdout, "m_queue_sz=%d\n", m_queue_sz);
+	fflush(stdout);
 }
 
 // Returns the size of the next inbound message.

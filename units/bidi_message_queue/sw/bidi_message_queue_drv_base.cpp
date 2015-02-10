@@ -13,7 +13,7 @@ bidi_message_queue_drv_base::bidi_message_queue_drv_base(
 		uint32_t		queue_addr_bits // for both queues
 		) {
 	m_inbound_sz = -1;
-	// TODO Auto-generated constructor stub
+
 	uint32_t in_out_queue_sz = (1 << queue_addr_bits);
 
 	m_base = base;
@@ -33,6 +33,7 @@ int32_t bidi_message_queue_drv_base::get_next_message_sz(bool block)
 {
 	uint32_t rp, wp;
 
+
 	inbound_lock();
 
 	// Just in case we read this already
@@ -46,7 +47,7 @@ int32_t bidi_message_queue_drv_base::get_next_message_sz(bool block)
 
 		if (wp != rp) {
 			m_inbound_sz = read32(&m_inbound[rp]);
-			rp = ((rp+1) % m_queue_sz);
+			rp = ((rp+1) & (m_queue_sz-1));
 			write32(&m_base[INBOUND_RD_PTR], rp);
 
 			inbound_unlock();
@@ -71,11 +72,13 @@ int32_t bidi_message_queue_drv_base::read_next_message(uint32_t *data)
 	while (i < m_inbound_sz) {
 		wp = read32(&m_base[INBOUND_WR_PTR]);
 
-		if (rp != wp) {
+		while (rp != wp && i < m_inbound_sz) {
 			data[i] = read32(&m_inbound[rp]);
-			rp = ((rp+1) % m_queue_sz);
+			rp = ((rp+1) & (m_queue_sz-1));
 			i++;
-		} else {
+		}
+
+		if (i < m_inbound_sz) {
 			write32(&m_base[INBOUND_RD_PTR], rp);
 			wait_inbound();
 		}
@@ -101,7 +104,7 @@ int32_t bidi_message_queue_drv_base::write_message(uint32_t sz, uint32_t *data)
 	wp = read32(&m_base[OUTBOUND_WR_PTR]);
 	rp = read32(&m_base[OUTBOUND_RD_PTR]);
 	while (i <= sz) {
-		next_wp = ((wp+1) % m_queue_sz);
+		next_wp = ((wp+1) & (m_queue_sz-1));
 		if (next_wp != rp) {
 			if (i == 0) {
 				write32(&m_outbound[wp], sz);
@@ -109,7 +112,7 @@ int32_t bidi_message_queue_drv_base::write_message(uint32_t sz, uint32_t *data)
 				write32(&m_outbound[wp], data[i-1]);
 			}
 			i++;
-			wp = ((wp+1) % m_queue_sz);
+			wp = ((wp+1) & (m_queue_sz-1));
 		} else {
 			write32(&m_base[OUTBOUND_WR_PTR], wp);
 			wait_outbound();

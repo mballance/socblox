@@ -18,6 +18,12 @@ wb_master_bfm::~wb_master_bfm() {
 	// TODO Auto-generated destructor stub
 }
 
+void wb_master_bfm::write(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		write8(addr+i, data[i]);
+	}
+}
+
 void wb_master_bfm::write32(uint64_t addr, uint32_t data)
 {
 	m_access_mutex.lock();
@@ -42,6 +48,12 @@ void wb_master_bfm::write16(uint64_t addr, uint16_t data)
 void wb_master_bfm::write8(uint64_t addr, uint8_t data)
 {
 
+}
+
+void wb_master_bfm::read(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		data[i] = read8(addr+i);
+	}
 }
 
 uint32_t wb_master_bfm::read32(uint64_t addr)

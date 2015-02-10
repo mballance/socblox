@@ -15,11 +15,15 @@ class svf_mem_if {
 
 		virtual ~svf_mem_if() {}
 
+		virtual void write(uint64_t addr, uint8_t *data, uint32_t sz) = 0;
+
 		virtual void write8(uint64_t addr, uint8_t data) = 0;
 
 		virtual void write16(uint64_t addr, uint16_t data) = 0;
 
 		virtual void write32(uint64_t addr, uint32_t data) = 0;
+
+		virtual void read(uint64_t addr, uint8_t *data, uint32_t sz) = 0;
 
 		virtual uint8_t read8(uint64_t addr) = 0;
 

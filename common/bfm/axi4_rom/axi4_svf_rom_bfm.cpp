@@ -17,6 +17,12 @@ axi4_svf_rom_bfm::~axi4_svf_rom_bfm() {
 	// TODO Auto-generated destructor stub
 }
 
+void axi4_svf_rom_bfm::write(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		write8(addr+i, data[i]);
+	}
+}
+
 void axi4_svf_rom_bfm::write32(uint64_t addr, uint32_t data)
 {
 	port()->write32(addr, data);
@@ -30,6 +36,12 @@ void axi4_svf_rom_bfm::write16(uint64_t addr, uint16_t data)
 void axi4_svf_rom_bfm::write8(uint64_t addr, uint8_t data)
 {
 	port()->write8(addr, data);
+}
+
+void axi4_svf_rom_bfm::read(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		data[i] = read8(addr+i);
+	}
 }
 
 uint32_t axi4_svf_rom_bfm::read32(uint64_t addr)

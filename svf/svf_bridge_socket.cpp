@@ -35,7 +35,12 @@ void svf_bridge_socket::wait_connected()
 
 svf_bridge_msg *svf_bridge_socket::alloc_msg()
 {
-	return m_bridge_if->alloc_msg();
+	svf_bridge_msg *msg = m_bridge_if->alloc_msg();
+
+	// Save space for the dest-id field
+	msg->write32(0);
+
+	return msg;
 }
 
 void svf_bridge_socket::send_msg(svf_bridge_msg *msg)

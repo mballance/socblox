@@ -7,7 +7,10 @@
 
 #ifndef SVF_BRIDGE_SOCKET_H_
 #define SVF_BRIDGE_SOCKET_H_
+#include "svf_thread_mutex.h"
+#include "svf_thread_cond.h"
 #include "svf_bridge_if.h"
+#include "svf_string.h"
 
 
 class svf_bridge_socket {

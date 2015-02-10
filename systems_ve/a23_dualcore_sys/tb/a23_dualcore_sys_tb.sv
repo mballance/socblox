@@ -6,6 +6,19 @@
 `timescale 1 ps/ 1 ps
 `endif
 
+module array_ports #(parameter int N_PORTS=4) (
+		input [31:0]		ADDR[N_PORTS-1:0],
+		output [31:0]		DATA[N_PORTS-1:0]);
+
+	generate 
+		genvar i;
+		for (i=0; i<N_PORTS; i++) begin
+			assign DATA[i] = ADDR[i];
+		end
+	endgenerate
+	
+endmodule
+
 /**
  * Module: a23_dualcore_sys_tb
  * 
@@ -19,6 +32,13 @@ module a23_dualcore_sys_tb(input clk);
 	localparam UART_BAUD = 7372800;
 //	localparam UART_BAUD = 14745600;
 	localparam CLK_PERIOD = 10;
+
+	wire [31:0]		ADDR[1:0];
+	wire [31:0]		DATA[1:0];
+	array_ports #(2) arr(
+			.ADDR(ADDR),
+			.DATA(DATA)
+		);
 	
 `ifndef VERILATOR
 	reg clk_r = 0;
@@ -79,7 +99,8 @@ module a23_dualcore_sys_tb(input clk);
 	a23_dualcore_sys #(
 `endif
 			.CLK_PERIOD(CLK_PERIOD),
-			.UART_BAUD(UART_BAUD)
+			.UART_BAUD(UART_BAUD),
+			.INIT_FILE("a23_preloader.mem")
 			) u_a23_sys (
 			.clk_i(clk),
 			.sw1(sw1),

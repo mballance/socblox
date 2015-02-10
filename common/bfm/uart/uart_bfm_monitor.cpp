@@ -33,6 +33,7 @@ void uart_bfm_monitor::getc(int ch) {
 		m_buf[m_buf_idx] = 0;
 		fputs(m_prefix, stdout);
 		fputs(m_buf, stdout);
+		fflush(stdout);
 		m_buf_idx = 0;
 	}
 }

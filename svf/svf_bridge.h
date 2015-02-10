@@ -12,19 +12,25 @@
 #include "svf_bridge_msg.h"
 #include "svf_ptr_vector.h"
 
+class svf_bridge_socket;
 class svf_bridge : public svf_component, public virtual svf_bridge_if {
+	friend class svf_bridge_socket;
+
 	public:
 		svf_bridge(const char *name, svf_component *parent);
 
 		virtual ~svf_bridge();
 
+		void register_socket(svf_bridge_socket *sock);
+
+
+	// Methods used by sockets
+	protected:
 		svf_bridge_msg *alloc_msg();
 
 		void free_msg(svf_bridge_msg *msg);
 
 		void send_msg(svf_bridge_socket *sock, svf_bridge_msg *msg);
-
-		void register_socket(svf_bridge_socket *sock);
 
 		void register_remote_socket(svf_bridge_socket *sock);
 

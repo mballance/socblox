@@ -60,7 +60,6 @@ SVF_SRC= \
   svf_string.cpp \
   svf_string_map.cpp \
   svf_ptr_vector.cpp \
-  svf_bfm.cpp \
   svf_cmdline.cpp \
   svf_component_ctor.cpp \
   svf_component.cpp \
@@ -80,7 +79,12 @@ SVF_SRC= \
   svf_semaphore.cpp \
   \
   svf_task_mgr_base.cpp \
-  svf_task_base.cpp 
+  svf_task_base.cpp \
+  \
+  svf_bridge.cpp \
+  svf_bridge_socket.cpp \
+  svf_bridge_msg.cpp
+  
  
 
 SVF_SC_SRC= \

@@ -17,6 +17,12 @@ generic_sram_byte_en_bfm::~generic_sram_byte_en_bfm() {
 	// TODO Auto-generated destructor stub
 }
 
+void generic_sram_byte_en_bfm::write(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		write8(addr+i, data[i]);
+	}
+}
+
 void generic_sram_byte_en_bfm::write32(uint64_t addr, uint32_t data)
 {
 	bfm_port->write32(addr, data);
@@ -30,6 +36,12 @@ void generic_sram_byte_en_bfm::write16(uint64_t addr, uint16_t data)
 void generic_sram_byte_en_bfm::write8(uint64_t addr, uint8_t data)
 {
 	bfm_port->write8(addr, data);
+}
+
+void generic_sram_byte_en_bfm::read(uint64_t addr, uint8_t *data, uint32_t sz) {
+	for (uint32_t i=0; i<sz; i++) {
+		data[i] = read8(addr+i);
+	}
 }
 
 uint32_t generic_sram_byte_en_bfm::read32(uint64_t addr)

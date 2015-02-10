@@ -9,7 +9,9 @@
 
 timebase::timebase(const char *name, svf_component *parent) :
 	svf_component(name, parent), bfm_port(0) {
+	int unused;
 	// TODO Auto-generated constructor stub
+
 
 }
 

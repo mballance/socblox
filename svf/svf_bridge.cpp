@@ -6,6 +6,7 @@
  */
 
 #include "svf_bridge.h"
+#include "svf_bridge_socket.h"
 
 svf_bridge::svf_bridge(const char *name, svf_component *parent) :
 	svf_component(name, parent) {

@@ -13,17 +13,15 @@
 #include "bidi_message_queue_drv_uth.h"
 #include <stdlib.h>
 
-void *__dso_handle = (void *)0;
+// void *__dso_handle = (void *)0;
 
-extern "C" void irq_handler() { }
+// extern "C" void irq_handler() { }
 
 #define debug(...) fprintf(stdout, __VA_ARGS__); fflush(stdout);
 
-svf_ptr_vector<svf_string> svf_cmdline::args()
-{
-	svf_ptr_vector<svf_string> args;
-
-	return args;
+svf_ptr_vector<svf_string>		prv_args;
+svf_ptr_vector<svf_string> svf_cmdline::args() {
+	return prv_args;
 }
 
 static uth_coop_thread_mgr *thread_mgr[2] = {0, 0};
@@ -37,31 +35,28 @@ extern "C" uth_thread_mgr *uth_get_thread_mgr()
 	return thread_mgr[core];
 }
 
-extern "C" void low_level_init()
-{
-	// Enable cache for code/data
-	// 31:27
-	// Page 0 - 0x00000000-0x07FFFFFFF
-	// Page 4 - 0x20000000-0x27FFFFFFF
-	asm(
-//			"mov	r0, #0x00000011\n"
-			"mov	r0, #0x00000000\n"
-			"mcr	15, 0, r0, cr3, cr0, 0\n"
-			"mov	r0, #1\n"
-//			"mov	r0, #0\n"
-			"mcr	15, 0, r0, cr2, cr0, 0\n"); // Enable cache
-
-}
-
 int main(int argc, char **argv) {
+	printf("Hello World! - argc=%d\n", argc);
+	printf("  argv=%p\n", argv);
+
+	for (uint32_t i=0; i<argc; i++) {
+		printf("  argv[%d] = %s\n", i, argv[i]);
+	}
+
+	for (uint32_t i=0; i<argc; i++) {
+		prv_args.push_back(new svf_string(argv[i]));
+	}
+
 	printf("Hello World!\n");
+	printf("malloc: %p\n", malloc(16));
 
-	bidi_message_queue_drv_uth *msg_queue_drv =
-			new bidi_message_queue_drv_uth((uint32_t *)0xF1001000, 8);
-	uint32_t *msg = (uint32_t *)malloc(sizeof(uint32_t)*4096);
+//	bidi_message_queue_drv_uth *msg_queue_drv =
+//			new bidi_message_queue_drv_uth((uint32_t *)0xF1001000, 8);
+//	uint32_t *msg = (uint32_t *)malloc(sizeof(uint32_t)*4096);
+//
+//	uint32_t sz = msg_queue_drv->get_next_message_sz();
+//	printf("Message size: %d\n", sz);
 
-	uint32_t sz = msg_queue_drv->get_next_message_sz();
-	printf("Message size: %d\n", sz);
 
 	svf_runtest("svf_basics_test");
 

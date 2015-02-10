@@ -48,6 +48,9 @@ int svf_elf_loader::load(const char *filename)
 		return -1;
 	}
 
+	// Save the entry point
+	m_entry = hdr.e_entry;
+
 	for (int i=0; i<hdr.e_phnum; i++) {
 		fseek(fp, hdr.e_phoff+hdr.e_phentsize*i, 0);
 
@@ -68,18 +71,19 @@ int svf_elf_loader::load(const char *filename)
 			fread(tmp, phdr.p_memsz, 1, fp);
 
 			// Copy data to memory
-			for (int j=0; j<phdr.p_memsz; j+=4) {
-				data = tmp[j];
-				data |= (tmp[j+1] << 8);
-				data |= (tmp[j+2] << 16);
-				data |= (tmp[j+3] << 24);
-
-				m_mem_if->write32(phdr.p_paddr+j, data);
-
-				if (j+4 >= phdr.p_memsz) {
-					fprintf(stdout, "Load last addr=0x%08x\n", phdr.p_paddr+j);
-				}
-			}
+//			for (int j=0; j<phdr.p_memsz; j+=4) {
+//				data = tmp[j];
+//				data |= (tmp[j+1] << 8);
+//				data |= (tmp[j+2] << 16);
+//				data |= (tmp[j+3] << 24);
+//
+//				m_mem_if->write32(phdr.p_paddr+j, data);
+//
+//				if (j+4 >= phdr.p_memsz) {
+//					fprintf(stdout, "Load last addr=0x%08x\n", phdr.p_paddr+j);
+//				}
+//			}
+			m_mem_if->write(phdr.p_paddr, tmp, phdr.p_memsz);
 
 			delete [] tmp;
 		}

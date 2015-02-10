@@ -7,6 +7,7 @@
 
 #include "a23_dualcore_sys_msg_queue_smoke_test.h"
 #include "svf_elf_loader.h"
+#include <string.h>
 
 a23_dualcore_sys_msg_queue_smoke_test::a23_dualcore_sys_msg_queue_smoke_test(const char *name) : a23_dualcore_sys_test_base(name) {
 	fprintf(stdout, "--> test::ctor(%s)\n", name);
@@ -40,37 +41,84 @@ void a23_dualcore_sys_msg_queue_smoke_test::start() {
 
 	int ret = loader.load(target_exe.c_str());
 
+	m_entry = loader.get_entry();
+
+	uint32_t msg[4096];
+
+	char *argv[] = {
+			"arg1",
+			"arg2",
+			"arg3",
+			"arg4"
+	};
+
+
+	msg[0] = 1; // GO_MSG
+	msg[1] = loader.get_entry(); // Address
+	msg[2] = 2; // argc
+	uint32_t arg_off = 4*3 + 4*msg[2]; // argc
+	uint32_t str_len=0;
+
+	for (uint32_t i=0; i<msg[2]; i++) {
+		uint32_t len = strlen(argv[i])+1;
+		fprintf(stdout, "set msg[%d] = 0x%08x\n", 3+i, arg_off);
+		msg[3+i] = arg_off;
+		memcpy(((uint8_t *)msg)+arg_off, argv[i], len);
+		arg_off += len;
+		str_len += len;
+	}
+
+	uint32_t msg_len = 3 + msg[2] + ((str_len-1)/4)+1;
+
+	m_env->m_msg_queue_0->write_message(msg_len, msg);
+
+	// Wait for an ack
+	uint32_t sz = m_env->m_msg_queue_0->get_next_message_sz();
+
+	m_env->m_msg_queue_0->read_next_message(msg);
+
 	m_inbound.init(this, &a23_dualcore_sys_msg_queue_smoke_test::inbound_thread);
 	m_inbound.start();
 
-	m_outbound.init(this, &a23_dualcore_sys_msg_queue_smoke_test::outbound_thread);
-	m_outbound.start();
+//	m_outbound.init(this, &a23_dualcore_sys_msg_queue_smoke_test::outbound_thread);
+//	m_outbound.start();
 
 }
 
 void a23_dualcore_sys_msg_queue_smoke_test::inbound_thread() {
-	uint32_t msg[4096];
-	uint32_t msg_sz = 16;
-
+//	uint32_t msg[4096];
+//	uint32_t msg_sz = 4;
+//
 	raise_objection();
-	fprintf(stdout, "--> inbound_thread\n");
-	fflush(stdout);
+//	fprintf(stdout, "--> inbound_thread\n");
+//	fflush(stdout);
+//
+//	msg[0] = 0; // LOAD_MSG
+//	msg[1] = 0x03000000; // Address
+//	msg[2] = 1024; // size
+//
+//	msg[0] = 1; // GO_MSG
+//	msg[1] = m_entry; // Address
+//	msg[2] = 0; // argc
+//	msg[3] = 0; // argv
+//	m_env->m_msg_queue_0->write_message(4, msg);
 
-	for (uint32_t i=0; i<16; i++) {
-		for (uint32_t j=0; j<msg_sz; j++) {
-			msg[i] = (j+1);
-		}
+//	msg[3] = 0x55aaeeff; // data
 
-		fprintf(stdout, "--> write_message %d\n", i);
-		fflush(stdout);
-		m_env->m_msg_queue_0->write_message(msg_sz, msg);
-		fprintf(stdout, "<-- write_message %d\n", i);
-		fflush(stdout);
-	}
-
-	fprintf(stdout, "<-- inbound_thread\n");
-	fflush(stdout);
-	drop_objection();
+//	for (uint32_t j=0; j<16; j++) {
+//		for (uint32_t i=0; i<msg[2]; i+=4) {
+//			msg[3+i/4] = (j << 24)+0x00aaee00+(i/4);
+//		}
+//		uint32_t msg_sz = ((msg[2]-1)/4)+1;
+//		msg_sz += 3;
+//
+//		m_env->m_msg_queue_0->write_message(msg_sz, msg);
+//		//		msg[1] += 4; // increment address
+//	}
+//
+//	fprintf(stdout, "<-- inbound_thread\n");
+//	fflush(stdout);
+//	drop_objection();
 }
 
 void a23_dualcore_sys_msg_queue_smoke_test::outbound_thread() {
