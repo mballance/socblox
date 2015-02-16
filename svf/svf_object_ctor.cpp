@@ -16,12 +16,12 @@ svf_object_ctor_base::~svf_object_ctor_base()
 {
 }
 
-svf_object *svf_object_ctor_base::create(const char *name, svf_object *parent)
+svf_object *svf_object_ctor_base::create()
 {
-	return m_factory->create_object(m_typename, name);
+	return m_factory->create_object(m_typename);
 }
 
-svf_object *svf_object_ctor_base::create_default(const char *name, svf_object *parent)
+svf_object *svf_object_ctor_base::create_default()
 {
 	return 0;
 }

@@ -87,14 +87,25 @@ svf_test *svf_factory::create_test(const char *type_name, const char *name)
 
 void svf_factory::register_object_ctor(const char *name, svf_object_ctor_base *ctor)
 {
-
+	m_object_ctor_rgy.insert(name, ctor);
 }
 
-svf_object *svf_factory::create_object(
-		const char			*type_name,
-		const char			*name)
+svf_object *svf_factory::create_object(const char *type_name)
 {
-	return 0;
+	svf_object *ret = 0;
+	svf_object_ctor_base *ctor;
+
+	if ((ctor = m_object_ctor_rgy.find(type_name))) {
+		ret = ctor->create_default();
+	} else {
+		// Error
+	}
+
+	if (!ret) {
+		fprintf(stdout, "ERROR: Failed to create a component of type %s\n", type_name);
+	}
+
+	return ret;
 }
 
 svf_factory *svf_factory::m_default = 0;

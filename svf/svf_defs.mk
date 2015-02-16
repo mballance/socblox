@@ -65,6 +65,11 @@ SVF_SRC= \
   svf_component.cpp \
   svf_config_db.cpp \
   svf_factory.cpp \
+  svf_log_handle.cpp \
+  svf_log_msg.cpp \
+  svf_log_server.cpp \
+  svf_msg_def.cpp \
+  svf_stdio_msg_renderer.cpp \
   svf_object_ctor.cpp \
   svf_object.cpp \
   svf_objection.cpp \

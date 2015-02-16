@@ -17,5 +17,7 @@
 #include "svf_runtest.h"
 #include "svf_task.h"
 #include "svf_task_mgr.h"
+#include "svf_log_server.h"
+#include "svf_stdio_msg_renderer.h"
 
 #endif /* INCLUDED_SVF_H */

@@ -20,6 +20,16 @@ class svf_string {
 
 		void operator = (const char *str);
 
+		inline void append(char c) {
+			if (m_size+1 >= m_max) {
+				ensure_space(m_size+1);
+			}
+			m_store[m_size++] = c;
+			m_store[m_size+1] = 0;
+		}
+
+		void ensure_space(uint32_t sz);
+
 		inline bool operator == (const char *other) const { return equals(other); }
 
 		inline bool operator == (const svf_string &other) const { return equals(other); }

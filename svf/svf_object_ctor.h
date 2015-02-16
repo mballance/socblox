@@ -24,9 +24,9 @@ class svf_object_ctor_base {
 
 		virtual ~svf_object_ctor_base();
 
-		virtual svf_object *create(const char *name, svf_object *parent);
+		virtual svf_object *create();
 
-		virtual svf_object *create_default(const char *name, svf_object *parent);
+		virtual svf_object *create_default();
 
 		const char *get_typename() {
 			return m_typename;
@@ -44,12 +44,12 @@ template <class T> class svf_object_ctor : public svf_object_ctor_base {
 		svf_object_ctor(const char *name) : svf_object_ctor_base(svf_factory::get_default(), name) {
 		}
 
-		virtual T *create(const char *name, svf_object *parent) {
-			return static_cast<T *>(svf_object_ctor_base::create(name, parent));
+		virtual T *create() {
+			return static_cast<T *>(svf_object_ctor_base::create());
 		}
 
-		virtual T *create_default(const char *name, svf_object *parent) {
-			return new T(name, parent);
+		virtual T *create_default() {
+			return new T();
 		}
 };
 

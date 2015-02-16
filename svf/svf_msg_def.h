@@ -10,6 +10,9 @@
 class svf_msg_def_base;
 #include "svf_log_msg_if.h"
 #include "svf_log_if.h"
+#include "svf_log_handle.h"
+#include "svf_log_server.h"
+#include "svf_msg_renderer_if.h"
 
 class svf_msg_def_base {
 
@@ -37,18 +40,27 @@ template <typename ...Ts> class svf_msg_def : public svf_msg_def_base {
 			m_last_msg = this;
 		}
 
-		void msg(svf_log_if *log, Ts... args) {
-			svf_log_msg_if *msg = log->alloc_msg();
-			msg->init(this, sizeof...(args));
-//			msg->param(args)...;
-			pass(msg->param(args)...);
-			log->msg(msg);
+		void msg(Ts... args) {
+			svf_log_server *svr = svf_log_server::get_default();
+			svf_log_handle *log = svr->get_log_handle(0);
+			msg(log, args...);
+		}
+
+		void msg(svf_log_handle *log, Ts... args) {
+			if (log->m_enabled) {
+				svf_log_server *svr = log->get_server();
+				svf_msg_renderer_if *r = svr->get_msg_renderer();
+				if (r) {
+				svf_log_msg_if *msg = r->alloc_msg();
+				msg->init(this, sizeof...(args));
+				pass(msg->param(args)...);
+				r->msg(msg);
+				}
+			}
 		}
 
 	private:
 
-//		template <typename ...Ts> void pass(Ts... args) { }
-//		void pass(Ts... args) { }
 		// Dummy method to force expansion of parameter list
 		void pass(int args...) { }
 
@@ -56,7 +68,7 @@ template <typename ...Ts> class svf_msg_def : public svf_msg_def_base {
 		svf_msg_def_base		*m_next_msg;
 };
 
-int svf_msg_def_base::m_msg_id_i = 0;
-svf_msg_def_base *svf_msg_def_base::m_last_msg = 0;
+//int svf_msg_def_base::m_msg_id_i = 0;
+//svf_msg_def_base *svf_msg_def_base::m_last_msg = 0;
 
 #endif /* SVF_MSG_DEF_H_ */

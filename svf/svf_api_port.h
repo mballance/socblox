@@ -29,12 +29,18 @@ template <class C> class svf_api_port {
 
 		svf_api_port() : m_api(0) {}
 
+		C *provides() { return m_api; }
+
 		C *operator ()() { return m_api; }
 
 		C *operator ->() { return m_api; }
 
 		void connect(svf_api_export<C> &exp) {
 			m_api = exp.provides();
+		}
+
+		void connect(C *api) {
+			m_api = api;
 		}
 
 	private:

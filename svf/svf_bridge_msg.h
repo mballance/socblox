@@ -3,7 +3,9 @@
 #define INCLUDED_SVF_BRIDGE_MSG_H
 #include <stdint.h>
 
+class svf_bridge;
 class svf_bridge_msg {
+	friend class svf_bridge;
 
 	public:
 
@@ -24,6 +26,7 @@ class svf_bridge_msg {
 	private:
 
 		uint32_t				*m_data;
+		uint32_t				m_read_idx;
 		uint32_t				m_size;
 		uint32_t				m_max;
 

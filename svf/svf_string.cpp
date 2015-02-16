@@ -22,6 +22,19 @@ svf_string::svf_string(const char *str) {
 	strcpy(m_store, str);
 }
 
+void svf_string::ensure_space(uint32_t sz) {
+	if (sz+1 >= m_max) {
+		char *old = m_store;
+		uint32_t new_sz = (((sz-1)/16)+1)*16;
+		m_store = new char[new_sz];
+		if (old) {
+			memcpy(m_store, old, m_size+1);
+			delete [] old;
+		}
+		m_max = new_sz;
+	}
+}
+
 void svf_string::operator =(const char *str)
 {
 	uint32_t sz = strlen(str);

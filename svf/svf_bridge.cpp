@@ -18,6 +18,15 @@ svf_bridge::~svf_bridge() {
 	// TODO Auto-generated destructor stub
 }
 
+void svf_bridge::start() {
+	if (link_port.provides() == 0) {
+		// TODO:
+		fprintf(stderr, "Error: svf_bridge link port not connected\n");
+	}
+	m_recv_thread.init(this, &svf_bridge::recv_loop);
+	m_recv_thread.start();
+}
+
 svf_bridge_msg *svf_bridge::alloc_msg()
 {
 	if (m_alloc_list) {
@@ -53,6 +62,22 @@ void svf_bridge::register_remote_socket(svf_bridge_socket *sock)
 	m_remote_sockets.push_back(sock);
 
 	// Look for matches in the previously-registered local sockets
+}
+
+void svf_bridge::recv_loop() {
+
+	while (true) {
+		int32_t sz = link_port->get_next_message_sz(true);
+
+		svf_bridge_msg  *msg = alloc_msg();
+		msg->ensure_space(sz);
+
+		link_port->read_next_message(msg->m_data);
+
+		// TODO: process message
+//		msg->m_size
+
+	}
 }
 
 

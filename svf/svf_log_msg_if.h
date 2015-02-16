@@ -7,7 +7,9 @@
 
 #ifndef SVF_LOG_MSG_IF_H_
 #define SVF_LOG_MSG_IF_H_
+#include <stdint.h>
 
+class svf_msg_def_base;
 class svf_log_msg_if {
 
 	public:

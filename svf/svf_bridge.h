@@ -11,15 +11,24 @@
 #include "svf_bridge_if.h"
 #include "svf_bridge_msg.h"
 #include "svf_ptr_vector.h"
+#include "svf_bridge_link_if.h"
+#include "svf_api_port.h"
+#include "svf_thread.h"
 
 class svf_bridge_socket;
 class svf_bridge : public svf_component, public virtual svf_bridge_if {
 	friend class svf_bridge_socket;
 
 	public:
+
+		svf_api_port<svf_bridge_link_if>	link_port;
+
+	public:
 		svf_bridge(const char *name, svf_component *parent);
 
 		virtual ~svf_bridge();
+
+		void start();
 
 		void register_socket(svf_bridge_socket *sock);
 
@@ -35,10 +44,14 @@ class svf_bridge : public svf_component, public virtual svf_bridge_if {
 		void register_remote_socket(svf_bridge_socket *sock);
 
 	private:
+		void recv_loop();
+
+	private:
 
 		svf_bridge_msg							*m_alloc_list;
 		svf_ptr_vector<svf_bridge_socket>		m_local_sockets;
 		svf_ptr_vector<svf_bridge_socket>		m_remote_sockets;
+		svf_thread								m_recv_thread;
 
 };
 

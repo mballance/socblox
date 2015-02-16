@@ -33,13 +33,14 @@ class svf_factory {
 
 		void register_object_ctor(const char *name, svf_object_ctor_base *ctor);
 
-		svf_object *create_object(const char *type_name, const char *name);
+		svf_object *create_object(const char *type_name);
 
 		static svf_factory *get_default();
 
 	private:
 		svf_string_map<svf_component_ctor_base>			m_component_ctor_rgy;
 		svf_string_map<svf_test_ctor_base>				m_test_ctor_rgy;
+		svf_string_map<svf_object_ctor_base>			m_object_ctor_rgy;
 
 		static svf_factory				*m_default;
 };
