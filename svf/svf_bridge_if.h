@@ -30,7 +30,7 @@ class svf_bridge_if {
 		/**
 		 * Sends a message via the bridge
 		 */
-		virtual void send_msg(svf_bridge_socket *sock, svf_bridge_msg *msg) = 0;
+		virtual void send_msg(svf_bridge_msg *msg) = 0;
 
 };
 

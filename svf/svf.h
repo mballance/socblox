@@ -2,6 +2,9 @@
 #define INCLUDED_SVF_H
 #include "svf_cmdline.h"
 #include "svf_component.h"
+#include "svf_bridge_link_if.h"
+#include "svf_bridge.h"
+#include "svf_bridge_socket.h"
 #include "svf_test.h"
 #include "svf_test_ctor.h"
 #include "svf_thread.h"

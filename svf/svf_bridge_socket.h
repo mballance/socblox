@@ -12,8 +12,9 @@
 #include "svf_bridge_if.h"
 #include "svf_string.h"
 
-
+class svf_bridge;
 class svf_bridge_socket {
+	friend class svf_bridge;
 
 	public:
 		svf_bridge_socket(
@@ -37,8 +38,14 @@ class svf_bridge_socket {
 
 		void free_msg(svf_bridge_msg *msg);
 
+		inline const char *get_type() const { return m_sock_type.c_str(); }
+		inline const char *get_name() const { return m_sock_name.c_str(); }
+
+		inline const svf_string &type() const { return m_sock_type; }
+		inline const svf_string &name() const { return m_sock_name; }
+
 		// Methods for the bridge to call
-	public:
+	protected:
 		virtual void notify_connected(svf_bridge_socket *other);
 
 		inline uint32_t get_socket_id() const { return m_socket_id; }

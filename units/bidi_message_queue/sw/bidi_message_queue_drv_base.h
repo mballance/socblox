@@ -17,6 +17,8 @@ class bidi_message_queue_drv_base {
 				uint32_t			*base,
 				uint32_t			queue_addr_bits);
 
+		void init(uint32_t *base, uint32_t queue_addr_bits);
+
 		virtual ~bidi_message_queue_drv_base();
 
 		// Returns the size of the next inbound message.

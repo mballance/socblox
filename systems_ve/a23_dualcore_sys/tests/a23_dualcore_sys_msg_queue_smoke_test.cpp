@@ -7,6 +7,7 @@
 
 #include "a23_dualcore_sys_msg_queue_smoke_test.h"
 #include "svf_elf_loader.h"
+#include "svf_msg_def.h"
 #include <string.h>
 
 a23_dualcore_sys_msg_queue_smoke_test::a23_dualcore_sys_msg_queue_smoke_test(const char *name) : a23_dualcore_sys_test_base(name) {
@@ -28,9 +29,13 @@ void a23_dualcore_sys_msg_queue_smoke_test::connect() {
 	a23_dualcore_sys_test_base::connect();
 }
 
+svf_msg_def<uint32_t, const char *,uint32_t> my_msg("Hello World: %d %s %d");
+
 void a23_dualcore_sys_msg_queue_smoke_test::start() {
 	fprintf(stdout, "--> start()\n");
 	a23_dualcore_sys_test_base::start();
+
+	my_msg.msg(5, "Hello Too", 25);
 
 	svf_string target_exe;
 	if (!cmdline().valueplusarg("TARGET_EXE=", target_exe)) {
@@ -46,7 +51,7 @@ void a23_dualcore_sys_msg_queue_smoke_test::start() {
 	uint32_t msg[4096];
 
 	char *argv[] = {
-			"arg1",
+			"+SVF_TESTNAME=svf_basics_test",
 			"arg2",
 			"arg3",
 			"arg4"
@@ -61,7 +66,6 @@ void a23_dualcore_sys_msg_queue_smoke_test::start() {
 
 	for (uint32_t i=0; i<msg[2]; i++) {
 		uint32_t len = strlen(argv[i])+1;
-		fprintf(stdout, "set msg[%d] = 0x%08x\n", 3+i, arg_off);
 		msg[3+i] = arg_off;
 		memcpy(((uint8_t *)msg)+arg_off, argv[i], len);
 		arg_off += len;

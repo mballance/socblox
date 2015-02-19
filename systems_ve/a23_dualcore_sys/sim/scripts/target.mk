@@ -28,6 +28,7 @@ MK_INCLUDES += $(COMMON_SIM_MK_DIR)/common_target_defs_rules.mk
 MK_INCLUDES += $(COMMON_SIM_MK_DIR)/../svf/svf_defs.mk
 MK_INCLUDES += $(UNITS)/bidi_message_queue/sw/defs_rules.mk
 MK_INCLUDES += $(UNITS)/bidi_message_queue/sw/uth/defs_rules.mk
+MK_INCLUDES += $(UNITS)/bidi_message_queue/sw/svf/defs_rules.mk
 MK_INCLUDES += $(SYSTEMS)/a23_dualcore_sys/sw/preloader/defs_rules.mk
 MK_INCLUDES += $(SYSTEMS)/a23_dualcore_sys/sw/preloader_app/defs_rules.mk
 MK_INCLUDES += $(SOCBLOX)/esw/preloader/defs_rules.mk

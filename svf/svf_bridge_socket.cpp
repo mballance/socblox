@@ -6,6 +6,7 @@
  */
 
 #include "svf_bridge_socket.h"
+#include <stdio.h>
 
 svf_bridge_socket::svf_bridge_socket(
 		const char			*sock_type,
@@ -13,6 +14,7 @@ svf_bridge_socket::svf_bridge_socket(
 	m_is_connected = false;
 	m_bridge_if = 0;
 	m_other = 0;
+	m_recv_queue = 0;
 }
 
 svf_bridge_socket::~svf_bridge_socket() {
@@ -45,7 +47,12 @@ svf_bridge_msg *svf_bridge_socket::alloc_msg()
 
 void svf_bridge_socket::send_msg(svf_bridge_msg *msg)
 {
-	m_bridge_if->send_msg(this, msg);
+	if (!m_is_connected) {
+		wait_connected();
+	}
+
+	msg->set_data(0, m_other->m_socket_id);
+	m_bridge_if->send_msg(msg);
 }
 
 svf_bridge_msg *svf_bridge_socket::recv_msg(bool block)

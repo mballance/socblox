@@ -37,7 +37,6 @@ extern "C" uth_thread_mgr *uth_get_thread_mgr()
 
 int main(int argc, char **argv) {
 	printf("Hello World! - argc=%d\n", argc);
-	printf("  argv=%p\n", argv);
 
 	for (uint32_t i=0; i<argc; i++) {
 		printf("  argv[%d] = %s\n", i, argv[i]);
@@ -58,7 +57,8 @@ int main(int argc, char **argv) {
 //	printf("Message size: %d\n", sz);
 
 
-	svf_runtest("svf_basics_test");
+//	svf_runtest("svf_basics_test");
+	svf_runtest();
 
 	printf("Done with test\n");
 

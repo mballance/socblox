@@ -8,7 +8,7 @@
 #include "bidi_message_queue_direct_bfm.h"
 
 bidi_message_queue_direct_bfm::bidi_message_queue_direct_bfm(const char *name, svf_component *parent) :
-	svf_component(name, parent), bfm_port(this) {
+	svf_component(name, parent), bfm_port(this), link_port(this) {
 	m_inbound_sz = -1;
 
 }
@@ -97,6 +97,10 @@ int32_t bidi_message_queue_direct_bfm::read_next_message(uint32_t *data)
 	m_inbound_sz = -1;
 
 	m_outbound_mutex.unlock();
+}
+
+int32_t bidi_message_queue_direct_bfm::send_message(uint32_t sz, uint32_t *data) {
+	return write_message(sz, data);
 }
 
 // Writes the message pointed to be 'data' to the

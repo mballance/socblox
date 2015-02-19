@@ -32,6 +32,11 @@ class svf_bridge : public svf_component, public virtual svf_bridge_if {
 
 		void register_socket(svf_bridge_socket *sock);
 
+	protected:
+		// Managment channel messages
+		typedef enum {
+			MGMT_REGISTER_SOCKET=1
+		} mgmt_channel_msg_e;
 
 	// Methods used by sockets
 	protected:
@@ -39,9 +44,7 @@ class svf_bridge : public svf_component, public virtual svf_bridge_if {
 
 		void free_msg(svf_bridge_msg *msg);
 
-		void send_msg(svf_bridge_socket *sock, svf_bridge_msg *msg);
-
-		void register_remote_socket(svf_bridge_socket *sock);
+		void send_msg(svf_bridge_msg *msg);
 
 	private:
 		void recv_loop();
@@ -52,6 +55,7 @@ class svf_bridge : public svf_component, public virtual svf_bridge_if {
 		svf_ptr_vector<svf_bridge_socket>		m_local_sockets;
 		svf_ptr_vector<svf_bridge_socket>		m_remote_sockets;
 		svf_thread								m_recv_thread;
+
 
 };
 

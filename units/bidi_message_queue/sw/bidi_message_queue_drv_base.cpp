@@ -14,6 +14,10 @@ bidi_message_queue_drv_base::bidi_message_queue_drv_base(
 		) {
 	m_inbound_sz = -1;
 
+	init(base, queue_addr_bits);
+}
+
+void bidi_message_queue_drv_base::init(uint32_t *base, uint32_t queue_addr_bits) {
 	uint32_t in_out_queue_sz = (1 << queue_addr_bits);
 
 	m_base = base;

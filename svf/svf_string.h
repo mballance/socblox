@@ -44,6 +44,12 @@ class svf_string {
 
 		inline uint32_t size() const { return m_size; }
 
+		inline void clear() {
+			m_size = 0;
+			if (m_store) {
+				m_store[0] = 0;
+			}
+		}
 
 	private:
 		uint32_t			m_size;

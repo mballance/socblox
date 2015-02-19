@@ -17,6 +17,7 @@ class bidi_message_queue_ptr_drv : public bidi_message_queue_drv_base {
 
 		virtual ~bidi_message_queue_ptr_drv();
 
+
 		virtual uint32_t read32(uint32_t *addr);
 
 		virtual void write32(uint32_t *addr, uint32_t data);

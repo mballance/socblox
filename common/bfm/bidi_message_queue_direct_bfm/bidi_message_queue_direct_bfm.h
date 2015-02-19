@@ -13,12 +13,14 @@
 
 class bidi_message_queue_direct_bfm : public svf_component,
 	public virtual bidi_message_queue_direct_bfm_host_if,
-	public virtual bidi_message_queue_drv_if {
+	public virtual bidi_message_queue_drv_if,
+	public virtual svf_bridge_link_if {
 
 	svf_component_ctor_decl(bidi_message_queue_direct_bfm)
 
 	public:
 		svf_bidi_api_port<bidi_message_queue_direct_bfm_host_if, bidi_message_queue_direct_bfm_target_if>	bfm_port;
+		svf_api_export<svf_bridge_link_if>																	link_port;
 
 	public:
 
@@ -33,6 +35,8 @@ class bidi_message_queue_direct_bfm : public svf_component,
 		virtual int32_t read_next_message(uint32_t *data);
 
 		virtual int32_t write_message(uint32_t sz, uint32_t *data);
+
+		virtual int32_t send_message(uint32_t sz, uint32_t *data);
 
 		// TODO: Virtual methods implementing the target interface
 

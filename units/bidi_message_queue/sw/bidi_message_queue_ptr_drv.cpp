@@ -19,10 +19,10 @@ bidi_message_queue_ptr_drv::~bidi_message_queue_ptr_drv() {
 
 uint32_t bidi_message_queue_ptr_drv::read32(uint32_t *addr)
 {
-	return *addr;
+	return *((volatile uint32_t *)addr);
 }
 
 void bidi_message_queue_ptr_drv::write32(uint32_t *addr, uint32_t data)
 {
-	*addr = data;
+	*((volatile uint32_t *)addr) = data;
 }

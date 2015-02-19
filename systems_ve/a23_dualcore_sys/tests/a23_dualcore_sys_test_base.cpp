@@ -10,6 +10,9 @@
 a23_dualcore_sys_test_base::a23_dualcore_sys_test_base(const char *name) : svf_test(name) {
 	// TODO Auto-generated constructor stub
 
+	svf_stdio_msg_renderer *renderer = new svf_stdio_msg_renderer();
+	renderer->init(stdout, svf_log_server::get_default());
+	svf_log_server::get_default()->set_msg_renderer(renderer);
 }
 
 a23_dualcore_sys_test_base::~a23_dualcore_sys_test_base() {

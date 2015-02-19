@@ -9,9 +9,14 @@
 #include <string.h>
 #include <stdio.h>
 
-svf_log_msg_it::svf_log_msg_it(const svf_log_msg *msg) {
+svf_log_msg_it::svf_log_msg_it(const svf_log_msg *msg, bool pack_order) {
 	m_msg = msg;
-	m_idx = msg->m_n_params-1;
+	m_pack_order = pack_order;
+	if (pack_order) {
+		m_idx = 0;
+	} else {
+		m_idx = msg->m_n_params-1;
+	}
 }
 
 svf_log_msg::svf_log_msg() {
@@ -22,7 +27,10 @@ svf_log_msg::svf_log_msg() {
 }
 
 svf_log_msg::~svf_log_msg() {
-	// TODO Auto-generated destructor stub
+	if (m_params_t) {
+		delete [] m_params_t;
+		delete [] m_params_u;
+	}
 }
 
 void svf_log_msg::init(svf_msg_def_base *msg, uint32_t n_params) {

@@ -15,7 +15,7 @@ class svf_log_msg_it {
 
 	public:
 
-		svf_log_msg_it(const svf_log_msg *msg);
+		svf_log_msg_it(const svf_log_msg *msg, bool pack_order);
 
 		inline bool next(svf_log_msg_if::param_t &t, svf_log_msg_if::param_u &v);
 
@@ -23,6 +23,7 @@ class svf_log_msg_it {
 	private:
 		const svf_log_msg	*m_msg;
 		int32_t				m_idx;
+		bool				m_pack_order;
 };
 
 class svf_log_msg : public svf_log_msg_if {
@@ -46,8 +47,8 @@ class svf_log_msg : public svf_log_msg_if {
 
 	public:
 
-		inline svf_log_msg_it iterator() const {
-			return svf_log_msg_it(this);
+		inline svf_log_msg_it iterator(bool pack_order=false) const {
+			return svf_log_msg_it(this, pack_order);
 		}
 
 		inline const char *fmt() const { return m_msg_def->fmt(); }
@@ -72,13 +73,24 @@ class svf_log_msg : public svf_log_msg_if {
 };
 
 bool svf_log_msg_it::next(svf_log_msg_if::param_t &t, svf_log_msg_if::param_u &v) {
-	if (m_idx >= 0) {
-		t = m_msg->m_params_t[m_idx];
-		v = m_msg->m_params_u[m_idx];
-		m_idx--;
-		return true;
+	if (m_pack_order) {
+		if (m_idx < m_msg->m_n_params) {
+			t = m_msg->m_params_t[m_idx];
+			v = m_msg->m_params_u[m_idx];
+			m_idx++;
+			return true;
+		} else {
+			return false;
+		}
 	} else {
-		return false;
+		if (m_idx >= 0) {
+			t = m_msg->m_params_t[m_idx];
+			v = m_msg->m_params_u[m_idx];
+			m_idx--;
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 
