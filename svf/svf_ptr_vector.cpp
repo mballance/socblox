@@ -19,6 +19,25 @@ svf_ptr_vector_base::~svf_ptr_vector_base() {
 	// TODO Auto-generated destructor stub
 }
 
+void svf_ptr_vector_base::set_size(uint32_t sz) {
+	if (sz >= m_limit) {
+		// resize the vector
+		void **old = m_store;
+		m_limit = sz;
+		m_store = new void *[m_limit];
+
+		if (old) {
+			for (uint32_t i=0; i<m_size; i++) {
+				m_store[i] = old[i];
+			}
+		}
+	}
+	for (uint32_t i=m_size; i<sz; i++) {
+		m_store[i] = 0;
+	}
+	m_size = sz;
+}
+
 void svf_ptr_vector_base::append_int(void *it)
 {
 	if (m_size >= m_limit) {

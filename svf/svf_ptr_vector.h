@@ -17,6 +17,8 @@ class svf_ptr_vector_base {
 
 		uint32_t size() const { return m_size; }
 
+		void set_size(uint32_t sz);
+
 	protected:
 
 		void append_int(void *it);
@@ -45,6 +47,8 @@ template <class T> class svf_ptr_vector : public svf_ptr_vector_base {
 		virtual ~svf_ptr_vector() { };
 
 		inline T *at(uint32_t idx) const { return static_cast<T *>(m_store[idx]); }
+
+		inline void set(uint32_t idx, T *it) const { m_store[idx] = it; }
 
 		inline void append(T *it) { append_int(it); }
 

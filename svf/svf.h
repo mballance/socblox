@@ -5,6 +5,8 @@
 #include "svf_bridge_link_if.h"
 #include "svf_bridge.h"
 #include "svf_bridge_socket.h"
+#include "svf_bridge_log_connector.h"
+#include "svf_bridge_log_renderer.h"
 #include "svf_test.h"
 #include "svf_test_ctor.h"
 #include "svf_thread.h"

@@ -86,9 +86,12 @@ SVF_SRC= \
   svf_task_mgr_base.cpp \
   svf_task_base.cpp \
   \
-  svf_bridge.cpp \
-  svf_bridge_socket.cpp \
-  svf_bridge_msg.cpp
+  svf_bridge.cpp 				\
+  svf_bridge_socket.cpp 		\
+  svf_bridge_msg.cpp			\
+  svf_bridge_log_msg.cpp		\
+  svf_bridge_log_renderer.cpp	\
+  svf_bridge_log_connector.cpp
   
  
 
