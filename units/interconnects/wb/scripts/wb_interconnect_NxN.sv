@@ -3,96 +3,70 @@
  ****************************************************************************/
 
 /**
- * Module: ${NAME}
+ * Module: wb_interconnect_NxN
  * 
  * TODO: Add module documentation
  */
-module ${NAME} #(
-		parameter int WB_ADDR_WIDTH=32,
-		parameter int WB_DATA_WIDTH=32,
-${ADDRESS_RANGE_PARAMS}
+module wb_interconnect_NxN #(
+		parameter int 									WB_ADDR_WIDTH=32,
+		parameter int unsigned							WB_DATA_WIDTH=32,
+		parameter int unsigned							N_MASTERS=1,
+		parameter int unsigned							N_SLAVES=1,
+		parameter bit[WB_ADDR_WIDTH*N_SLAVES*2-1:0] 	ADDR_RANGES
 		) (
-		input						clk,
-		input						rstn,
-${MASTER_PORTLIST},
-${SLAVE_PORTLIST}
+		input							clk,
+		input							rstn,
+		input[WB_ADDR_WIDTH-1:0]		ADR[N_MASTERS-1:0],
+		input[2:0]						CTI[N_MASTERS-1:0],
+		input[1:0]						BTE[N_MASTERS-1:0],
+		input[WB_DATA_WIDTH-1:0]		DAT_W[N_MASTERS-1:0],
+		output[WB_DATA_WIDTH-1:0]		DAT_R[N_MASTERS-1:0],
+		input							CYC[N_MASTERS-1:0],
+		output							ERR[N_MASTERS-1:0],
+		input[(WB_DATA_WIDTH/8)-1:0]	SEL[N_MASTERS-1:0],
+		input							STB[N_MASTERS-1:0],
+		output							ACK[N_MASTERS-1:0],
+		input							WE[N_MASTERS-1:0],
+
+		output[WB_ADDR_WIDTH-1:0]		SADR[N_SLAVES:0],
+		output[2:0]						SCTI[N_SLAVES:0],
+		output[1:0]						SBTE[N_SLAVES:0],
+		output[WB_DATA_WIDTH-1:0]		SDAT_W[N_SLAVES:0],
+		input[WB_DATA_WIDTH-1:0]		SDAT_R[N_SLAVES:0],
+		output							SCYC[N_SLAVES:0],
+		input							SERR[N_SLAVES:0],
+		output[(WB_DATA_WIDTH/8)-1:0]	SSEL[N_SLAVES:0],
+		output							SSTB[N_SLAVES:0],
+		input							SACK[N_SLAVES:0],
+		output							SWE[N_SLAVES:0]
 		);
 	
 	localparam int WB_DATA_MSB = (WB_DATA_WIDTH-1);
-//	localparam int AXI4_WSTRB_MSB = (AXI4_DATA_WIDTH/8)-1;
-	localparam int N_MASTERS = ${N_MASTERS};
-	localparam int N_SLAVES = ${N_SLAVES};
 	localparam int N_MASTERID_BITS = (N_MASTERS>1)?$clog2(N_MASTERS):1;
 	localparam int N_SLAVEID_BITS = $clog2(N_SLAVES+1);
 	localparam bit[N_SLAVEID_BITS:0]		NO_SLAVE  = {(N_SLAVEID_BITS+1){1'b1}};
 	localparam bit[N_MASTERID_BITS:0]		NO_MASTER = {(N_MASTERID_BITS+1){1'b1}};
 	
 	// Interface to the decode-fail slave
-	wb_if				serr();
+//	wb_if				serr();
 	
 	function reg[N_SLAVEID_BITS-1:0] addr2slave(
 		reg[N_MASTERID_BITS-1:0]	master,
 		reg[WB_ADDR_WIDTH-1:0] 		addr
 		);
-${ADDR2SLAVE_BODY}		
-		return (${N_SLAVES});
+		for (int i=0; i<N_SLAVES; i+=2) begin
+			if (addr >= ADDR_RANGES[WB_ADDR_WIDTH*i-:WB_ADDR_WIDTH] &&
+					addr <= ADDR_RANGES[WB_ADDR_WIDTH*(i+1)-:WB_ADDR_WIDTH]) begin
+				return N_SLAVES-(i/2)-1;
+			end
+		end
+		return (N_SLAVES);
 	endfunction
 	
-	wire[WB_ADDR_WIDTH-1:0]						ADR[N_MASTERS-1:0];
-	wire[2:0]									CTI[N_MASTERS-1:0];
-	wire[1:0]									BTE[N_MASTERS-1:0];
-	wire[WB_DATA_WIDTH-1:0]						DAT_W[N_MASTERS-1:0];
-	wire[WB_DATA_WIDTH-1:0]						DAT_R[N_MASTERS-1:0];
-	wire										CYC[N_MASTERS-1:0];
-	wire										ERR[N_MASTERS-1:0];
-	wire[(WB_DATA_WIDTH/8)-1:0]					SEL[N_MASTERS-1:0];
-	wire										STB[N_MASTERS-1:0];
-	wire										ACK[N_MASTERS-1:0];
-	wire										WE[N_MASTERS-1:0];
-	
-	wire[WB_ADDR_WIDTH-1:0]						SADR[N_SLAVES:0];
-	wire[2:0]									SCTI[N_SLAVES:0];
-	wire[1:0]									SBTE[N_SLAVES:0];
-	wire[WB_DATA_WIDTH-1:0]						SDAT_W[N_SLAVES:0];
-	wire[WB_DATA_WIDTH-1:0]						SDAT_R[N_SLAVES:0];
-	wire										SCYC[N_SLAVES:0];
-	wire										SERR[N_SLAVES:0];
-	wire[(WB_DATA_WIDTH/8)-1:0]					SSEL[N_SLAVES:0];
-	wire										SSTB[N_SLAVES:0];
-	wire										SACK[N_SLAVES:0];
-	wire										SWE[N_SLAVES:0];
-	
-	// master assigns
-${MASTER_ASSIGN}
-	
-	// Slave requests
-${SLAVE_ASSIGN}
-
-/*
-${W_SLAVE_ASSIGN}
-
-${B_SLAVE_ASSIGN}	
- 
- */
-
 // Read request state machine
 	reg[3:0]									read_req_state[N_MASTERS-1:0];
 	reg[N_SLAVEID_BITS:0]						read_selected_slave[N_MASTERS-1:0];
 
-	/*
-// Read request
-${AR_MASTER_ASSIGN}	
-	
-${R_MASTER_ASSIGN}	
-	
-	// Slave requests
-${AR_SLAVE_ASSIGN}	
-
-${R_SLAVE_ASSIGN}	
-
- */
-
-	
 	// Master state machine
 	reg[2:0]						master_state[N_MASTERS-1:0];
 	reg[3:0]						master_selected_slave[N_MASTERS-1:0];
@@ -144,7 +118,7 @@ ${R_SLAVE_ASSIGN}
 		genvar s_arb_i;
 		
 		for (s_arb_i=0; s_arb_i<(N_SLAVES+1); s_arb_i++) begin : s_arb
-			${NAME}_arbiter #(
+			wb_NxN_arbiter #(
 				.N_REQ  (N_MASTERS)
 				) 
 				aw_arb (
@@ -167,8 +141,6 @@ ${R_SLAVE_ASSIGN}
 				(master_gnt[s_am_i])?master_gnt_id[s_am_i]:NO_MASTER;
 		end
 	endgenerate
-`ifdef UNDEFINED	
-`endif		
 	
 		// WB signals from slave back to master
 	generate
@@ -190,19 +162,7 @@ ${R_SLAVE_ASSIGN}
 		end
 	endgenerate
 
-`ifdef UNDEFINED		
-	generate
-		genvar s2m_i;
-		for(s2m_i=0; s2m_i<(N_SLAVES+1); s_w_i++) begin
-			assign SWDATA[s_w_i] = (slave_active_master[s_w_i] == NO_MASTER)?0:WDATA[slave_active_master[s_w_i]];
-			assign SWSTRB[s_w_i] = (slave_active_master[s_w_i] == NO_MASTER)?0:WSTRB[slave_active_master[s_w_i]];
-			assign SWLAST[s_w_i] = (slave_active_master[s_w_i] == NO_MASTER)?0:WLAST[slave_active_master[s_w_i]];
-			assign SWVALID[s_w_i] = (slave_active_master[s_w_i] == NO_MASTER)?0:WVALID[slave_active_master[s_w_i]];
-		end
-	endgenerate
-`endif		
-
-		// WB signals to slave mux
+	// WB signals to slave mux
 	generate
 		genvar m2s_i;
 		for(m2s_i=0; m2s_i<(N_SLAVES+1); m2s_i++) begin : WB_M2S_assign
@@ -217,49 +177,10 @@ ${R_SLAVE_ASSIGN}
 		end
 	endgenerate
 
-	// Decode-fail target
-`ifdef UNDEFINED		
-	reg[1:0]									write_state;
-	reg[AXI4_ID_WIDTH+N_MASTERID_BITS-1:0]		write_id;
-	assign serr.AWREADY = (write_state == 0);
-	assign serr.WREADY = (write_state == 1);
-	assign serr.BVALID = (write_state == 2);
-	assign serr.BID = (write_state == 2)?write_id:0;
-
-	always @(posedge clk) begin
-		if (rstn != 1) begin
-			write_state <= 0;
-		end else begin
-			case (write_state)
-				2'b00: begin
-					if (serr.AWVALID) begin
-						write_id <= serr.AWID;
-						write_state <= 1;
-					end
-				end
-				
-				2'b01: begin
-					if (serr.WVALID == 1'b1 && serr.WREADY == 1'b1) begin
-						if (serr.WLAST == 1'b1) begin
-							write_state <= 2;
-						end
-					end
-				end
-				
-				2'b10: begin // Send write response
-					if (serr.BVALID == 1'b1 && serr.BREADY == 1'b1) begin
-						write_state <= 2'b0;
-					end
-				end
-			endcase
-		end
-	end
-`endif
-
 endmodule
 	
 
-module ${NAME}_arbiter #(
+module wb_NxN_arbiter #(
 		parameter int			N_REQ=2
 		) (
 		input						clk,

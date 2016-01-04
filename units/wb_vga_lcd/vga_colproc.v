@@ -176,7 +176,7 @@ module vga_colproc(clk, srst, vdat_buffer_di, ColorDepth, PseudoColor,
 				// the current 4pixel-block(i.e. it runs until colcnt = '11').
 				// This is because of the late clut-response which shuffles all
 				// signals the state-machine depends on.
-				// Because of this we can not do an early video_memory_data fetch,
+				// Because of this we can not data_out an early video_memory_data fetch,
 				// i.e. we can not jump to the fill_buf state. Instead we always
 				// jump to idle and check for rgb_fifo_full there.
 				//
@@ -332,7 +332,7 @@ module vga_colproc(clk, srst, vdat_buffer_di, ColorDepth, PseudoColor,
 				// the current 4pixel-block(i.e. it runs until colcnt = '11').
 				// This is because of the late clut-response which shuffles all
 				// signals the state-machine depends on.
-				// Because of this we can not do an early video_memory_data fetch,
+				// Because of this we can not data_out an early video_memory_data fetch,
 				// i.e. we can not jump to the fill_buf state. Instead we always
 				// jump to idle and check for rgb_fifo_full there.
 				//

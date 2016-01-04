@@ -29,9 +29,7 @@ template <class cls> class svf_closure : public svf_closure_base {
 		svf_closure(cls *t_cls, void (cls::*method)()) : m_cls(t_cls), m_method(method) {}
 
 		virtual void run() {
-			fprintf(stdout, "--> calling method\n");
 			(*m_cls.*m_method)();
-			fprintf(stdout, "<-- calling method\n");
 		}
 
 	private:

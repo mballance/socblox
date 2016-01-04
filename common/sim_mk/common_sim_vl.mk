@@ -101,7 +101,7 @@ RT_TRACE_FLAGS = -trace -tracefile vlt_dump.fst
 endif
 
 #VALGRIND=valgrind --tool=memcheck
-#GDB=gdb --args
+# GDB=gdbserver localhost:6000 
 
 #********************************************************************
 #* Simulation settings

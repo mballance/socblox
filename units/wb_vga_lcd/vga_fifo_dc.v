@@ -215,7 +215,7 @@ module vga_fifo_dc (rclk, wclk, rclr, wclr, wreq, d, rreq, q, empty, full);
 		.rce(1'b1),
 		.oe(1'b1),
 		.raddr(rptr),
-		.do(q),
+		.data_out(q),
 		.wclk(wclk),
 		.wrst(1'b0),
 		.wce(1'b1),

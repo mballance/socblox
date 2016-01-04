@@ -4,15 +4,19 @@
 <includePaths/>
 <buildPaths/>
 <pluginPaths>
+
 <pluginPath path="net.sf.sveditor.sv_builtin"/>
 </pluginPaths>
 <libraryPaths/>
 <argFilePaths>
+
 <argFilePath path="${project_loc}/common/socblox_sve.f"/>
+<argFilePath path="${project_loc}/units/altor32/altor32.f"/>
 </argFilePaths>
 <sourceCollections/>
 <projectRefs/>
 <templatePaths>
+
 <templatePath path="${project_loc}/templates"/>
 </templatePaths>
 </svproject>

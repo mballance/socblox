@@ -19,6 +19,8 @@ a23_dualcore_sys_env::~a23_dualcore_sys_env() {
 
 void a23_dualcore_sys_env::build() {
 	svf_component::build();
+
+	m_bridge = new svf_bridge("m_bridge", this);
 }
 
 void a23_dualcore_sys_env::connect() {

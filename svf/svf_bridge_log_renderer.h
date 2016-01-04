@@ -19,7 +19,8 @@ class svf_bridge_log_renderer: public svf_bridge_socket,
 	public:
 		typedef enum {
 			MSG_REGISTER_MSG_FORMAT,
-			MSG_LOG_MSG
+			MSG_LOG_MSG,
+			MSG_STR_LOG_MSG
 		} msg_t;
 
 	public:

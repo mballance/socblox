@@ -52,8 +52,6 @@ int32_t bidi_message_queue_direct_bfm::get_next_message_sz(bool block)
 			rp = ((rp+1) % m_queue_sz);
 			bfm_port->set_outbound_rd_ptr(rp);
 
-			m_outbound_mutex.unlock();
-			return m_inbound_sz;
 			break;
 		} else {
 			bfm_port->wait_outbound_avail();
@@ -64,7 +62,7 @@ int32_t bidi_message_queue_direct_bfm::get_next_message_sz(bool block)
 	}
 
 	m_outbound_mutex.unlock();
-	return -1;
+	return m_inbound_sz;
 }
 
 int32_t bidi_message_queue_direct_bfm::read_next_message(uint32_t *data)

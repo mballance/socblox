@@ -29,7 +29,8 @@ module a23_dualcore_sys_tb(input clk);
 	reg[15:0]			rst_cnt = 0;
 	reg					rstn = 0;
 	
-	localparam UART_BAUD = 7372800;
+//	localparam UART_BAUD = 7372800;
+	localparam UART_BAUD = 921600;
 //	localparam UART_BAUD = 14745600;
 	localparam CLK_PERIOD = 10;
 

@@ -25,6 +25,8 @@ class svf_component {
 
 		const svf_string &get_name() const;
 
+		virtual const char *get_typename() const;
+
 	protected:
 
 		virtual void build();

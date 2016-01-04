@@ -26,6 +26,11 @@ const svf_string &svf_component::get_name() const
 	return m_name;
 }
 
+const char *svf_component::get_typename() const
+{
+	return "svf_component";
+}
+
 void svf_component::build()
 {
 	// Do nothing

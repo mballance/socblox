@@ -25,6 +25,10 @@ class a23_dualcore_sys_env : public svf_component {
 
 		virtual void start();
 
+	public:
+		svf_bridge					*m_bridge;
+
+
 	private:
 
 };

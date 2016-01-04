@@ -46,6 +46,7 @@ class a23_dualcore_sys_env : public svf_component {
 
 		bidi_message_queue_direct_bfm		*m_msg_queue_0;
 		bidi_message_queue_direct_bfm		*m_msg_queue_1;
+		svf_bridge							*m_bridge;
 		uart_bfm_monitor					*m_uart_monitor;
 
 		axi4_monitor_bfm					*m_core12ic_monitor;

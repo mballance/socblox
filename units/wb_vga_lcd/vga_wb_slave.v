@@ -228,9 +228,11 @@ module vga_wb_slave(
 	assign reg_acc  = ~CLUT_ADR & acc & acc32;
 	assign reg_wacc =  reg_acc & we_i;
 
+`ifdef VGA_HWC0
 	assign cc0_acc  = (REG_ADR == CCR0_ADR) & acc & acc32;
 	assign cc1_acc  = (REG_ADR == CCR1_ADR) & acc & acc32;
-
+`endif
+	
 	always @(posedge clk_i)
 	  ack_o <=  ((reg_acc & acc32) | clut_ack) & ~(wbm_busy & REG_ADR == CTRL_ADR) & ~ack_o ;
 

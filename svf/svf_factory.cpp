@@ -25,7 +25,7 @@ svf_factory::~svf_factory() {
 
 void svf_factory::register_component_ctor(const char *name, svf_component_ctor_base *ctor)
 {
-	fprintf(stdout, "register_component_ctor: %s\n", name);
+//	fprintf(stdout, "register_component_ctor: %s\n", name);
 	m_component_ctor_rgy.insert(name, ctor);
 }
 
@@ -63,7 +63,7 @@ svf_component *svf_factory::create_component(
 
 void svf_factory::register_test_ctor(const char *name, svf_test_ctor_base *ctor)
 {
-	fprintf(stdout, "register_test_ctor: %s\n", name);
+//	fprintf(stdout, "register_test_ctor: %s\n", name);
 	m_test_ctor_rgy.insert(name, ctor);
 }
 

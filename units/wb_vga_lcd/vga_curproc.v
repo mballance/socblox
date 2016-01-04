@@ -201,7 +201,7 @@ module vga_curproc (clk, rst_i, Thgate, Tvgate, idat, idat_wreq,
 		.oe(1'b1),        // always output data
 		.addr(cbuf_a),
 		.di(cursor_wdat),
-		.do(cbuf_q)
+		.data_out(cbuf_q)
 	);
 
 	//

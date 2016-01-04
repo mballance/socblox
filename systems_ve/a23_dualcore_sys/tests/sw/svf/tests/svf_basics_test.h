@@ -10,6 +10,7 @@
 #include "svf.h"
 #include "svf_test.h"
 #include "a23_dualcore_sys_env.h"
+#include "bidi_message_queue_drv_svf.h"
 
 class svf_basics_test : public svf_test {
 	svf_test_ctor_decl(svf_basics_test)
@@ -33,9 +34,14 @@ class svf_basics_test : public svf_test {
 
 	private:
 
+
 		a23_dualcore_sys_env		*m_env;
 		svf_thread					m_t1;
 		svf_thread					m_t2;
+
+
+		bidi_message_queue_drv_svf	*m_message_queue_drv;
+		svf_bridge_log_renderer		*m_log_renderer;
 
 };
 

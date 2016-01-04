@@ -38,6 +38,8 @@ void a23_dualcore_sys_env::build() {
 	m_msg_queue_0 = bidi_message_queue_direct_bfm::type_id.create("m_msg_queue_0", this);
 	m_msg_queue_1 = bidi_message_queue_direct_bfm::type_id.create("m_msg_queue_1", this);
 
+	m_bridge = new svf_bridge("m_bridge", this);
+
 	m_core12ic_monitor = axi4_monitor_bfm::type_id.create("m_core12ic_monitor", this);
 	m_core02ic_monitor = axi4_monitor_bfm::type_id.create("m_core02ic_monitor", this);
 	m_ic2ram_monitor = axi4_monitor_bfm::type_id.create("m_ic2ram_monitor", this);

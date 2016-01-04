@@ -9,7 +9,10 @@ ${SOCBLOX}/common/rtl/wb/wb_if.sv
 ${SOCBLOX}/common/rtl/uart/uart_if.sv
 ${SOCBLOX}/common/rtl/uart/uart_dte_crossover.sv
 
+${COMMON_RTL}/vga/vga_if.sv
+
 ${SOCBLOX}/common/rtl/memory/generic_sram_byte_en_if.sv
 ${SOCBLOX}/common/rtl/memory/generic_sram_line_en_if.sv
 ${SOCBLOX}/common/rtl/memory/generic_sram_byte_en_w.sv
 ${SOCBLOX}/common/rtl/memory/generic_sram_line_en_w.sv
+${SOCBLOX}/common/rtl/memory/generic_rom_w.sv

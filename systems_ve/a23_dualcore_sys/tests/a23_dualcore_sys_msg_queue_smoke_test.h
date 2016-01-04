@@ -37,6 +37,8 @@ class a23_dualcore_sys_msg_queue_smoke_test : public a23_dualcore_sys_test_base 
 		svf_thread						m_inbound;
 		svf_thread						m_outbound;
 		uint32_t						m_entry;
+		svf_stdio_msg_renderer			*m_log_renderer;
+		svf_bridge_log_connector		*m_log_connector;
 
 };
 

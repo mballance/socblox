@@ -10,7 +10,8 @@
 #include "svf_factory.h"
 
 #define svf_test_ctor_decl(cls) \
-	public: static svf_test_ctor <cls>				type_id;
+	public: static svf_test_ctor <cls>				type_id; \
+	public: virtual const char *get_typename() const { return #cls; }
 
 #define svf_test_ctor_def(cls) \
 	svf_test_ctor<cls> cls :: type_id(#cls);

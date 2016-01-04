@@ -85,6 +85,7 @@ void svf_stdio_msg_renderer::msg(svf_log_msg_if *msg_if) {
 
 	str.append('\n');
 	fputs(str.c_str(), m_fd);
+	fflush(m_fd);
 
 	delete msg;
 }

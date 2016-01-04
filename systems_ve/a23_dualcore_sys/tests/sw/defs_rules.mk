@@ -116,8 +116,9 @@ svf/%.elf : svf/%.o \
 	$(SVF_OBJDIR)/uex_thread_primitives.o \
 	$(SVF_OBJDIR)/a23_cpp_support.o \
 	$(SVF_OBJDIR)/a23_memory.o \
-	$(SVF_LIBDIR)/libbidi_message_queue_drv.a \
 	$(SVF_LIBDIR)/libbidi_message_queue_drv_uth.a \
+	$(SVF_LIBDIR)/libbidi_message_queue_drv_svf.a \
+	$(SVF_LIBDIR)/libbidi_message_queue_drv.a \
 	$(LIBSVF_UTH_AR) \
 	$(UTH_COOP_THREAD_MGR_SLIB) \
 	$(UTH_SLIB) \

@@ -72,7 +72,7 @@ void svf_bridge_log_renderer::register_msg_format(svf_msg_def_base *msg_fmt) {
 
 	if ((m_msg_fmt_registered[idx] & (1 << off)) == 0) {
 		// This message hasn't been registered yet. Send a message to register it
-		fprintf(stdout, "Registering message format %d\n", id);
+//		fprintf(stdout, "Registering message format %d\n", id);
 		svf_bridge_msg *msg = svf_bridge_socket::alloc_msg();
 		msg->write32(MSG_REGISTER_MSG_FORMAT); // register_msg_def
 		msg->write32(msg_fmt->id());

@@ -69,6 +69,14 @@ class axi4_master_bfm: public svf_component,
 		virtual void write32(uint64_t addr, uint32_t data);
 		virtual void write64(uint64_t addr, uint64_t data);
 
+		virtual void read(uint64_t addr, uint8_t *data, uint32_t sz) {
+			;
+		}
+
+		virtual void write(uint64_t addr, uint8_t *data, uint32_t sz) {
+			;
+		}
+
 		void wait_clks(uint32_t clks);
 
 		void set_cache(uint32_t cache);

@@ -36,18 +36,9 @@ extern "C" uth_thread_mgr *uth_get_thread_mgr()
 }
 
 int main(int argc, char **argv) {
-	printf("Hello World! - argc=%d\n", argc);
-
-	for (uint32_t i=0; i<argc; i++) {
-		printf("  argv[%d] = %s\n", i, argv[i]);
-	}
-
 	for (uint32_t i=0; i<argc; i++) {
 		prv_args.push_back(new svf_string(argv[i]));
 	}
-
-	printf("Hello World!\n");
-	printf("malloc: %p\n", malloc(16));
 
 //	bidi_message_queue_drv_uth *msg_queue_drv =
 //			new bidi_message_queue_drv_uth((uint32_t *)0xF1001000, 8);

@@ -77,7 +77,7 @@
 
 module generic_spram(
 	// Generic synchronous single-port RAM interface
-	clk, rst, ce, we, oe, addr, di, do
+	clk, rst, ce, we, oe, addr, di, data_out
 );
 
 	//
@@ -96,7 +96,7 @@ module generic_spram(
 	input           oe;   // Output enable input, active high
 	input  [aw-1:0] addr; // address bus inputs
 	input  [dw-1:0] di;   // input data bus
-	output [dw-1:0] do;   // output data bus
+	output [dw-1:0] data_out;   // output data bus
 
 	//
 	// Module body
@@ -122,7 +122,7 @@ module generic_spram(
 	  if (ce)
 	    ra <=  addr;     // read address needs to be registered to read clock
 
-	assign  do = mem[ra];
+	assign  data_out = mem[ra];
 
 	// write operation
 	always @(posedge clk)
@@ -145,7 +145,7 @@ module generic_spram(
 		.di(di),
 		.en(ce),
 		.we(we),
-		.do(do)
+		.data_out(data_out)
 	);
 
 	defparam
@@ -167,7 +167,7 @@ module generic_spram(
 		.address(addr),
 		.data(di),
 		.we(we && ce),
-		.q(do)
+		.q(data_out)
 	);
 
 	defparam
@@ -190,7 +190,7 @@ module generic_spram(
 		.A(addr),
 		.D(di),
 		.OEN(~oe),
-		.Q(do)
+		.Q(data_out)
 	);
 
 `else
@@ -211,7 +211,7 @@ module generic_spram(
 		.ra(addr),
 		.wa(addr),
 		.di(di),
-		.do(do)
+		.data_out(data_out)
 	);
 
 `else
@@ -230,7 +230,7 @@ module generic_spram(
 		.we(we),
 		.oe(oe),
 		.me(ce),
-		.q(do)
+		.q(data_out)
 	);
 
 `else
@@ -249,7 +249,7 @@ module generic_spram(
 		.WEN(~we),
 		.CEN(~ce),
 		.OEN(~oe),
-		.DOUT(do)
+		.DOUT(data_out)
 	);
 
 `else
@@ -267,7 +267,7 @@ module generic_spram(
 	//
 	// Data output drivers
 	//
-	assign do = (oe) ? q : {dw{1'bz}};
+	assign data_out = (oe) ? q : {dw{1'bz}};
 
 	//
 	// RAM read and write
@@ -349,7 +349,7 @@ endmodule
 			di,
 			en,
 			we,
-			do) /* synthesis black_box */ ;
+			data_out) /* synthesis black_box */ ;
 
 		parameter awidth = 7;
 		parameter dwidth = 8;
@@ -360,7 +360,7 @@ endmodule
 		input  [dwidth -1:0] di;
 		input                en;
 		input                we;
-		output [dwidth -1:0] do;
+		output [dwidth -1:0] data_out;
 
 		// insert simulation model
 
@@ -395,7 +395,7 @@ endmodule
 			.DI(di),
 			.EN(en),
 			.WE(we),
-			.DO(do)
+			.DO(data_out)
 		);
 
 		// exemplar translate_on

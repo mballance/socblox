@@ -76,6 +76,12 @@ bool svf_bridge_log_connector::msg_received(svf_bridge_msg *msg) {
 			r->msg(m);
 		} break;
 
+		case svf_bridge_log_renderer::MSG_STR_LOG_MSG: {
+			svf_string str;
+			msg->read_str(str);
+			fprintf(stdout, "STR: %s\n", str.c_str());
+			} break;
+
 		default: {
 			fprintf(stdout, "Error: Unknwon message-renderer code: %d\n", msg_code);
 		} break;

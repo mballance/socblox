@@ -106,7 +106,7 @@
 
 module generic_dpram(
 	// Generic synchronous dual-port RAM interface
-	rclk, rrst, rce, oe, raddr, do,
+	rclk, rrst, rce, oe, raddr, data_out,
 	wclk, wrst, wce, we, waddr, di
 );
 
@@ -125,7 +125,7 @@ module generic_dpram(
 	input           rce;   // read port chip enable, active high
 	input           oe;	   // output enable, active high
 	input  [aw-1:0] raddr; // read address
-	output [dw-1:0] do;    // data output
+	output [dw-1:0] data_out;    // data output
 
 	// write port
 	input          wclk;  // write clock, rising edge trigger
@@ -159,7 +159,7 @@ module generic_dpram(
 	  if (rce)
 	    ra <=  raddr;
 
-    assign do = mem[ra];
+    assign data_out = mem[ra];
 
 	// write operation
 	always @(posedge wclk)
@@ -182,7 +182,7 @@ module generic_dpram(
 		.ADDRA(raddr),
 		.DIA( {dw{1'b0}} ),
 		.WEA(1'b0),
-		.DOA(do),
+		.DOA(data_out),
 
 		// write port
 		.CLKB(wclk),
@@ -211,7 +211,7 @@ module generic_dpram(
 		.rdclock(rclk),
 		.rdclocken(rce),
 		.rdaddress(raddr),
-		.q(do),
+		.q(data_out),
 
 		// write port
 		.wrclock(wclk),
@@ -236,7 +236,7 @@ module generic_dpram(
 	//
 	art_hsdp #(dw, 1<<aw, aw) artisan_sdp(
 		// read port
-		.qa(do),
+		.qa(data_out),
 		.clka(rclk),
 		.cena(~rce),
 		.wena(1'b1),
@@ -272,7 +272,7 @@ module generic_dpram(
 		.ra(raddr),
 		.wa(waddr),
 		.di(di),
-		.do(do)
+		.data_out(data_out)
 	);
 
 `else
@@ -292,7 +292,7 @@ module generic_dpram(
 		.DA( {dw{1'b0}} ),
 		.WEA(1'b0),
 		.OEA(oe),
-		.QA(do),
+		.QA(data_out),
 
 		// write port
 		.CLKB(wclk),
@@ -319,7 +319,7 @@ module generic_dpram(
 	//
 	// Data output drivers
 	//
-	assign do = (oe & rce) ? do_reg : {dw{1'bz}};
+	assign data_out = (oe & rce) ? do_reg : {dw{1'bz}};
 
 	// read operation
 	always @(posedge rclk)

@@ -16,6 +16,10 @@ class svf_test: public svf_root {
 		svf_test(const char *name);
 
 		virtual ~svf_test();
+
+		virtual void pass();
+
+		virtual void fail(const char *msg);
 };
 
 #endif /* SVF_TEST_H_ */

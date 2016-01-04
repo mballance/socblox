@@ -23,10 +23,17 @@ a23_dualcore_sys_msg_queue_smoke_test::~a23_dualcore_sys_msg_queue_smoke_test() 
 
 void a23_dualcore_sys_msg_queue_smoke_test::build() {
 	a23_dualcore_sys_test_base::build();
+
+	m_log_renderer = new svf_stdio_msg_renderer();
+	m_log_renderer->init(stdout, svf_log_server::get_default());
+	svf_log_server::get_default()->set_msg_renderer(m_log_renderer);
+
+	m_log_connector = new svf_bridge_log_connector(svf_log_server::get_default());
 }
 
 void a23_dualcore_sys_msg_queue_smoke_test::connect() {
 	a23_dualcore_sys_test_base::connect();
+
 }
 
 svf_msg_def<uint32_t, const char *,uint32_t> my_msg("Hello World: %d %s %d");
@@ -77,9 +84,22 @@ void a23_dualcore_sys_msg_queue_smoke_test::start() {
 	m_env->m_msg_queue_0->write_message(msg_len, msg);
 
 	// Wait for an ack
-	uint32_t sz = m_env->m_msg_queue_0->get_next_message_sz();
+//	uint32_t sz = m_env->m_msg_queue_0->get_next_message_sz();
+	uint32_t sz = m_env->m_msg_queue_0->link_port()->get_next_message_sz();
+//			->get_next_message_sz();
 
-	m_env->m_msg_queue_0->read_next_message(msg);
+//	m_env->m_msg_queue_0->read_next_message(msg);
+	m_env->m_msg_queue_0->link_port()->read_next_message(msg);
+
+	fprintf(stdout, "ACK: sz=%d\n", sz);
+
+
+	// Connect up the bridge after we know the ESW side is running
+	m_env->m_bridge->link_port.connect(m_env->m_msg_queue_0->link_port);
+	m_env->m_bridge->register_socket(m_log_connector);
+
+	// Restart the bridge receive thread
+	m_env->m_bridge->start();
 
 	m_inbound.init(this, &a23_dualcore_sys_msg_queue_smoke_test::inbound_thread);
 	m_inbound.start();

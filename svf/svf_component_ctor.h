@@ -11,7 +11,9 @@
 #include "svf_factory.h"
 
 #define svf_component_ctor_decl(cls) \
-	public: static svf_component_ctor <cls>				type_id;
+	public: static svf_component_ctor <cls>				type_id; \
+	public: virtual const char *get_typename() const { return #cls; }
+
 
 #define svf_component_ctor_def(cls) \
 	svf_component_ctor<cls> cls :: type_id(#cls);

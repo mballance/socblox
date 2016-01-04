@@ -8,6 +8,7 @@
 #ifndef SVF_THREAD_H_
 #define SVF_THREAD_H_
 #include "svf_closure.h"
+#include <functional>
 
 typedef void *svf_native_thread_h;
 

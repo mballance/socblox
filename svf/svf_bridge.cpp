@@ -19,12 +19,13 @@ svf_bridge::~svf_bridge() {
 }
 
 void svf_bridge::start() {
+	m_recv_thread.init(this, &svf_bridge::recv_loop);
 	if (link_port.provides() == 0) {
 		// TODO:
 		fprintf(stderr, "Error: svf_bridge link port not connected\n");
+	} else {
+		m_recv_thread.start();
 	}
-	m_recv_thread.init(this, &svf_bridge::recv_loop);
-	m_recv_thread.start();
 }
 
 svf_bridge_msg *svf_bridge::alloc_msg()
@@ -87,6 +88,11 @@ void svf_bridge::recv_loop() {
 
 		link_port->read_next_message(msg->data());
 		msg->set_size(sz);
+
+//		fprintf(stdout, "Message: sz=%d\n", sz);
+//		for (uint32_t i=0; i<sz; i++) {
+//			fprintf(stdout, "  Data[%d] = 0x%08x\n", i, msg->data()[i]);
+//		}
 
 		uint32_t socket_id = msg->read32();
 
