@@ -37,7 +37,6 @@ void axi4_l1_mem_subsys_startup_test::start() {
 }
 
 void axi4_l1_mem_subsys_startup_test::m0_thread() {
-	raise_objection();
 
 	bool      rnw;
 	uint32_t  target;
@@ -46,6 +45,9 @@ void axi4_l1_mem_subsys_startup_test::m0_thread() {
 	uint32_t  data;
 	uint32_t  delay;
 
+	raise_objection();
+
+#ifdef UNDEFINED
 	// First, write data to the memory
 	for (uint32_t i=0; i<64; i++) {
 		m_env->m_m0->write32(4*i, i+1);
@@ -67,20 +69,22 @@ void axi4_l1_mem_subsys_startup_test::m0_thread() {
 
 	drop_objection();
 	return;
+#endif
 
 	for (uint32_t i=0; i<1000; i++) {
 		rnw = (rand() & 1);
 //		rnw = 0;
 		target = (rand() % 3);
-//		cache = (rand() & 1);
-		cache = 1;
+		cache = (rand() & 1);
+//		cache = 1;
 //		cache = 0;
 
+		addr = rand();
 //		addr = (target == 0)?(0x00000000 + (rand() & 0xFFFC)):
 //				(target == 1)?(0x00020000 + (rand() & 0xFFFC)):
 //				(0x000F0000 + (rand() & 0xFFFC));
 //		addr = (target == 0)?0x00000000:(target == 1)?0x00020000:0x000F0000;
-		addr = 0x00000000;
+//		addr = 0x00000000;
 
 		data = (rand() & 0xFFFF);
 

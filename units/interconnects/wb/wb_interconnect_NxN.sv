@@ -54,17 +54,16 @@ module wb_interconnect_NxN #(
 		reg[N_MASTERID_BITS-1:0]	master,
 		reg[WB_ADDR_WIDTH-1:0] 		addr
 		);
-		$display("addr2slave: 'h%08h 'h%08h", addr, ADDR_RANGES);
+//		$display("addr2slave: 'h%08h 'h%08h", addr, ADDR_RANGES);
 		for (int i=0; i<N_SLAVES*2; i+=2) begin
-			$display("Address Range: %0d 'h%08h..'h%08h", i, 
-					ADDR_RANGES[(WB_ADDR_WIDTH*(i+2)-1)-:WB_ADDR_WIDTH],
-					ADDR_RANGES[(WB_ADDR_WIDTH*(i+1)-1)-:WB_ADDR_WIDTH]);
-			$display("  %0d %0d", (WB_ADDR_WIDTH*(i+2)-1), (WB_ADDR_WIDTH*(i+1)-1));
+//			$display("Address Range: %0d 'h%08h..'h%08h", i, 
+//					ADDR_RANGES[(WB_ADDR_WIDTH*(i+2)-1)-:WB_ADDR_WIDTH],
+//					ADDR_RANGES[(WB_ADDR_WIDTH*(i+1)-1)-:WB_ADDR_WIDTH]);
+//			$display("  %0d %0d", (WB_ADDR_WIDTH*(i+2)-1), (WB_ADDR_WIDTH*(i+1)-1));
 			if (addr >= ADDR_RANGES[(WB_ADDR_WIDTH*(i+2)-1)-:WB_ADDR_WIDTH] &&
 					addr <= ADDR_RANGES[(WB_ADDR_WIDTH*(i+1)-1)-:WB_ADDR_WIDTH]) begin
-				$display("Address 'h%08h: range=%0d", addr, N_SLAVES-(i/2)-1);
+//				$display("Address 'h%08h: range=%0d", addr, N_SLAVES-(i/2)-1);
 				return N_SLAVES-(i/2)-1;
-//				return N_SLAVES-(i/2)-1;
 			end
 		end
 		$display("Address 'h%08h - decode fail", addr);

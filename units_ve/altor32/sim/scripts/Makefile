@@ -7,7 +7,7 @@
 SCRIPTS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 #* TODO: Uncomment to enable target build
-# TARGET_MAKEFILE := $(SCRIPTS_DIR)/target.mk
+TARGET_MAKEFILE := $(SCRIPTS_DIR)/target.mk
 
 COMMON_BFM_DIR ?= $(COMMON_SIM_MK_DIR)/bfm
 COMMON_SVF_DIR ?= $(COMMON_SIM_MK_DIR)/svf
@@ -28,8 +28,8 @@ TB=$(UNIT_VE)_tb
 
 %.dat : $(SIM_DIR)/tests/%.dat
 	cp $^ $@
-	
-SIM_DATAFILES += test_image.dat
+
+# SVF_TESTNAME := $(patsubst +SVF_TESTNAME=%,%,$(filter +SVF_TESTNAME=%,$(PLUSARGS)))
 
 
 BFMS += COMMON_SVF
@@ -38,3 +38,7 @@ VERILATOR_TRACE_EN ?= 1
 
 include $(SOCBLOX)/common/common_sim.mk
 
+SIM_DATAFILES += $(call get_plusarg,SW_IMAGE,$(PLUSARGS))
+SVF_TESTNAME := $(call get_plusarg,SVF_TESTNAME,$(PLUSARGS))
+
+# run : $(SVF_TESTNAME)

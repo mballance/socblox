@@ -18,8 +18,6 @@ module axi4_l1_mem_subsystem #(
 	
 	localparam CACHE_WAYS = 4;
 
-err
-	
 	axi4_if #(
 		.AXI4_ADDRESS_WIDTH  (AXI4_ADDRESS_WIDTH ), 
 		.AXI4_DATA_WIDTH     (AXI4_DATA_WIDTH    ), 

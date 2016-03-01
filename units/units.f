@@ -27,6 +27,7 @@ ${UNITS}/wb_sram/wb_sram.sv
 ${UNITS}/wb_rom/wb_rom.sv
 
 -f ${UNITS}/wb_sram_bridges/wb_sram_bridges.f
+-f ${UNITS}/or1200/or1200.f
 
 
 ${UNITS}/coreinfo/coreinfo_2.sv
