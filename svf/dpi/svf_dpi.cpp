@@ -5,6 +5,7 @@
  *      Author: ballance
  */
 #include "svf_runtest.h"
+#include "svf_dpi.h"
 
 extern "C" int svf_dpi_run_test(const char *name);
 

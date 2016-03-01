@@ -8,6 +8,7 @@
 #ifndef SVF_DPI_CLOSURE_H_
 #define SVF_DPI_CLOSURE_H_
 #include <string>
+#include "svf_bidir_api_port.h"
 
 using namespace std;
 

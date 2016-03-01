@@ -1,13 +1,17 @@
 
 
-$(LIBSVF) : $(SVF_OBJS)
+$(LIBSVF) : $(SVF_OBJS) $(LIBSVF_STUB)
 	echo "MAKE LIBSVF"
 	if test ! -d $(SOCBLOX_LIBDIR)/core; then mkdir -p $(SOCBLOX_LIBDIR)/core; fi
-	$(LINK) -o $(LIBSVF) $(DLLOUT) $(SVF_OBJS)
+	$(LINK) -o $(LIBSVF) $(DLLOUT) $(SVF_OBJS) $(LIBSVF_STUB_LINK)
 	
-$(LIBSVF_SC) : $(SVF_OBJS) $(SVF_SC_OBJS)
+$(LIBSVF_SC) : $(SVF_SC_OBJS)
 	if test ! -d $(SOCBLOX_LIBDIR)/sc; then mkdir -p $(SOCBLOX_LIBDIR)/sc; fi
 	$(LINK) -o $(LIBSVF_SC) $(DLLOUT) $(SVF_OBJS) $(SVF_SC_OBJS)
+	
+$(LIBSVF_STUB) : $(SVF_STUB_OBJS)
+	if test ! -d $(SOCBLOX_LIBDIR)/sc; then mkdir -p $(SOCBLOX_LIBDIR)/sc; fi
+	$(LINK) -o $@ $(DLLOUT) $^
 	
 $(LIBSVF_SC_QS) : $(SVF_OBJS) $(SVF_SC_QS_OBJS)
 	if test ! -d $(SOCBLOX_LIBDIR)/sc_qs; then mkdir -p $(SOCBLOX_LIBDIR)/sc_qs; fi

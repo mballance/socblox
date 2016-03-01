@@ -14,37 +14,62 @@ SVF_BUILD_UTH_WRAPPERS ?= 0
 LIBPREF ?= lib
 DLLEXT ?= .so
 
+
 SRC_DIRS += $(SVF_DIR) $(SVF_DIR)/dpi $(SVF_DIR)/host $(SVF_DIR)/sc $(SVF_DIR)/utils
 SRC_DIRS += $(SVF_DIR)/uth
+SRC_DIRS += $(SVF_DIR)/stub
 SRC_DIRS += $(SVF_DIR)/
 # SRC_DIRS := $(SRC_DIRS) $(SVF_DIR) $(SVF_DIR)/dpi $(SVF_DIR)/host $(SVF_DIR)/sc $(SVF_DIR)/utils
 # SRC_DIRS := $(SRC_DIRS) $(SVF_DIR)/
 
-LIBSVF=$(SVF_LIBDIR)/core/$(LIBPREF)svf$(DLLEXT)
-LIBSVF_AR=$(SVF_LIBDIR)/core/$(LIBPREF)svf.a
-LIBSVF_SC=$(SVF_LIBDIR)/sc/$(LIBPREF)svf$(DLLEXT)
-LIBSVF_SC_QS=$(SVF_LIBDIR)/sc_qs/$(LIBPREF)svf$(DLLEXT)
-LIBSVF_DPI=$(SVF_LIBDIR)/dpi/$(LIBPREF)svf$(DLLEXT)
-LIBSVF_DPI_DPI=$(SVF_LIBDIR)/dpi/$(LIBPREF)svf_dpi$(DLLEXT)
-LIBSVF_HOST=$(SVF_LIBDIR)/host/$(LIBPREF)svf$(DLLEXT)
-LIBSVF_LINK=-L$(SVF_LIBDIR)/core -lsvf
-LIBSVF_SC_LINK=-L$(SVF_LIBDIR)/sc -lsvf
-LIBSVF_UTH=$(SVF_LIBDIR)/uth/$(LIBPREF)svf$(DLLEXT)
+LIBSVF_DL:=$(SVF_LIBDIR)/core/$(LIBPREF)svf$(DLLEXT)
+LIBSVF_AR:=$(SVF_LIBDIR)/core/$(LIBPREF)svf.a
+LIBSVF_STUB:=$(SVF_LIBDIR)/stub/$(LIBPREF)svf_impl$(DLLEXT)
+LIBSVF_SC_DL:=$(SVF_LIBDIR)/sc/$(LIBPREF)svf_impl$(DLLEXT)
+LIBSVF_SC_AR:=$(SVF_LIBDIR)/sc/$(LIBPREF)svf.a
+LIBSVF_SC_QS=$(SVF_LIBDIR)/sc_qs/$(LIBPREF)svf_impl$(DLLEXT)
+LIBSVF_DPI=$(SVF_LIBDIR)/dpi/$(LIBPREF)svf_impl$(DLLEXT)
+LIBSVF_DPI_AR=$(SVF_LIBDIR)/dpi/$(LIBPREF)svf.a
+LIBSVF_DPI_DPI_AR=$(SVF_LIBDIR)/dpi/$(LIBPREF)svf_dpi.a
+LIBSVF_HOST=$(SVF_LIBDIR)/host/$(LIBPREF)svf_impl$(DLLEXT)
+LIBSVF_UTH=$(SVF_LIBDIR)/uth/$(LIBPREF)svf_impl$(DLLEXT)
 LIBSVF_UTH_AR=$(SVF_LIBDIR)/uth/$(LIBPREF)svf.a
 
-ifeq (1,$(SVF_BUILD_CORE_DLL))
-LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF)
+ifeq (true,$(DYNLINK))
+LIBSVF=$(LIBSVF_DL)
+LIBSVF_SC=$(LIBSVF_SC_DL)
+LIBSVF_LINK=-L$(SVF_LIBDIR)/core -lsvf -L$(SVF_LIBDIR)/stub -lsvf_impl
+LIBSVF_SC_LINK=-L$(SVF_LIBDIR)/sc -lsvf
+LIBSVF_STUB_LINK=-L$(SVF_LIBDIR)/stub -lsvf_impl
+else
+LIBSVF=$(LIBSVF_AR)
+LIBSVF_SC=$(LIBSVF_SC_AR)
+LIBSVF_SC_LINK=$(LIBSVF_AR) $(LIBSVF_SC_AR)
 endif
 
-LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_AR)
+
+# ifeq (1,$(SVF_BUILD_CORE_DLL))
+# LIB_TARGETS := $(LIB_TARGETS) 
+# MSB: $(LIBSVF)
+# endif
+
+LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF) $(LIBSVF_STUB)
 
 ifeq (1,$(SVF_BUILD_SIM_WRAPPERS))
 # LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_SC) $(LIBSVF_SC_QS) $(LIBSVF_DPI) $(LIBSVF_DPI_DPI) 
 ifeq (1,$(SVF_BUILD_SIM_SC_WRAPPER))
+ifeq (true,$(DYNLINK))
 LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_SC) 
+else
+LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_SC_AR) 
+endif
 endif
 
+ifeq (true,$(DYNLINK))
 LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_DPI) $(LIBSVF_DPI_DPI) 
+else
+LIB_TARGETS := $(LIB_TARGETS) $(LIBSVF_DPI_AR) $(LIBSVF_DPI_DPI_AR) 
+endif
 endif
 
 ifeq (1,$(SVF_BUILD_HOST_WRAPPERS))
@@ -103,6 +128,9 @@ SVF_SC_SRC= \
 	svf_argfile_parser.cpp \
 	svf_sc_api.cpp 
 	
+SVF_STUB_SRC= \
+	svf_stub.cpp 
+	
 SVF_HOST_SRC= \
 	svf_thread_host.cpp \
 	svf_thread_mutex_host.cpp \
@@ -128,6 +156,7 @@ LIBSVF_DPI_SRC= \
 	
 SVF_OBJS=$(foreach o,$(SVF_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
 SVF_SC_OBJS=$(foreach o,$(SVF_SC_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
+SVF_STUB_OBJS=$(foreach o,$(SVF_STUB_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
 SVF_SC_QS_OBJS=$(foreach o,$(SVF_SC_SRC:.cpp=.o),$(SVF_OBJDIR)/qs/$(o))
 SVF_DPI_OBJS=$(foreach o,$(SVF_DPI_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
 LIBSVF_DPI_OBJS=$(foreach o,$(LIBSVF_DPI_SRC:.cpp=.o),$(SVF_OBJDIR)/$(o))
@@ -140,9 +169,13 @@ CXXFLAGS += -I$(SOCBLOX)/svf/utils
 
 $(LIBSVF_AR) : $(SVF_OBJS)
 
-$(LIBSVF) : $(SVF_OBJS)
+$(LIBSVF_DL) : $(SVF_OBJS) $(LIBSVF_STUB)
 
-$(LIBSVF_SC) : $(SVF_OBJS) $(SVF_SC_OBJS)
+$(LIBSVF_SC_AR) : $(SVF_SC_OBJS)
+
+$(LIBSVF_SC_DL) : $(SVF_OBJS) $(SVF_SC_OBJS)
+
+$(LIBSVF_STUB) : $(SVF_STUB_OBJS)
 
 $(LIBSVF_DPI) : $(SVF_OBJS) $(SVF_DPI_OBJS)
 

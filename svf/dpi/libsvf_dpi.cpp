@@ -6,11 +6,14 @@
  */
 
 #include "svf.h"
+#include "svf_dpi.h"
 #include "svf_dpi_int.h"
-#include "svdpi.h"
+// #include "svdpi.h"
 #include <stdio.h>
 
 static svScope			svf_dpi_scope;
+
+
 
 extern "C" void svf_dpi_create_thread(void *ud, uint64_t *tid);
 extern "C" uint64_t svf_dpi_create_mutex();
