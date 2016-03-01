@@ -20,9 +20,9 @@ $(SVF_OBJDIR)/%.o : %.cpp
 #	$(A23_AR) vcq $@ $^
 
 # Common link rule for shared libraries
-$(SVF_LIBDIR)/%.so :
-	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
-	$(LINK) -o $@ $(DLLOUT) $(filter-out %.so, $^) \
-		$(foreach l,$(filter %.so, $^), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l)))))
+#$(SVF_LIBDIR)/%.so :
+#	if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+#	$(LINK) -o $@ $(DLLOUT) $(filter-out %.so, $^) \
+#		$(foreach l,$(filter %.so, $^), -L$(dir $(l)) -l$(subst lib,,$(basename $(notdir $(l)))))
 
 		

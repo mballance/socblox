@@ -82,12 +82,10 @@ for ($i=0; $i <= $#ARGV; $i++) {
   if ($arg =~ /^-/) {
     if ($arg eq "-test") {
       $i++;
-#      $test=$ARGV[$i];
       push(@testlist, $ARGV[$i]);
     } elsif ($arg eq "-testlist" or $arg eq "-tl") {
 		$i++;
 		process_testlist($ARGV[$i]);
-#    	push(@testlists, $ARGV[$i]);
     } elsif ($arg eq "-count") {
       $i++;
       $count=$ARGV[$i];
@@ -223,6 +221,8 @@ sub printhelp {
 
 $unget_ch_1 = -1;
 $unget_ch_2 = -1;
+@plusargs;
+@paths;
 
 sub process_testlist($) {
 	my($testlist_f) = @_;
@@ -233,13 +233,84 @@ sub process_testlist($) {
 	$unget_ch_1 = -1;
 	$unget_ch_2 = -1;
 
+	while (!(($tok = read_tok($fh)) eq "")) {
+		push(@testlist, $tok);
+	}
+	
+	close($fh);
+}
+
+sub process_argfile {
+	my($dir,$file) = @_;
+	my($ch,$ch2,$tok);
+	my($argfile,$subdir);
+	my($l_unget_ch_1, $l_unget_ch_2);
+	
+	unless (-f $file) {
+		if (-f "${dir}/${file}") {
+			$file = "${dir}/${file}";
+		}
+	}
+	
+	open(my $fh,"<", $file) or die "Failed to open $file";
+	$unget_ch_1 = -1;
+	$unget_ch_2 = -1;
+	
+	while (!(($tok = read_tok($fh)) eq "")) {
+		if ($tok =~ /^\+/) {
+			push(@plusargs, $tok);
+		} elsif ($tok =~ /^-/) {
+			# Option
+			if (($tok eq "-f") || ($tok eq "-F")) {
+				# Read the next token
+				$argfile = read_tok($fh);
+				
+				# Resolve argfile path
+				$argfile = expand($argfile);
+				
+				unless (-f $argfile) {
+					if (-f "$dir/$argfile") {
+						$argfile = "$dir/$argfile";
+					}
+				}
+				
+				if ($tok eq "-F") {
+					$subdir = dirname($argfile);
+				} else {
+					$subdir = $dir;
+				}
+				
+				$l_unget_ch_1 = $unget_ch_1;
+				$l_unget_ch_2 = $unget_ch_2;
+				
+				process_argfile($subdir, $argfile);
+
+				$unget_ch_1 = $l_unget_ch_1;	
+				$unget_ch_2 = $l_unget_ch_2;	
+			} else {
+				print("Unknown option\n");
+				push(@paths, $tok);
+			}
+		} else {
+			push(@paths, $tok);
+		}		
+	}
+
+	close($fh);
+}
+
+sub read_tok($) {
+	my($fh) = @_;
+	my($ch,$ch2,$tok);
+	my($cc1,$cc2);
+	
 	while (($ch = get_ch($fh)) != -1) {
 		if ($ch eq "/") {
 			$ch2 = get_ch($fh);
 			if ($ch2 eq "*") {
 				$cc1 = -1;
 				$cc2 = -1;
-				
+			
 				while (($ch = get_ch($fh)) != -1) {
 					$cc2 = $cc1;
 					$cc1 = $ch;
@@ -247,7 +318,7 @@ sub process_testlist($) {
 						last;
 					}
 				}
-				
+			
 				next;
 			} elsif ($ch2 eq "/") {
 				while (($ch = get_ch($fh)) != -1 && !($ch eq "\n")) {
@@ -262,20 +333,20 @@ sub process_testlist($) {
 			while (($ch = get_ch($fh)) != -1 && $ch =~/^\s*$/) { }
 			unget_ch($ch);
 			next;
+		} else {
+			last;
 		}
-	
-		$tok = "";
-		
-		while ($ch != -1 && !($ch =~/^\s*$/)) {
-			$tok .= $ch;
-			$ch = get_ch($fh);
-		}
-		unget_ch($ch);
-	
-		push(@testlist, $tok);
 	}
-	
-	close($fh);
+
+	$tok = "";
+		
+	while ($ch != -1 && !($ch =~/^\s*$/)) {
+		$tok .= $ch;
+		$ch = get_ch($fh);
+	}
+	unget_ch($ch);	
+		
+	return $tok;
 }
 
 sub unget_ch($) {
@@ -305,6 +376,31 @@ sub get_ch($) {
 	return $ch;
 }
 
+sub fatal {
+	my($msg) = @_;
+	die $msg;
+}
+
+sub expand($) {
+	my($val) = @_;
+	my($offset) = 0;
+	my($ind,$end,$tok);
+	
+	while (($ind = index($val, "\$", $offset)) != -1) {
+		$end = index($val, "}", $index);
+		$tok = substr($val, $ind+2, ($end-($ind+2)));
+
+		if (exists $ENV{${tok}}) {
+			$val = substr($val, 0, $ind) . $ENV{${tok}} . 
+				substr($val, $end+1, length($val)-$end);
+		}
+		
+		$offset = $ind+1;
+	}
+	
+	return $val;
+}
+
 #*********************************************************************
 #* run_jobs
 #*********************************************************************
@@ -321,11 +417,30 @@ sub run_test {
 }
 
 sub build {
-    my($ret);
+    my($ret,$all_plusargs);
 
     if ($clean == 1) {
       system("rm -rf ${builddir}") && die;
     }
+    
+    for($i=0; $i<=$#testlist; $i++) {
+    	process_argfile(${SIM_DIR}, $testlist[$i]);
+    	print "Test: $testlist[$i]\n";
+    }
+    
+    $all_plusargs="";
+    for ($i=0; $i<=$#plusargs; $i++) {
+    	$val = expand($plusargs[$i]);
+    	$all_plusargs .= $val;
+    	
+    	if ($i+1 <= $#plusargs) {
+    		$all_plusargs .= " ";
+    	}
+    }
+    
+    $ENV{PLUSARGS} = $all_plusargs;
+    
+    print "BUILD: all_plusargs=$all_plusargs\n";
 
     system("mkdir -p ${builddir}") && die;
     chdir("$builddir");
@@ -334,6 +449,7 @@ sub build {
     unless ( -d "${SIM_DIR}/scripts" ) {
     	die "No 'scripts' directory present\n";
     }
+    
     open(CP, "make -C ${builddir} -j ${max_par} -f ${SIM_DIR}/scripts/Makefile SIM=${sim} build |");
     open(LOG,"> ${builddir}/compile.log");
     while (<CP>) {
@@ -369,6 +485,7 @@ sub run_jobs {
     my(@pid_list_tmp,@cmdline);
     my($launch_sims, $n_complete, $n_started, $wpid);
     my($seed,$report_interval,$seed_str,$testlist_idx, $testname);
+    my($all_plusargs);
 
     $report_interval=20;
     $testlist_idx=0;
@@ -392,6 +509,19 @@ sub run_jobs {
 
                 $testname=basename($test);
                 $testname =~ s/\.f//g;
+                
+                # Obtain options for the test
+                @plusargs = ();
+                $all_plusargs = "";
+                process_argfile(${SIM_DIR}, $test);
+                
+                for ($i=0; $i<=$#plusargs; $i++) {
+                	$all_plusargs .= expand($plusargs[$i]);
+               		$all_plusargs .= " ";
+                }
+                $all_plusargs .= ${plusargs};
+                
+                print "all_plusargs: $all_plusargs\n";
                 
                 $run_dir="${run_root}/${testname}_${seed_str}";
                 $testlist_idx++;
@@ -419,6 +549,8 @@ sub run_jobs {
 					# Compute the test name from the test file
                 	$testname = basename($test);
                 	$testname =~ s/\.f//g;
+                	
+                	$ENV{PLUSARGS}=${all_plusargs};
                 
                     system("make",
                     	"-f" ,
@@ -429,7 +561,6 @@ sub run_jobs {
                     	"TESTNAME=${testname}", 
                     	"INTERACTIVE=${interactive}",
                     	"DEBUG=${debug}",
-                    	"PLUSARGS=${plusargs}",
                     	"run"
                     	);
                 

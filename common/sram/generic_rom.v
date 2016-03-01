@@ -30,9 +30,9 @@ module generic_rom #(
 		if (INIT_FILE != "") begin
 			$display("Initializing ROM from %s", INIT_FILE);
 			$readmemh(INIT_FILE, rom);
-			for (i=0; i<2**ADDRESS_WIDTH; i+=1) begin
-				$display("  ADDRESS[%0h] = 'h%08h", i, rom[i]);
-			end
+//			for (i=0; i<2**ADDRESS_WIDTH; i+=1) begin
+//				$display("  ADDRESS[%0h] = 'h%08h", i, rom[i]);
+//			end
 //			for (i=0; i<((2**ADDRESS_WIDTH)*(DATA_WIDTH/8)); i+=(DATA_WIDTH/8)) begin
 //				data_tmp = 0;
 //				for (j=0; j<(DATA_WIDTH/8); j++) begin

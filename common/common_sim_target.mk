@@ -2,19 +2,13 @@
 COMMON_SIM_TARGET_MK := $(lastword $(MAKEFILE_LIST))
 COMMON_SIM_TARGET_MK_DIR := $(dir $(COMMON_SIM_TARGET_MK))
 
-CC=$(TARGET)-gcc
-CXX=$(TARGET)-g++
-LD=$(TARGET)-ld
-AS=$(CC)
-OBJDUMP=$(TARGET)-objdump
-OBJCOPY=$(TARGET)-objcopy
+include $(COMMON_SIM_TARGET_MK_DIR)/plusargs.mk
 
-LIBGCC:=$(shell $(CC) -mno-thumb-interwork -print-libgcc-file-name)
-LIBC:=$(dir $(LIBGCC))/../../../../$(TARGET)/lib/libc.a
-LIBCXX:=$(dir $(LIBGCC))/../../../../$(TARGET)/lib/libstdc++.a
+
 
 
 # include $(COMMON_SIM_MK_DIR)/common_defs.mk
+include $(COMMON_SIM_TARGET_MK_DIR)/esw_mk/common_esw_$(TARGET).mk
 include $(MK_INCLUDES)
 
 CXXFLAGS += $(foreach dir, $(SRC_DIRS), -I$(dir))
@@ -32,10 +26,12 @@ all :
 	exit 1
 
 build : $(LIB_TARGETS) $(EXE_TARGETS)
+	echo "EXE_TARGETS: $(EXE_TARGETS)"
 
 
 RULES := 1
 # include $(COMMON_SIM_MK_DIR)/common_rules.mk
+include $(COMMON_SIM_TARGET_MK_DIR)/esw_mk/common_esw_$(TARGET).mk
 include $(MK_INCLUDES)
 
 $(SVF_OBJDIR)/%.o : %.cpp
